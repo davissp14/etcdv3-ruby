@@ -1,4 +1,3 @@
-# etcdv3-ruby
 
 # Example
 
@@ -6,7 +5,7 @@
     `require "/path/to/lib/etcd"`
     
      # Initialize Client
-     client = Etcd::Client.new
+     client = Etcd::Client.new("127.0.0.1:2379")
      
      # Authentication
      client.authenticate("user", "password")
