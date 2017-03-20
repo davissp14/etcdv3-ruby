@@ -5,7 +5,6 @@ require 'google/protobuf'
 
 require_relative 'kv_pb'
 require_relative 'auth_pb'
-require_relative 'annotations_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "etcdserverpb.ResponseHeader" do
     optional :cluster_id, :uint64, 1

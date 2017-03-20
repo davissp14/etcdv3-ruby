@@ -1,7 +1,4 @@
 
 require 'grpc'
-require_relative 'generated/rpc_services_pb'
-
-module Etcd
-
-end
+require_relative 'etcd/etcdrpc/rpc_services_pb'
+require_relative 'etcd/client'
