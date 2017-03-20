@@ -2,7 +2,7 @@
 # Example
 
      # Require file. (This will make more sense when it's a gem.
-    `require "/path/to/lib/etcd"`
+    `require "/path/to/etcdv3-ruby/lib/etcd"`
     
      # Initialize Client
      client = Etcd::Client.new("127.0.0.1:2379")
