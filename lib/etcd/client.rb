@@ -6,7 +6,7 @@ module Etcd
       case certs
       when :this_channel_is_insecure
         @certs = :this_channel_is_insecure
-      when :stub
+      when :ssl_no_certs
         @certs = GRPC::Core::ChannelCredentials.new
       else
         raise("Cert type not available yet.")
