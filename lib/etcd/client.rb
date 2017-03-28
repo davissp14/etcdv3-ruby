@@ -1,7 +1,7 @@
 module Etcd
   class Client
 
-    def initialize(hostname="127.0.0.1:2379", certs=:this_channel_is_insecure, servername_override=nil)
+    def initialize(hostname="127.0.0.1:2379", certs=:this_channel_is_insecure, channel_args: {})
       @hostname = hostname
       case certs
       when :this_channel_is_insecure
@@ -11,8 +11,10 @@ module Etcd
       else
         raise("Cert type not available yet.")
       end
-      @channel_args = {}
-      @channel_args[GRPC::Core::Channel::SSL_TARGET] = servername_override if servername_override
+      @channel_args = channel_args
+      if channel_args['override_servername']
+        @channel_args[GRPC::Core::Channel::SSL_TARGET] = channel_args['override_servername']
+      end
       @metadata = {}
       @conn ||= Etcdserverpb::KV::Stub.new("#{hostname}", @certs, channel_args: @channel_args)
     end
