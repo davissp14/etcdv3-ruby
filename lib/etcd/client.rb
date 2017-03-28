@@ -25,6 +25,8 @@ module Etcd
       @metadata = {token: result.token}
     rescue GRPC::InvalidArgument => exception
       print exception.to_s
+    rescue GRPC::Unavailable => exception
+      print exception.inspect
     end
 
     def put(key, value)
