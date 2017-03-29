@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Etcd::Client do
+describe Etcd do
 
   describe '#initialize' do
 
