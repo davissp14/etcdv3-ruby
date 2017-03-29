@@ -5,7 +5,7 @@ Proof of concept Etcd V3 Client.
 # Install
 
      # Pull down Repository
-     git clone https://github.ibm.com/shaund/etcd3-ruby.git
+     git clone https://github.ibm.com/shaund/etcdv3-ruby.git
 
      # Build the Gem
      cd etcd3-ruby && gem build etcdv3.gemspec
