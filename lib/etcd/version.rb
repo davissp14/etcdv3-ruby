@@ -1,3 +1,3 @@
-module Etcd
-  VERSION = "0.0.1"
+class Etcd
+  VERSION = "0.0.3"
 end
