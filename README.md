@@ -2,27 +2,32 @@
 
 Proof of concept Etcd V3 Client.
 
+# Install
 
-# Example
+     # Pull down Repository
+     git clone https://github.ibm.com/shaund/etcd3-ruby.git
 
-     # Require file. (This will make more sense when it's a gem.
-     require "/path/to/etcdv3-ruby/lib/etcd"`
-    
+     # Build the Gem
+     cd etcd3-ruby && gem build etcdv3.gemspec
+
+     # Install Gem
+     gem install etcdv3
+
+# Usage
+
+     require 'etcd' # This wasn't a typo.
+
      # Initialize Client
-     client = Etcd::Client.new("127.0.0.1:2379", :this_channel_is_insecure)
-     
-     # Initialize SSL Client using default certificates
-     client = Etcd::Client.new('https://hostname:port', :ssl_no_certs)
-     
-     # Initialize SSL Client with default certificates with TLS ServerName overrid
-     client = Etcd::Client.new('https://hostname:port', :ssl_no_certs, channel_args: {override_servername: "hostname"})
-     
-     # Authentication
-     client.authenticate("user", "password")
-     
-     # Put
-     client.put("my", "value")
-     
-     # Range
-     client.range("my")
+     conn = Etcd.new("http://127.0.0.1:2379")
 
+     # Initialize secure connection using default certificates
+     conn = Etcd.new('https://hostname:port')
+
+     # Initialize secure connection with auth
+     conn = Etcd.new('https://hostname:port', user: "gary", password: "secret")
+
+     # Put
+     conn.put("my", "value")
+
+     # Range
+     conn.range("my")
