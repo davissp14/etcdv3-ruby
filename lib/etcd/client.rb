@@ -1,28 +1,66 @@
+
 module Etcd
   class Client
 
-    def initialize(hostname="127.0.0.1:2379", certs=:this_channel_is_insecure, channel_args: {})
-      @hostname = hostname
-      case certs
-      when :this_channel_is_insecure
-        @certs = :this_channel_is_insecure
-      when :ssl_no_certs
-        @certs = GRPC::Core::ChannelCredentials.new
-      else
-        raise("Cert type not available yet.")
-      end
-      @channel_args = channel_args
-      if channel_args['override_servername']
-        @channel_args[GRPC::Core::Channel::SSL_TARGET] = channel_args['override_servername']
-      end
-      @metadata = {}
-      @conn ||= Etcdserverpb::KV::Stub.new("#{hostname}", @certs, channel_args: @channel_args)
+    def options
+      Marshal.load(Martial.dump(@options))
     end
 
-    def authenticate(user, password)
-      auth = Etcdserverpb::Auth::Stub.new(@hostname, @certs, channel_args: @channel_args)
-      result = auth.authenticate(Authpb::User.new(name: user, password: password))
-      @metadata = {token: result.token}
+    def uri
+      URI(@options[:url])
+    end
+
+    def scheme
+      uri.scheme
+    end
+
+    def port
+      uri.port
+    end
+
+    def hostname
+      uri.hostname
+    end
+
+    def user
+      @options[:user]
+    end
+
+    def password
+      @options[:password]
+    end
+
+    def credentials
+      @credentials
+    end
+
+    def token
+      @metadata[:token]
+    end
+
+    def initialize(options={})
+      @options = options
+      @metadata = {}
+      case scheme
+      when "http"
+        @credentials = :this_channel_is_insecure
+      when "https"
+        # Use default certs for now.
+        @credentials = GRPC::Core::ChannelCredentials.new
+      else
+        raise "Unknown scheme: #{scheme}"
+      end
+    end
+
+    def connect
+      if credentials == :this_channel_is_insecure
+        # TODO Validate connection
+        true
+      else
+        auth = Etcd::Auth.new(hostname, port, credentials)
+        @metadata[:token] = auth.generate_token(@user, @password)
+        true
+      end
     rescue GRPC::InvalidArgument => exception
       print exception.to_s
     rescue GRPC::Unavailable => exception
@@ -39,6 +77,5 @@ module Etcd
       result = @conn.range(stub, metadata: @metadata)
       result.kvs
     end
-
   end
 end
