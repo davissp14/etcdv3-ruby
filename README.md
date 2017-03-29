@@ -1,8 +1,8 @@
 # Description
 
-Proof of concept Etcd V3 Client.
+Proof of concept Etcd V3 Client - Very much a work in progress.  
 
-# Install
+# Install Locally
 
      # Pull down Repository
      git clone https://github.ibm.com/shaund/etcdv3-ruby.git
