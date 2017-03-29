@@ -3,7 +3,6 @@ require 'grpc'
 require 'uri'
 
 require 'etcd/etcdrpc/rpc_services_pb'
-require 'etcd/client'
 require 'etcd/auth'
 require 'etcd/kv'
 
