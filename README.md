@@ -17,7 +17,7 @@ Proof of concept Etcd V3 Client.
 
      require 'etcd' # This wasn't a typo.
 
-     # Initialize Client
+     # Initialize insecure Client
      conn = Etcd.new(url: 'http://127.0.0.1:2379')
 
      # Initialize secure connection using default certificates
