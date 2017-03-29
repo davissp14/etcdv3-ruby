@@ -18,13 +18,13 @@ Proof of concept Etcd V3 Client.
      require 'etcd' # This wasn't a typo.
 
      # Initialize Client
-     conn = Etcd.new("http://127.0.0.1:2379")
+     conn = Etcd.new(url: 'http://127.0.0.1:2379')
 
      # Initialize secure connection using default certificates
-     conn = Etcd.new('https://hostname:port')
+     conn = Etcd.new(url: 'https://hostname:port')
 
      # Initialize secure connection with auth
-     conn = Etcd.new('https://hostname:port', user: "gary", password: "secret")
+     conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
 
      # Put
      conn.put("my", "value")
