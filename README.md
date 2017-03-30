@@ -1,4 +1,4 @@
-# Description
+# etcdv3-ruby
 
 Ruby client for Etcd V3 - Very much a work in progress.
 
