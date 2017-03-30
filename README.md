@@ -21,8 +21,22 @@ Ruby client for Etcd V3
      # Initialize secure connection with auth
      conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
 
+**Adding / Fetching Data**
+    
      # Put
      conn.put("my", "value")
 
      # Range
      conn.range("my")
+          
+**User Managment**
+   
+     # Add User
+     conn.add_user('admin', 'secret')
+     
+     # Delete User
+     conn.delete_user('admin')
+     
+     # List users
+     conn.user_list
+     
