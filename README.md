@@ -4,11 +4,11 @@ Ruby client for Etcd V3 - Very much a work in progress.
 
 **WARNING: This is very much a work in progress and should be considered unstable.**
 
-# Getting Started
+## Getting Started
 
      gem install etcdv3
 
-# Usage
+## Usage
 
      require 'etcd' # This wasn't a typo.
 
