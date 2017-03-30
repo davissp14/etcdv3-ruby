@@ -4,16 +4,30 @@ Ruby client for Etcd V3
 
 **WARNING: This is very much a work in progress and should be considered unstable.**
 
-## Usage
+## Getting Started
 
-     # Initialize insecure Client
-     conn = Etcd.new(url: 'http://127.0.0.1:2379')
+To install etcdv3, run the following command:
+```
+gem install etcdv3
+```
 
-     # Initialize secure connection using default certificates
-     conn = Etcd.new(url: 'https://hostname:port')
+You can connect to Etcd by instantiating the Etcd class:
 
-     # Initialize secure connection with auth
-     conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
+```
+require 'etcdv3'
+
+# Insecure connection
+conn = Etcd.new(url: 'http://127.0.0.1:2379')
+
+# Secure connection using default certificates
+conn = Etcd.new(url: 'https://hostname:port')
+
+# Secure connection with Auth
+conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
+
+# Secure connection specifying own certificates
+# Coming soon...
+```
 
 **Adding and Fetching Keys**
     
