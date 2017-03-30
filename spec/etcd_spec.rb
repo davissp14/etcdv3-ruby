@@ -4,10 +4,8 @@ describe Etcd do
 
   context 'Insecure connection without Auth' do
 
-    let(:conn){ Etcd.new(
-      url: 'http://127.0.0.1:2379'
-    )}
-
+    let(:conn){ Etcd.new(url: 'http://127.0.0.1:2379')}
+    
     describe '#initialize' do
 
       it 'assigns scheme' do
