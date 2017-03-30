@@ -1,6 +1,6 @@
 # etcdv3-ruby
 
-Ruby client for Etcd V3 - Very much a work in progress.
+Ruby client for Etcd V3
 
 **WARNING: This is very much a work in progress and should be considered unstable.**
 
