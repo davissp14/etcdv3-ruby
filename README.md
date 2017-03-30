@@ -1,16 +1,11 @@
 # Description
 
-Proof of concept Etcd V3 Client - Very much a work in progress.  
+Ruby client for Etcd V3 - Very much a work in progress.
 
-# Install Locally
+**WARNING: This is very much a work in progress and should be considered unstable.**
 
-     # Pull down Repository
-     git clone git@github.com:davissp14/etcdv3-ruby.git
-     
-     # Build the Gem
-     cd etcd3-ruby && gem build etcdv3.gemspec
+# Getting Started
 
-     # Install Gem
      gem install etcdv3
 
 # Usage
