@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version = Etcd::VERSION
   s.homepage = "https://github.ibm.com/shaund/etcd3-ruby"
   s.summary = "A Etcd client library for Version 3"
-  s.description = "Coming soon"
+  s.description = "Etcd v3 Ruby Client"
   s.license = "MIT"
   s.authors = ["Shaun Davis"]
   s.email = "davissp14@gmail.com"
