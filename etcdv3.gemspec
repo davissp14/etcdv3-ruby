@@ -5,7 +5,7 @@ require "etcdv3/version"
 Gem::Specification.new do |s|
   s.name = "etcdv3"
   s.version = Etcd::VERSION
-  s.homepage = "https://github.ibm.com/shaund/etcd3-ruby"
+  s.homepage = "https://github.com/davissp14/etcdv3-ruby"
   s.summary = "A Etcd client library for Version 3"
   s.description = "Etcd v3 Ruby Client"
   s.license = "MIT"
