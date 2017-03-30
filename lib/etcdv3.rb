@@ -61,6 +61,19 @@ class Etcd
     kv.range(key, range_end, @metadata)
   end
 
+
+  def add_user(user, password)
+    auth.add_user(user, password, @metadata)
+  end
+
+  def delete_user(user)
+    auth.delete_user(user, @metadata)
+  end
+
+  def user_list
+    auth.user_list(@metadata)
+  end
+
   private
 
   def auth
