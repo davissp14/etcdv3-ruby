@@ -1,21 +1,10 @@
-# Description
+# etcdv3-ruby
 
-Proof of concept Etcd V3 Client.
+Ruby client for Etcd V3
 
-# Install
+**WARNING: This is very much a work in progress and should be considered unstable.**
 
-     # Pull down Repository
-     git clone https://github.ibm.com/shaund/etcdv3-ruby.git
-
-     # Build the Gem
-     cd etcd3-ruby && gem build etcdv3.gemspec
-
-     # Install Gem
-     gem install etcdv3
-
-# Usage
-
-     require 'etcd' # This wasn't a typo.
+## Usage
 
      # Initialize insecure Client
      conn = Etcd.new(url: 'http://127.0.0.1:2379')
@@ -26,8 +15,22 @@ Proof of concept Etcd V3 Client.
      # Initialize secure connection with auth
      conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
 
+**Adding and Fetching Keys**
+    
      # Put
      conn.put("my", "value")
 
      # Range
      conn.range("my")
+          
+**User Managment**
+   
+     # Add User
+     conn.add_user('admin', 'secret')
+     
+     # Delete User
+     conn.delete_user('admin')
+     
+     # List users
+     conn.user_list
+     
