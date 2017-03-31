@@ -45,13 +45,7 @@ module Helpers
     end
 
     def discover_binary_path!
-      if File.exists?('/usr/local/bin/etcd')
-        '/usr/local/bin/etcd'
-      elsif !!ENV['ETCD_BIN_PATH']
-        ENV['ETCD_BIN_PATH']
-      else
-        puts "Could not determine path to ETCD. Please `export ETCD_BIN_PATH=/path/to/etcd`"
-      end
+      "etcd"
     end
 
     def verify_version_compatibility!
