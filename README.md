@@ -11,7 +11,7 @@ To install etcdv3, run the following command:
 gem install etcdv3
 ```
 
-You can connect to Etcd by instantiating the Etcd class:
+**Establishing a connection**
 
 ```
 require 'etcdv3'
@@ -62,7 +62,25 @@ conn.delete_role('rolename')
 
 # List Roles
 conn.role_list
+```
 
-# Grant role to user
+**Authentication Management**
+```
+# Configure a root user
+conn.add_user('root', 'mysecretpassword')
+
+# Grant root user the root role
 conn.grant_role_to_user('root', 'root')
+
+# Enable Authentication
+conn.enable_auth
+```
+After you enable authentication, you must authenticate.
+```
+# This will generate and assign an auth token that will be used in future requests.
+conn.authenticate('root', 'mysecretpassword')
+```
+Disabling auth will clear the auth token and all previously attached user information
+```
+conn.disable_auth
 ```
