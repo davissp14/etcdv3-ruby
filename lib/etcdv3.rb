@@ -65,6 +65,10 @@ class Etcd
     auth.user_list(@metadata)
   end
 
+  def role_list
+    auth.role_list(@metadata)
+  end
+
   def add_role(name, permission, key, range_end='')
     auth.add_role(name, permission, key, range_end, @metadata)
   end
