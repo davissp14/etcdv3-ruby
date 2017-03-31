@@ -1,3 +1,4 @@
+---
 engines:
   duplication:
     enabled: true
@@ -20,7 +21,7 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby:
+      - ruby
         mass_threshold: 30
 ratings:
   paths:
