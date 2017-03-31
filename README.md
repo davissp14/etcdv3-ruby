@@ -37,25 +37,29 @@ conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
      # Range
      conn.range("my")
 
-**User Managment**
+**User Management**
+```
+ # Add User
+ conn.add_user('admin', 'secret')
 
-     # Add User
-     conn.add_user('admin', 'secret')
+# Delete User
+conn.delete_user('admin')
 
-     # Delete User
-     conn.delete_user('admin')
+# List users
+conn.user_list
+```
 
-     # List users
-     conn.user_list
+**Role Management**
+```
+# Add Role
+conn.add_role('rolename', 'readwrite', 'a', 'Z')
 
-     # Add Role
-     conn.add_role('rolename', 'readwrite', 'a', 'Z')
+# Delete Role
+conn.delete_role('rolename')
 
-     # Enable Authentication
-     conn.add_user('root', "secret")
-     conn.grant_role_to_user('root', 'root')
-     conn.enable_auth
+# List Roles
+conn.role_list
 
-     # Disable Authentication
-     conn = Etcd.new(url: 'http://127.0.0.1:2379', user: 'root', password: 'secret')
-     conn.disable_auth
+# Grant role to user
+conn.grant_role_to_user('root', 'root')
+```
