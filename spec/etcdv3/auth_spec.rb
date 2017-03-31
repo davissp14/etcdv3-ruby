@@ -100,4 +100,30 @@ describe Etcd::Auth do
       expect(conn.enable_auth).to be_an_instance_of(Etcdserverpb::AuthEnableResponse)
     end
   end
+
+  describe "#authenticate" do
+    context "auth enabled" do
+      before do
+        conn.add_user('root', 'test')
+        conn.grant_role_to_user('root', 'root')
+        conn.enable_auth
+        conn.authenticate('root', 'test')
+      end
+      after do
+        conn.disable_auth
+        conn.delete_user('root')
+      end
+      it 'properly reconfigures token + user + password' do
+        expect(conn.token).to_not be_nil
+        expect(conn.user).to eq('root')
+        expect(conn.password).to eq('test')
+      end
+    end
+
+    context 'auth disabled' do
+      it 'returns false when authenticating with auth disabled' do
+        expect(conn.authenticate('root', 'root')).to eq(false)
+      end
+    end
+  end
 end

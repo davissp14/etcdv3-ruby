@@ -73,6 +73,8 @@ class Etcd
       @options[:password] = password
       return true
     end
+  rescue GRPC::InvalidArgument => exception
+    print exception.message
     return false
   end
 
