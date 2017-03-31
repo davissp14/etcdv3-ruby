@@ -1,12 +1,23 @@
 engines:
-  rubocop:
-    enabled: true
   duplication:
     enabled: true
     config:
       languages:
-      - ruby:
-        mass_threshold: 30
+      - ruby
+  fixme:
+    enabled: true
+  rubocop:
+    enabled: true
+ratings:
+  paths:
+  - "**.rb"
+exclude_paths:
+- spec/
+engines:
+  rubocop:
+    enabled: true
+  duplication:
+    enabled: true
 ratings:
   paths:
   - lib/**
