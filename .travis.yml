@@ -1,0 +1,16 @@
+language: ruby
+python: 2.4
+
+env:
+  global:
+    - ETCD_VERSION=v3.1.4
+
+install:
+    - wget https://github.com/coreos/etcd/releases/download/$ETCD_VERSION/etcd-$ETCD_VERSION-linux-amd64.tar.gz -O etcd.tar.gz --no-check-certificate
+    - tar zxvf etcd.tar.gz
+    - export PATH=$PATH:etcd-$ETCD_VERSION
+    - export PATH=$PATH:etcd-$ETCD_VERSION-linux-amd64
+    - etcd &
+
+script: bundle exec rspec
+
