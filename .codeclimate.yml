@@ -1,3 +1,16 @@
+engines:
+  rubocop:
+    enabled: true
+  duplication:
+      enabled: true
+    config:
+      languages:
+      - ruby
+ratings:
+  paths:
+  - lib/**
+  - "**.rb"
+
 exclude_paths:
 - "lib/etcdv3/protos/*"
 - "lib/etcdv3/etcdrpc/*"
