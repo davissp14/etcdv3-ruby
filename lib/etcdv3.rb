@@ -46,39 +46,52 @@ class Etcd
   end
 
   def put(key, value)
-    kv.put(key, value, @metadata)
+    kv.put(key, value)
   end
 
-  def range(key, range_end)
-    kv.range(key, range_end, @metadata)
+  def get(key, range_end='')
+    kv.get(key, range_end)
   end
 
   def add_user(user, password)
-    auth.add_user(user, password, @metadata)
+    auth.add_user(user, password)
   end
 
   def delete_user(user)
-    auth.delete_user(user, @metadata)
+    auth.delete_user(user)
   end
 
   def user_list
-    auth.user_list(@metadata)
+    auth.user_list
+  end
+
+  def authenticate(user, password)
+    token = auth.generate_token(user, password)
+    if token
+      @metadata[:token] = token
+      @options[:user] = user
+      @options[:password] = password
+      return true
+    end
+  rescue GRPC::InvalidArgument => exception
+    print exception.message
+    return false
   end
 
   def role_list
-    auth.role_list(@metadata)
+    auth.role_list
   end
 
   def add_role(name, permission, key, range_end='')
-    auth.add_role(name, permission, key, range_end, @metadata)
+    auth.add_role(name, permission, key, range_end)
   end
 
   def delete_role(name)
-    auth.delete_role(name, @metadata)
+    auth.delete_role(name)
   end
 
   def grant_role_to_user(user, role)
-    auth.grant_role_to_user(user, role, @metadata)
+    auth.grant_role_to_user(user, role)
   end
 
   def enable_auth
@@ -86,17 +99,23 @@ class Etcd
   end
 
   def disable_auth
-    auth.disable_auth(@metadata)
+    response = auth.disable_auth
+    if response
+      @metadata.delete(:token)
+      @options[:user] = nil
+      @options[:password] = nil
+    end
+    response
   end
 
   private
 
   def auth
-    Etcd::Auth.new(hostname, port, @credentials)
+    Etcd::Auth.new(hostname, port, @credentials, @metadata)
   end
 
   def kv
-    Etcd::KV.new(hostname, port, @credentials)
+    Etcd::KV.new(hostname, port, @credentials, @metadata)
   end
 
   def resolve_credentials

@@ -1,19 +1,19 @@
 
 class Etcd
   class KV
-    def initialize(hostname, port, credentials)
+    def initialize(hostname, port, credentials, metadata={})
       @stub = Etcdserverpb::KV::Stub.new("#{hostname}:#{port}", credentials)
+      @metadata = metadata
     end
 
-    def put(key, value, metadata = {})
+    def put(key, value)
       kv = Etcdserverpb::PutRequest.new(key: key, value: value)
-      @stub.put(kv, metadata: metadata)
+      @stub.put(kv, metadata: @metadata)
     end
 
-    def range(key, range_end, metadata = {})
+    def get(key, range_end="")
       kv = Etcdserverpb::RangeRequest.new(key: key, range_end: range_end)
-      result = @stub.range(kv, metadata: metadata)
-      result.kvs
+      @stub.range(kv, metadata: @metadata).kvs
     end
   end
 end

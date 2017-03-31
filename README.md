@@ -34,8 +34,11 @@ conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
      # Put
      conn.put("my", "value")
 
-     # Range
-     conn.range("my")
+     # Get
+     conn.get("my")
+
+     # Get Key Range
+     conn.get('my', 'myyyy')
 
 **User Management**
 ```
