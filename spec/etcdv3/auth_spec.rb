@@ -49,6 +49,20 @@ describe Etcd::Auth do
     end
   end
 
+  describe '#revoke_role_from_user' do
+    before do
+      conn.add_user('test_user', 'password')
+      conn.grant_role_to_user('test_user', 'root')
+    end
+    after do
+      conn.delete_user('test_user')
+    end
+    it 'returns AuthUserGrantRoleResponse' do
+      expect(conn.revoke_role_from_user("test_user", 'root')).to \
+        be_an_instance_of(Etcdserverpb::AuthUserRevokeRoleResponse)
+    end
+  end
+
   describe '#add_role' do
     it 'returns AuthRoleAddResponse' do
       expect(conn.add_role('testRole', 'readwrite', 'a', 'Z')).to \
