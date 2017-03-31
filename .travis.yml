@@ -1,5 +1,8 @@
 language: ruby
-python: 2.4
+rvm: 
+  - 2.4
+  - 2.2
+  - 2.0
 
 env:
   global:
