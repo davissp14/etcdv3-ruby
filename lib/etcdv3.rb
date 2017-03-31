@@ -94,6 +94,10 @@ class Etcd
     auth.grant_role_to_user(user, role)
   end
 
+  def revoke_role_from_user(user, role)
+    auth.revoke_role_from_user(user, role)
+  end
+
   def enable_auth
     auth.enable_auth
   end

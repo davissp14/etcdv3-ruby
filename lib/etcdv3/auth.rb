@@ -56,6 +56,11 @@ class Etcd
       @stub.user_grant_role(request, metadata: @metadata)
     end
 
+    def revoke_role_from_user(user, role)
+      request = Etcdserverpb::AuthUserRevokeRoleRequest.new(name: user, role: role)
+      @stub.user_revoke_role(request, metadata: @metadata)
+    end
+
     def role_list
       @stub.role_list(Authpb::Role.new, metadata: @metadata)
     end
