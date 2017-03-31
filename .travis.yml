@@ -6,6 +6,7 @@ env:
     - ETCD_VERSION=v3.1.4
 
 install:
+    - gem install rspec
     - wget https://github.com/coreos/etcd/releases/download/$ETCD_VERSION/etcd-$ETCD_VERSION-linux-amd64.tar.gz -O etcd.tar.gz --no-check-certificate
     - tar zxvf etcd.tar.gz
     - export PATH=$PATH:etcd-$ETCD_VERSION
@@ -13,4 +14,3 @@ install:
     - etcd &
 
 script: bundle exec rspec
-
