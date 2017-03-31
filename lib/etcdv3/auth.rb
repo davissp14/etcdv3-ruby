@@ -37,6 +37,10 @@ class Etcd
       @stub.user_delete(Authpb::User.new(name: user))
     end
 
+    def get_user(user)
+      @stub.user_get(Authpb::User.new(name: user))
+    end
+
     def add_role(name, permission, key, range_end)
       permission = Authpb::Permission.new(
         permType: Etcd::Auth::PERMISSIONS[permission], key: key, range_end: range_end
@@ -45,6 +49,11 @@ class Etcd
         Authpb::Role.new(name: name, keyPermission: [permission]),
         metadata: @metadata
       )
+    end
+
+    def get_role(name)
+      request = Etcdserverpb::AuthRoleGetRequest.new(role: name)
+      @stub.role_get(request, metadata: @metadata)
     end
 
     def delete_role(name)

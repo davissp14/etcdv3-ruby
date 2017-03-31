@@ -5,7 +5,6 @@ describe Etcd do
     let(:conn) do
       Etcd.new(url: 'http://127.0.0.1:2379')
     end
-
     describe '#initialize' do
       subject { conn }
       it { is_expected.to have_attributes(scheme: 'http') }

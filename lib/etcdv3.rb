@@ -57,6 +57,10 @@ class Etcd
     auth.add_user(user, password)
   end
 
+  def get_user(user)
+    auth.get_user(user)
+  end
+
   def delete_user(user)
     auth.delete_user(user)
   end
@@ -84,6 +88,10 @@ class Etcd
 
   def add_role(name, permission, key, range_end='')
     auth.add_role(name, permission, key, range_end)
+  end
+
+  def get_role(name)
+    auth.get_role(name)
   end
 
   def delete_role(name)
