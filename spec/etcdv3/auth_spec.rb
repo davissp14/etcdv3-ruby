@@ -75,12 +75,12 @@ describe Etcd::Auth do
       conn.add_user('root', 'test')
       conn.grant_role_to_user('root', 'root')
       conn.enable_auth
+      conn.authenticate('root', 'test')
     end
     after do
       conn.delete_user('root')
     end
     it 'returns AuthDisableResponse' do
-      token = conn.authenticate('root', 'test')
       expect(conn.disable_auth).to \
         be_an_instance_of(Etcdserverpb::AuthDisableResponse)
     end

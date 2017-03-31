@@ -25,22 +25,16 @@ class Etcd
 
     def user_list
       @stub.user_list(Authpb::User.new, metadata: @metadata).users
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def add_user(user, password)
       @stub.user_add(
         Authpb::User.new(name: user, password: password), metadata: @metadata
       )
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def delete_user(user)
       @stub.user_delete(Authpb::User.new(name: user))
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def add_role(name, permission, key, range_end)
@@ -51,39 +45,27 @@ class Etcd
         Authpb::Role.new(name: name, keyPermission: [permission]),
         metadata: @metadata
       )
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def delete_role(name)
       @stub.role_delete(Authpb::Role.new(name: name), metadata: @metadata)
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def grant_role_to_user(user, role)
       request = Etcdserverpb::AuthUserGrantRoleRequest.new(user: user, role: role)
       @stub.user_grant_role(request, metadata: @metadata)
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def role_list
       @stub.role_list(Authpb::Role.new, metadata: @metadata)
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def enable_auth
       @stub.auth_enable(Authpb::User.new)
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
     def disable_auth
       @stub.auth_disable(Authpb::User.new, metadata: @metadata)
-    rescue GRPC::FailedPrecondition => exception
-      puts exception.message
     end
 
   end

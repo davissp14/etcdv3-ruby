@@ -99,7 +99,13 @@ class Etcd
   end
 
   def disable_auth
-    auth.disable_auth
+    response = auth.disable_auth
+    if response
+      @metadata.delete(:token)
+      @options[:user] = nil
+      @options[:password] = nil
+    end
+    response
   end
 
   private
