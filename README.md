@@ -2,7 +2,7 @@
 
 Ruby client for Etcd V3
 
-**WARNING: This is very much a work in progress and should be considered unstable.**
+**Note: This is under active development and not yet feature complete**
 
 ## Getting Started
 
