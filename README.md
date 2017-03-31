@@ -1,4 +1,4 @@
-# etcdv3-ruby
+# etcdv3-ruby  [![Build Status](https://travis-ci.org/davissp14/etcdv3-ruby.svg?branch=master)](https://travis-ci.org/davissp14/etcdv3-ruby) [![Code Climate](https://codeclimate.com/github/davissp14/etcdv3-ruby/badges/gpa.svg)](https://codeclimate.com/github/davissp14/etcdv3-ruby)
 
 Ruby client for Etcd V3
 
