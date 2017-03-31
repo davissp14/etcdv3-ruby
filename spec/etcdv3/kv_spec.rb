@@ -7,23 +7,17 @@ describe Etcd::KV do
   end
 
   describe '#put' do
-    it 'returns PutResponse' do
-      expect(conn.put('test', 'test')).to \
-        be_an_instance_of(Etcdserverpb::PutResponse)
-    end
+    subject { conn.put('test', 'test') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::PutResponse) }
   end
 
   describe '#get' do
-    before do
-      conn.put('test', "zoom")
-    end
-    it 'returns protobuf' do
-      expect(conn.get('test')).to \
-        be_an_instance_of(Google::Protobuf::RepeatedField)
-    end
-
-    it 'returns correct result' do
-      expect(conn.get('test').first.key).to eq('test')
+    before { conn.put('test', "zoom") }
+    subject { conn.get('test') }
+    it 'returns correct response' do
+      expect(subject).to be_an_instance_of(Google::Protobuf::RepeatedField)
+      expect(subject.first.key).to eq('test')
+      expect(subject.size).to eq(1)
     end
   end
 end

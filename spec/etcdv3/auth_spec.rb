@@ -7,81 +7,65 @@ describe Etcd::Auth do
   end
 
   describe '#add_user' do
-    it 'returns AuthUserAddResponse' do
-      expect(conn.add_user("boom", 'test')).to \
-        be_an_instance_of(Etcdserverpb::AuthUserAddResponse)
-    end
+    after { conn.delete_user('boom') }
+    subject { conn.add_user('boom', 'test') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserAddResponse) }
   end
 
   describe '#user_list' do
-
-    it 'returns Protobuf' do
-      expect(conn.user_list).to \
-        be_an_instance_of(Google::Protobuf::RepeatedField)
-    end
-
-    it 'returns listme user' do
-      conn.add_user('listme', 'test')
-      expect(conn.user_list).to include('listme')
+    before { conn.add_user('list', 'test') }
+    after { conn.delete_user('list') }
+    subject { conn.user_list }
+    it 'returns correcty user information' do
+      expect(subject).to be_an_instance_of(Google::Protobuf::RepeatedField)
+      expect(subject).to include('list')
     end
   end
 
   describe '#delete_user' do
-    before do
-      conn.add_user('testuser', 'test')
-    end
-    it 'returns AuthUserDeleteResponse' do
-      expect(conn.delete_user('testuser')).to \
-        be_an_instance_of(Etcdserverpb::AuthUserDeleteResponse)
-    end
+    before { conn.add_user('delete_user', 'test') }
+    subject { conn.delete_user('delete_user') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserDeleteResponse) }
   end
 
   describe '#grant_role_to_user' do
-    before do
-      conn.add_user('root', 'password')
-    end
-    after do
-      conn.delete_user('root')
-    end
-    it 'returns AuthUserGrantRoleResponse' do
-      expect(conn.grant_role_to_user("root", 'root')).to \
-        be_an_instance_of(Etcdserverpb::AuthUserGrantRoleResponse)
-    end
+    before { conn.add_user('grant_user', 'test') }
+    after { conn.delete_user('grant_user') }
+    subject { conn.grant_role_to_user('grant_user', 'root') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGrantRoleResponse) }
   end
 
   describe '#revoke_role_from_user' do
     before do
-      conn.add_user('test_user', 'password')
-      conn.grant_role_to_user('test_user', 'root')
+      conn.add_user('revoke_user', 'password')
+      conn.grant_role_to_user('revoke_user', 'root')
     end
-    after do
-      conn.delete_user('test_user')
-    end
-    it 'returns AuthUserGrantRoleResponse' do
-      expect(conn.revoke_role_from_user("test_user", 'root')).to \
-        be_an_instance_of(Etcdserverpb::AuthUserRevokeRoleResponse)
-    end
+    after { conn.delete_user('revoke_user') }
+    subject { conn.revoke_role_from_user('revoke_user', 'root') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserRevokeRoleResponse) }
   end
 
   describe '#add_role' do
-    it 'returns AuthRoleAddResponse' do
-      expect(conn.add_role('testRole', 'readwrite', 'a', 'Z')).to \
-        be_an_instance_of(Etcdserverpb::AuthRoleAddResponse)
+    after { conn.delete_role('add_role') }
+    subject { conn.add_role('add_role', 'readwrite', 'a', 'Z') }
+    it 'adds a role' do
+      expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleAddResponse)
+      expect(conn.role_list.roles).to include('add_role')
     end
   end
 
-  describe '#add_delete' do
-    it 'returns AuthRoleAddResponse' do
-      expect(conn.delete_role('testRole')).to \
-        be_an_instance_of(Etcdserverpb::AuthRoleDeleteResponse)
+  describe '#delete_role' do
+    before { conn.add_role('delete_role', 'readwrite', 'a', 'Z') }
+    subject { conn.delete_role('delete_role') }
+    it 'deletes role' do
+      expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleDeleteResponse)
+      expect(conn.role_list.roles).to_not include('delete_role')
     end
   end
 
   describe '#role_list' do
-    it 'returns AuthRoleListResponse' do
-      expect(conn.role_list).to \
-        be_an_instance_of(Etcdserverpb::AuthRoleListResponse)
-    end
+    subject { conn.role_list }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthRoleListResponse) }
   end
 
   describe '#disable_auth' do
@@ -91,13 +75,9 @@ describe Etcd::Auth do
       conn.enable_auth
       conn.authenticate('root', 'test')
     end
-    after do
-      conn.delete_user('root')
-    end
-    it 'returns AuthDisableResponse' do
-      expect(conn.disable_auth).to \
-        be_an_instance_of(Etcdserverpb::AuthDisableResponse)
-    end
+    after { conn.delete_user('root') }
+    subject { conn.disable_auth }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthDisableResponse) }
   end
 
   describe '#enable_auth' do
@@ -110,9 +90,8 @@ describe Etcd::Auth do
       conn.disable_auth
       conn.delete_user('root')
     end
-    it 'returns AuthEnableResponse' do
-      expect(conn.enable_auth).to be_an_instance_of(Etcdserverpb::AuthEnableResponse)
-    end
+    subject { conn.enable_auth }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthEnableResponse) }
   end
 
   describe "#authenticate" do
@@ -127,7 +106,7 @@ describe Etcd::Auth do
         conn.disable_auth
         conn.delete_user('root')
       end
-      it 'properly reconfigures token + user + password' do
+      it 'properly reconfigures auth and token' do
         expect(conn.token).to_not be_nil
         expect(conn.user).to eq('root')
         expect(conn.password).to eq('test')
@@ -135,9 +114,8 @@ describe Etcd::Auth do
     end
 
     context 'auth disabled' do
-      it 'returns false when authenticating with auth disabled' do
-        expect(conn.authenticate('root', 'root')).to eq(false)
-      end
+      subject { conn.authenticate('root', 'root') }
+      it { is_expected.to eq(false) }
     end
   end
 end
