@@ -2,15 +2,15 @@ engines:
   rubocop:
     enabled: true
   duplication:
-      enabled: true
+    enabled: true
     config:
       languages:
-      - ruby
+      - ruby:
+      	  mass_threshold: 30
 ratings:
   paths:
   - lib/**
   - "**.rb"
-
 exclude_paths:
 - "lib/etcdv3/protos/*"
 - "lib/etcdv3/etcdrpc/*"
