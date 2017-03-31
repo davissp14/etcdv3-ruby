@@ -16,6 +16,8 @@ exclude_paths:
 engines:
   rubocop:
     enabled: true
+  duplication:
+    enabled: true
 ratings:
   paths:
   - lib/**
