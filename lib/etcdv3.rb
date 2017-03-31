@@ -8,9 +8,7 @@ require 'etcdv3/kv'
 
 class Etcd
 
-  def options
-    Marshal.load(Martial.dump(@options))
-  end
+  attr_reader :credentials, :options
 
   def uri
     URI(@options[:url])
@@ -28,6 +26,10 @@ class Etcd
     uri.hostname
   end
 
+  def token
+    @metadata[:token]
+  end
+
   def user
     @options[:user]
   end
@@ -36,21 +38,11 @@ class Etcd
     @options[:password]
   end
 
-  def token
-    @metadata[:token]
-  end
-
-  def credentials
-    @credentials
-  end
-
-  def initialize(options={})
+  def initialize(options = {})
     @options = options
     @credentials = resolve_credentials
     @metadata = {}
-    unless user.nil?
-      @metadata[:token] = auth.generate_token(user, password)
-    end
+    @metadata[:token] = auth.generate_token(user, password) unless user.nil?
   end
 
   def put(key, value)
@@ -60,7 +52,6 @@ class Etcd
   def range(key, range_end)
     kv.range(key, range_end, @metadata)
   end
-
 
   def add_user(user, password)
     auth.add_user(user, password, @metadata)
@@ -72,6 +63,26 @@ class Etcd
 
   def user_list
     auth.user_list(@metadata)
+  end
+
+  def add_role(name, permission, key, range_end='')
+    auth.add_role(name, permission, key, range_end, @metadata)
+  end
+
+  def delete_role(name)
+    auth.delete_role(name, @metadata)
+  end
+
+  def grant_role_to_user(user, role)
+    auth.grant_role_to_user(user, role, @metadata)
+  end
+
+  def enable_auth
+    auth.enable_auth
+  end
+
+  def disable_auth
+    auth.disable_auth(@metadata)
   end
 
   private
@@ -86,9 +97,9 @@ class Etcd
 
   def resolve_credentials
     case scheme
-    when "http"
+    when 'http'
       :this_channel_is_insecure
-    when "https"
+    when 'https'
       # Use default certs for now.
       GRPC::Core::ChannelCredentials.new
     else
