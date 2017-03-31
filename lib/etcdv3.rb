@@ -107,7 +107,7 @@ class Etcd
   end
 
   def kv
-     Etcd::KV.new(hostname, port, @credentials, @metadata)
+    Etcd::KV.new(hostname, port, @credentials, @metadata)
   end
 
   def resolve_credentials
