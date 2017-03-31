@@ -12,6 +12,13 @@ describe Etcd::Auth do
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserAddResponse) }
   end
 
+  describe '#get_user' do
+    before { conn.add_user('get_user', 'password') }
+    after { conn.delete_user('get_user') }
+    subject { conn.get_user('get_user') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGetResponse) }
+  end
+
   describe '#user_list' do
     before { conn.add_user('list', 'test') }
     after { conn.delete_user('list') }
@@ -52,6 +59,13 @@ describe Etcd::Auth do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleAddResponse)
       expect(conn.role_list.roles).to include('add_role')
     end
+  end
+
+  describe '#get_role' do
+    before { conn.add_role('get_role', 'readwrite', 'a', 'Z') }
+    after { conn.delete_role('get_role') }
+    subject { conn.get_role('get_role') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthRoleGetResponse) }
   end
 
   describe '#delete_role' do
