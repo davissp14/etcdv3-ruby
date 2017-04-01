@@ -46,20 +46,19 @@ class Etcd
     @metadata[:token] = auth.generate_token(user, password) unless user.nil?
   end
 
+  # Version of Etcd running on member
+  def version
+    maintenance.status.version
+  end
 
-  # Member status returns high level information about the given member.
-  # Example response:
-  # <OpenStruct
-  #  version="3.1.3",
-  #  db_size=24576,
-  #  cluster_id=14841639068965178418,
-  #  member_id=10276657743932975437,
-  #  leader_id=10276657743932975437,
-  #  raft_index=6,
-  #  raft_term=3
-  # >
-  def member_status
-    maintenance.member_status
+  # Store size in bytes.
+  def db_size
+    maintenance.status.dbSize
+  end
+
+  # Cluster leader id
+  def leader_id
+    maintenance.status.leader
   end
 
   # Inserts a new key.

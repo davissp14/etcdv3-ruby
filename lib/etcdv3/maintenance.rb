@@ -1,4 +1,5 @@
 require 'ostruct'
+
 class Etcd
   class Maintenance
     def initialize(hostname, port, credentials, metadata = {})
@@ -6,17 +7,12 @@ class Etcd
       @metadata = metadata
     end
 
-    def member_status
-      resp = @stub.status(Etcdserverpb::StatusRequest.new, metadata: @metadata)
-      OpenStruct.new(
-        version: resp.version,
-        db_size: resp.dbSize,
-        cluster_id: resp.header.cluster_id,
-        member_id: resp.header.member_id,
-        leader_id: resp.leader,
-        raft_index: resp.raftIndex,
-        raft_term: resp.raftTerm
-      )
+    def status
+      @stub.status(Etcdserverpb::StatusRequest.new, metadata: @metadata)
     end
+
+    private
+
+
   end
 end
