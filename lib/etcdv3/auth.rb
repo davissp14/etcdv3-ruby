@@ -18,7 +18,7 @@ class Etcd
         Authpb::User.new(name: user, password: password)
       )
       response.token
-    rescue GRPC::FailedPrecondition => exception
+    rescue GRPC::FailedPrecondition, GRPC::InvalidArgument => exception
       puts exception.message
       false
     end
