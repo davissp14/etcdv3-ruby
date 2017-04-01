@@ -47,16 +47,20 @@ class Etcd
   end
 
 
-  # Returns high level information about the given member.
-
+  # Member status returns high level information about the given member.
+  # Example response:
+  # <OpenStruct
+  #  version="3.1.3",
+  #  db_size=24576,
+  #  cluster_id=14841639068965178418,
+  #  member_id=10276657743932975437,
+  #  leader_id=10276657743932975437,
+  #  raft_index=6,
+  #  raft_term=3
+  # >
   def member_status
     maintenance.member_status
   end
-
-
-  ### End of Maintenance Commands ###
-
-  ##### KV Commands ######
 
   # Inserts a new key.
   def put(key, value)
