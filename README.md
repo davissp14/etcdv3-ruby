@@ -55,7 +55,10 @@ conn.user_list
 **Role Management**
 ```
 # Add Role
-conn.add_role('rolename', 'readwrite', 'a', 'Z')
+conn.add_role('rolename')
+
+# Grant Permission to Role
+conn.grant_permission_to_role('rolename', 'readwrite', 'a', 'z')
 
 # Delete Role
 conn.delete_role('rolename')
