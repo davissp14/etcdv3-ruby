@@ -81,8 +81,8 @@ class Etcd
       @options[:password] = password
       return true
     end
+    return false
   rescue GRPC::InvalidArgument => exception
-    print exception.message
     return false
   end
 
@@ -90,24 +90,33 @@ class Etcd
     auth.role_list
   end
 
-  def add_role(name, permission, key, range_end='')
-    auth.add_role(name, permission, key, range_end)
+  def add_role(name)
+    auth.add_role(name)
   end
 
+  # Fetches a specified role.
   def get_role(name)
     auth.get_role(name)
   end
 
+  # Delete role.
   def delete_role(name)
     auth.delete_role(name)
   end
 
+  # Grants role to an existing user.
   def grant_role_to_user(user, role)
     auth.grant_role_to_user(user, role)
   end
 
+  # Revokes role from a specified user.
   def revoke_role_from_user(user, role)
     auth.revoke_role_from_user(user, role)
+  end
+
+  # Grants a new permission to an existing role.
+  def grant_permission_to_role(name, permission, key, range_end='')
+    auth.grant_permission_to_role(name, permission, key, range_end)
   end
 
   def enable_auth

@@ -49,14 +49,8 @@ class Etcd
       @stub.user_change_password(request, metadata: @metadata)
     end
 
-    def add_role(name, permission, key, range_end)
-      permission = Authpb::Permission.new(
-        permType: Etcd::Auth::PERMISSIONS[permission], key: key, range_end: range_end
-      )
-      @stub.role_add(
-        Authpb::Role.new(name: name, keyPermission: [permission]),
-        metadata: @metadata
-      )
+    def add_role(name)
+      @stub.role_add(Authpb::Role.new(name: name), metadata: @metadata)
     end
 
     def get_role(name)
@@ -76,6 +70,19 @@ class Etcd
     def revoke_role_from_user(user, role)
       request = Etcdserverpb::AuthUserRevokeRoleRequest.new(name: user, role: role)
       @stub.user_revoke_role(request, metadata: @metadata)
+    end
+
+    def grant_permission_to_role(name, permission, key, range_end)
+      permission = Authpb::Permission.new(
+        permType: Etcd::Auth::PERMISSIONS[permission], key: key, range_end: range_end
+      )
+      @stub.role_grant_permission(
+        Etcdserverpb::AuthRoleGrantPermissionRequest.new(
+          name: name,
+          perm: permission
+        ),
+        metadata: @metadata
+      )
     end
 
     def role_list

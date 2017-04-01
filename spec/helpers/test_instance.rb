@@ -42,7 +42,7 @@ module Helpers
     end
 
     def stop
-      @pids.each { |pid| Process.kill('TERM', pid) }
+      @pids.each { |pid| Process.kill('TERM', pid) } rescue nil
       FileUtils.remove_entry_secure(@tmpdir, true)
       @pids.clear
     end

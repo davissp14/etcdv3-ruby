@@ -54,7 +54,7 @@ describe Etcd::Auth do
 
   describe '#add_role' do
     after { conn.delete_role('add_role') }
-    subject { conn.add_role('add_role', 'readwrite', 'a', 'Z') }
+    subject { conn.add_role('add_role') }
     it 'adds a role' do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleAddResponse)
       expect(conn.role_list.roles).to include('add_role')
@@ -62,14 +62,14 @@ describe Etcd::Auth do
   end
 
   describe '#get_role' do
-    before { conn.add_role('get_role', 'readwrite', 'a', 'Z') }
+    before { conn.add_role('get_role') }
     after { conn.delete_role('get_role') }
     subject { conn.get_role('get_role') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthRoleGetResponse) }
   end
 
   describe '#delete_role' do
-    before { conn.add_role('delete_role', 'readwrite', 'a', 'Z') }
+    before { conn.add_role('delete_role') }
     subject { conn.delete_role('delete_role') }
     it 'deletes role' do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleDeleteResponse)
@@ -80,6 +80,15 @@ describe Etcd::Auth do
   describe '#role_list' do
     subject { conn.role_list }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthRoleListResponse) }
+  end
+
+  describe '#grant_permission_to_role' do
+    before { conn.add_role('grant_perm') }
+    after { conn.delete_role('grant_perm') }
+    subject { conn.grant_permission_to_role('grant_perm', 'write', 'c', 'cc') }
+    it 'sets permission' do
+      expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleGrantPermissionResponse)
+    end
   end
 
   describe '#disable_auth' do
