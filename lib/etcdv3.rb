@@ -5,6 +5,7 @@ require 'uri'
 require 'etcdv3/etcdrpc/rpc_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv'
+require 'etcdv3/maintenance'
 
 class Etcd
 
@@ -44,6 +45,18 @@ class Etcd
     @metadata = {}
     @metadata[:token] = auth.generate_token(user, password) unless user.nil?
   end
+
+
+  # Returns high level information about the given member.
+
+  def member_status
+    maintenance.member_status
+  end
+
+
+  ### End of Maintenance Commands ###
+
+  ##### KV Commands ######
 
   # Inserts a new key.
   def put(key, value)
@@ -159,6 +172,10 @@ class Etcd
 
   def kv
     Etcd::KV.new(hostname, port, @credentials, @metadata)
+  end
+
+  def maintenance
+    Etcd::Maintenance.new(hostname, port, @credentials, @metadata)
   end
 
   def resolve_credentials
