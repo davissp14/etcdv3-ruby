@@ -65,6 +65,10 @@ class Etcd
     auth.delete_user(user)
   end
 
+  def change_user_password(user, new_password)
+    auth.change_user_password(user, new_password)
+  end
+
   def user_list
     auth.user_list
   end

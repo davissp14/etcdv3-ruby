@@ -108,6 +108,13 @@ describe Etcd::Auth do
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthEnableResponse) }
   end
 
+  describe '#change_user_password' do
+    before { conn.add_user('myuser', 'test') }
+    after { conn.delete_user('myuser') }
+    subject { conn.change_user_password('myuser', 'boom') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserChangePasswordResponse) }
+  end
+
   describe "#authenticate" do
     context "auth enabled" do
       before do

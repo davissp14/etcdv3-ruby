@@ -41,6 +41,14 @@ class Etcd
       @stub.user_get(Authpb::User.new(name: user))
     end
 
+    def change_user_password(user, new_password)
+      request = Etcdserverpb::AuthUserChangePasswordRequest.new(
+        name: user,
+        password: new_password
+      )
+      @stub.user_change_password(request, metadata: @metadata)
+    end
+
     def add_role(name, permission, key, range_end)
       permission = Authpb::Permission.new(
         permType: Etcd::Auth::PERMISSIONS[permission], key: key, range_end: range_end
