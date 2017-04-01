@@ -85,6 +85,17 @@ class Etcd
       )
     end
 
+    def revoke_permission_from_role(name, permission, key, range_end)
+      @stub.role_revoke_permission(
+        Etcdserverpb::AuthRoleRevokePermissionRequest.new(
+          role: name,
+          key: key,
+          range_end: range_end
+        ),
+        metadata: @metadata
+      )
+    end
+
     def role_list
       @stub.role_list(Authpb::Role.new, metadata: @metadata)
     end

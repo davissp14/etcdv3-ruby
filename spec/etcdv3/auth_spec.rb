@@ -91,6 +91,19 @@ describe Etcd::Auth do
     end
   end
 
+  describe '#revoke_permission_from_role' do
+    before do
+      conn.add_role('myrole')
+      conn.grant_permission_to_role('myrole', 'write', 'c', 'cc')
+    end
+    after { conn.delete_role('myrole') }
+    subject { conn.revoke_permission_from_role('myrole', 'write', 'c', 'cc') }
+    it 'revokes permission' do
+      expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleRevokePermissionResponse)
+      expect(conn.get_role('myrole').perm.size).to eq(0)
+    end
+  end
+
   describe '#disable_auth' do
     before do
       conn.add_user('root', 'test')

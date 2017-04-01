@@ -45,34 +45,43 @@ class Etcd
     @metadata[:token] = auth.generate_token(user, password) unless user.nil?
   end
 
+  # Inserts a new key.
   def put(key, value)
     kv.put(key, value)
   end
 
+  # Fetches key(s).
   def get(key, range_end='')
     kv.get(key, range_end)
   end
 
+  # Creates new user.
   def add_user(user, password)
     auth.add_user(user, password)
   end
 
+  # Fetch specified user
   def get_user(user)
     auth.get_user(user)
   end
 
+  # Delete specified user.
   def delete_user(user)
     auth.delete_user(user)
   end
 
+  # Changes the specified users password.
   def change_user_password(user, new_password)
     auth.change_user_password(user, new_password)
   end
 
+  # List all users.
   def user_list
     auth.user_list
   end
 
+  # Authenticate using specified user and password.
+  # On successful authentication, an auth token will be assigned to the instance.
   def authenticate(user, password)
     token = auth.generate_token(user, password)
     if token
@@ -86,10 +95,12 @@ class Etcd
     return false
   end
 
+  # List all roles.
   def role_list
     auth.role_list
   end
 
+  # Add role with specified name.
   def add_role(name)
     auth.add_role(name)
   end
@@ -119,10 +130,17 @@ class Etcd
     auth.grant_permission_to_role(name, permission, key, range_end)
   end
 
+  def revoke_permission_from_role(name, permission, key, range_end='')
+    auth.revoke_permission_from_role(name, permission, key, range_end)
+  end
+
+  # Enables authentication.
   def enable_auth
     auth.enable_auth
   end
 
+  # Disables authentication.
+  # This will clear any active auth / token data.
   def disable_auth
     response = auth.disable_auth
     if response
