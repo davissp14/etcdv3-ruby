@@ -100,15 +100,12 @@ class Etcd
   # On successful authentication, an auth token will be assigned to the instance.
   def authenticate(user, password)
     token = auth.generate_token(user, password)
-    if token
-      @metadata[:token] = token
-      @options[:user] = user
-      @options[:password] = password
-      return true
-    end
-    return false
-  rescue GRPC::InvalidArgument => exception
-    return false
+    return false unless token
+    @metadata[:token] = token
+    @options[:user] = user
+    @options[:password] = password
+
+    true
   end
 
   # List all roles.
