@@ -95,6 +95,6 @@ conn.disable_auth
 # List all active Alarms
 conn.alarm_list
 
-# Deactivate active Alarms
+# Deactivate ALL active Alarms
 conn.deactivate_alarms
 ```
