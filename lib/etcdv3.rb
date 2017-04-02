@@ -5,6 +5,7 @@ require 'uri'
 require 'etcdv3/etcdrpc/rpc_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv'
+require 'etcdv3/maintenance'
 
 class Etcd
 
@@ -43,6 +44,21 @@ class Etcd
     @credentials = resolve_credentials
     @metadata = {}
     @metadata[:token] = auth.generate_token(user, password) unless user.nil?
+  end
+
+  # Version of Etcd running on member
+  def version
+    maintenance.member_status.version
+  end
+
+  # Store size in bytes.
+  def db_size
+    maintenance.member_status.dbSize
+  end
+
+  # Cluster leader id
+  def leader_id
+    maintenance.member_status.leader
   end
 
   # Inserts a new key.
@@ -156,6 +172,10 @@ class Etcd
 
   def kv
     Etcd::KV.new(hostname, port, @credentials, @metadata)
+  end
+
+  def maintenance
+    Etcd::Maintenance.new(hostname, port, @credentials, @metadata)
   end
 
   def resolve_credentials
