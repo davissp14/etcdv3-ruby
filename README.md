@@ -6,7 +6,7 @@ Ruby client for Etcd V3
 
 ## Getting Started
 
-[RubyDocs](http://www.rubydoc.info/gems/etcdv3/0.1.1/Etcd) 
+[RubyDocs](http://www.rubydoc.info/gems/etcdv3/0.1.1/Etcd)
 
 To install etcdv3, run the following command:
 ```
@@ -88,4 +88,13 @@ conn.authenticate('root', 'mysecretpassword')
 Disabling auth will clear the auth token and all previously attached user information
 ```
 conn.disable_auth
+```
+
+**Alarms**
+```
+# List all active Alarms
+conn.alarm_list
+
+# Deactivate active Alarms
+conn.deactivate_alarms
 ```

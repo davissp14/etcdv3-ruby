@@ -19,7 +19,6 @@ class Etcd
       )
       response.token
     rescue GRPC::FailedPrecondition, GRPC::InvalidArgument => exception
-      puts exception.message
       false
     end
 

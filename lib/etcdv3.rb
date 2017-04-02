@@ -164,6 +164,16 @@ class Etcd
     response
   end
 
+  # List active alarms
+  def alarm_list
+    maintenance.alarms(:get, leader_id)
+  end
+
+  # Disarm alarms on a specified member.
+  def deactivate_alarms
+    maintenance.alarms(:deactivate, leader_id)
+  end
+
   private
 
   def auth
