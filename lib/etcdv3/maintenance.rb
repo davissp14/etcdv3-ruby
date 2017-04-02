@@ -7,12 +7,8 @@ class Etcd
       @metadata = metadata
     end
 
-    def status
+    def member_status
       @stub.status(Etcdserverpb::StatusRequest.new, metadata: @metadata)
     end
-
-    private
-
-
   end
 end

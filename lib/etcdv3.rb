@@ -48,17 +48,17 @@ class Etcd
 
   # Version of Etcd running on member
   def version
-    maintenance.status.version
+    maintenance.member_status.version
   end
 
   # Store size in bytes.
   def db_size
-    maintenance.status.dbSize
+    maintenance.member_status.dbSize
   end
 
   # Cluster leader id
   def leader_id
-    maintenance.status.leader
+    maintenance.member_status.leader
   end
 
   # Inserts a new key.
