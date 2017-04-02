@@ -6,6 +6,8 @@ Ruby client for Etcd V3
 
 ## Getting Started
 
+[RubyDocs](http://www.rubydoc.info/gems/etcdv3/0.1.1/Etcd) 
+
 To install etcdv3, run the following command:
 ```
 gem install etcdv3
