@@ -6,6 +6,7 @@ require 'etcdv3/etcdrpc/rpc_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv'
 require 'etcdv3/maintenance'
+require 'etcdv3/request_handler'
 
 class Etcd
 
@@ -114,18 +115,18 @@ class Etcd
   end
 
   # Add role with specified name.
-  def add_role(name)
-    auth.add_role(name)
+  def add_role(role)
+    auth.add_role(role)
   end
 
   # Fetches a specified role.
-  def get_role(name)
-    auth.get_role(name)
+  def get_role(role)
+    auth.get_role(role)
   end
 
   # Delete role.
-  def delete_role(name)
-    auth.delete_role(name)
+  def delete_role(role)
+    auth.delete_role(role)
   end
 
   # Grants role to an existing user.
@@ -177,15 +178,15 @@ class Etcd
   private
 
   def auth
-    Etcd::Auth.new(hostname, port, @credentials, @metadata)
+    Etcd::RequestHandler.new(Etcd::Auth, "#{hostname}:#{port}", @credentials, @metadata)
   end
 
   def kv
-    Etcd::KV.new(hostname, port, @credentials, @metadata)
+    Etcd::RequestHandler.new(Etcd::KV, "#{hostname}:#{port}", @credentials, @metadata)
   end
 
   def maintenance
-    Etcd::Maintenance.new(hostname, port, @credentials, @metadata)
+    Etcd::RequestHandler.new(Etcd::Maintenance, "#{hostname}:#{port}", @credentials, @metadata)
   end
 
   def resolve_credentials
@@ -199,4 +200,5 @@ class Etcd
       raise "Unknown scheme: #{scheme}"
     end
   end
+
 end

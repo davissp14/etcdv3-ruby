@@ -24,8 +24,8 @@ describe Etcd::Auth do
     after { conn.delete_user('list') }
     subject { conn.user_list }
     it 'returns correcty user information' do
-      expect(subject).to be_an_instance_of(Google::Protobuf::RepeatedField)
-      expect(subject).to include('list')
+      expect(subject).to be_an_instance_of(Etcdserverpb::AuthUserListResponse)
+      expect(subject.users).to include('list')
     end
   end
 
@@ -157,8 +157,9 @@ describe Etcd::Auth do
     end
 
     context 'auth disabled' do
-      subject { conn.authenticate('root', 'root') }
-      it { is_expected.to eq(false) }
+      it 'raises error' do
+        expect{ conn.authenticate('root', 'root')}.to raise_error(GRPC::InvalidArgument)
+      end
     end
   end
 end

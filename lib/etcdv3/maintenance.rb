@@ -1,7 +1,8 @@
-require 'ostruct'
 
 class Etcd
-  class Maintenance
+  module Maintenance
+    STUB = Etcdserverpb::Maintenance::Stub
+
     # Sadly these are the only alarm types supported by the api right now.
     ALARM_TYPES = {
       NONE: 0,
@@ -14,23 +15,18 @@ class Etcd
       deactivate: 2
     }
 
-    def initialize(hostname, port, credentials, metadata = {})
-      @stub = Etcdserverpb::Maintenance::Stub.new("#{hostname}:#{port}", credentials)
-      @metadata = metadata
-    end
-
     def member_status
-      @stub.status(Etcdserverpb::StatusRequest.new, metadata: @metadata)
+      resolve_request('StatusRequest', 'status')
     end
 
     def alarms(action, member_id, alarm=:NONE)
-      alarm = ALARM_TYPES[alarm]
-      request = Etcdserverpb::AlarmRequest.new(
-        action: ALARM_ACTIONS[action],
-        memberID: member_id,
-        alarm: action == :deactivate ? ALARM_TYPES[:NOSPACE] : alarm
+      resolve_request('AlarmRequest', 'alarm',
+        attributes: {
+          action: ALARM_ACTIONS[action],
+          memberID: member_id,
+          alarm: action == :deactivate ? ALARM_TYPES[:NOSPACE] : ALARM_TYPES[alarm]
+        }
       )
-      @stub.alarm(request)
     end
   end
 end
