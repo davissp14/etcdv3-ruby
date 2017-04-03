@@ -8,7 +8,7 @@ class Etcd
       self.class.include(target)
     end
 
-    def resolve_request(req, target, attributes: {}, auth: true )
+    def resolve_request(const, target, attributes: {}, auth: true )
       const = Object.const_get("Etcdserverpb::#{req}")
       request = const.new(attributes)
       if auth
