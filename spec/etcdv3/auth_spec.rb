@@ -157,8 +157,9 @@ describe Etcd::Auth do
     end
 
     context 'auth disabled' do
-      subject { conn.authenticate('root', 'root') }
-      it { is_expected.to eq(false) }
+      it 'raises error' do
+        expect { conn.authenticate('root', 'root') }.to raise_error(GRPC::InvalidArgument)
+      end
     end
   end
 end
