@@ -14,30 +14,34 @@ class Etcd
     end
 
     def generate_token(user, password)
-      response = @stub.authenticate(
-        Authpb::User.new(name: user, password: password)
+      request = Etcdserverpb::AuthenticateRequest.new(
+        name: user,
+        password: password
       )
-      response.token
-    rescue GRPC::FailedPrecondition, GRPC::InvalidArgument => exception
-      false
+      @stub.authenticate(request).token
     end
 
     def user_list
-      @stub.user_list(Authpb::User.new, metadata: @metadata).users
+      request = Etcdserverpb::AuthUserListRequest.new
+      @stub.user_list(request, metadata: @metadata).users
     end
 
     def add_user(user, password)
-      @stub.user_add(
-        Authpb::User.new(name: user, password: password), metadata: @metadata
+      request = Etcdserverpb::AuthUserAddRequest.new(
+        name: user,
+        password: password
       )
+      @stub.user_add(request, metadata: @metadata)
     end
 
     def delete_user(user)
-      @stub.user_delete(Authpb::User.new(name: user))
+      request = Etcdserverpb::AuthUserDeleteRequest.new(name: user)
+      @stub.user_delete(request)
     end
 
     def get_user(user)
-      @stub.user_get(Authpb::User.new(name: user))
+      request = Etcdserverpb::AuthUserGetRequest.new(name: user)
+      @stub.user_get(request)
     end
 
     def change_user_password(user, new_password)
@@ -49,7 +53,8 @@ class Etcd
     end
 
     def add_role(name)
-      @stub.role_add(Authpb::Role.new(name: name), metadata: @metadata)
+      request = Etcdserverpb::AuthRoleAddRequest.new(name: name)
+      @stub.role_add(request, metadata: @metadata)
     end
 
     def get_role(name)
@@ -58,7 +63,8 @@ class Etcd
     end
 
     def delete_role(name)
-      @stub.role_delete(Authpb::Role.new(name: name), metadata: @metadata)
+      request = Etcdserverpb::AuthRoleDeleteRequest.new(role: name)
+      @stub.role_delete(request, metadata: @metadata)
     end
 
     def grant_role_to_user(user, role)
@@ -96,15 +102,18 @@ class Etcd
     end
 
     def role_list
-      @stub.role_list(Authpb::Role.new, metadata: @metadata)
+      request = Etcdserverpb::AuthRoleListRequest.new
+      @stub.role_list(request, metadata: @metadata)
     end
 
     def enable_auth
-      @stub.auth_enable(Authpb::User.new)
+      request = Etcdserverpb::AuthEnableRequest.new
+      @stub.auth_enable(request)
     end
 
     def disable_auth
-      @stub.auth_disable(Authpb::User.new, metadata: @metadata)
+      request = Etcdserverpb::AuthDisableRequest.new
+      @stub.auth_disable(request, metadata: @metadata)
     end
 
   end
