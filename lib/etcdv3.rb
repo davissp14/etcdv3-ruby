@@ -72,6 +72,10 @@ class Etcd
     kv.get(key, range_end)
   end
 
+  def del(key, range_end='')
+    kv.del(key, range_end)
+  end
+
   # Grant a lease with a speified TTL
   def grant_lease(ttl)
     lease.grant_lease(ttl)

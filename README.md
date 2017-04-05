@@ -2,7 +2,7 @@
 
 Ruby client for Etcd V3
 
-**Note: This is under active development and is not feature complete**
+**Warning: This is under active development and should be considered unstable**
 
 ## Getting Started
 
@@ -31,7 +31,7 @@ conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
 # Coming soon...
 ```
 
-**Adding and Fetching Keys**
+**Adding, Fetching and Deleting Keys**
 
      # Put
      conn.put("my", "value")
@@ -41,6 +41,12 @@ conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
 
      # Get Key Range
      conn.get('my', 'myyyy')
+
+     # Delete Key
+     conn.del('my')
+
+     # Delete Key Range
+     conn.del('my', 'myyy')
 
 **User Management**
 ```
