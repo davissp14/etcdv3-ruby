@@ -6,8 +6,9 @@ class Etcd
       @metadata = metadata
     end
 
-    def put(key, value)
+    def put(key, value, lease)
       kv = Etcdserverpb::PutRequest.new(key: key, value: value)
+      kv.lease = lease if lease
       @stub.put(kv, metadata: @metadata)
     end
 
