@@ -7,8 +7,16 @@ describe Etcd::KV do
   end
 
   describe '#put' do
-    subject { conn.put('test', 'test') }
-    it { is_expected.to be_an_instance_of(Etcdserverpb::PutResponse) }
+    context 'without lease' do
+      subject { conn.put('test', 'test') }
+      it { is_expected.to be_an_instance_of(Etcdserverpb::PutResponse) }
+    end
+
+    context 'with lease' do
+      let(:lease_id) { conn.grant_lease(1)['ID'] }
+      subject { conn.put('lease', 'test', lease_id) }
+      it { is_expected.to be_an_instance_of(Etcdserverpb::PutResponse) }
+    end
   end
 
   describe '#get' do

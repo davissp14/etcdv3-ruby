@@ -6,6 +6,7 @@ require 'etcdv3/etcdrpc/rpc_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv'
 require 'etcdv3/maintenance'
+require 'etcdv3/lease'
 
 class Etcd
 
@@ -62,13 +63,28 @@ class Etcd
   end
 
   # Inserts a new key.
-  def put(key, value)
-    kv.put(key, value)
+  def put(key, value, lease_id=nil)
+    kv.put(key, value, lease_id)
   end
 
   # Fetches key(s).
   def get(key, range_end='')
     kv.get(key, range_end)
+  end
+
+  # Grant a lease with a speified TTL
+  def grant_lease(ttl)
+    lease.grant_lease(ttl)
+  end
+
+  # Revokes lease and delete all attached keys
+  def revoke_lease(id)
+    lease.revoke_lease(id)
+  end
+
+  # Returns information regarding the current state of the lease
+  def lease_ttl(id)
+    lease.lease_ttl(id)
   end
 
   # Creates new user.
@@ -186,6 +202,10 @@ class Etcd
 
   def maintenance
     Etcd::Maintenance.new(hostname, port, @credentials, @metadata)
+  end
+
+  def lease
+    Etcd::Lease.new(hostname, port, @credentials, @metadata)
   end
 
   def resolve_credentials
