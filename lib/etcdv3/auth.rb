@@ -23,7 +23,7 @@ class Etcd
 
     def user_list
       request = Etcdserverpb::AuthUserListRequest.new
-      @stub.user_list(request, metadata: @metadata).users
+      @stub.user_list(request, metadata: @metadata)
     end
 
     def add_user(user, password)

@@ -2,42 +2,25 @@ require 'spec_helper'
 
 describe Etcd::Maintenance do
 
-  let(:conn) do
-    Etcd.new(url: 'http://127.0.0.1:2379')
+  let(:stub) do
+    Etcd::Maintenance.new("127.0.0.1", 2379, :this_channel_is_insecure, {})
   end
 
-  describe '#version' do
-    subject { conn.version }
-    it { is_expected.to_not be_nil }
-  end
-
-  describe '#leader_id' do
-    subject { conn.leader_id }
-    it { is_expected.to_not be_nil }
-  end
-
-  describe '#db_size' do
-    subject { conn.db_size }
-    it { is_expected.to_not be_nil }
+  describe "#member_status" do
+    subject { stub.member_status }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::StatusResponse)}
   end
 
   describe '#alarm_list' do
-    before { conn.send(:maintenance).alarms(:activate, conn.leader_id, :NOSPACE) }
-    after { conn.deactivate_alarms }
-    subject { conn.alarm_list }
-    it 'returns an alarm' do
-        expect(subject).to be_an_instance_of(Etcdserverpb::AlarmResponse)
-        expect(subject.alarms.size).to eq(1)
-    end
+    let(:leader_id) { stub.member_status.leader }
+    subject { stub.alarms(:get, leader_id)}
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AlarmResponse) }
   end
 
   describe '#deactivate_alarms' do
-    before { conn.send(:maintenance).alarms(:activate, conn.leader_id, :NOSPACE) }
-    subject { conn.deactivate_alarms }
-    it 'deactivates alarms' do
-      expect(subject).to be_an_instance_of(Etcdserverpb::AlarmResponse)
-      expect(conn.alarm_list.alarms.size).to eq(0)
-    end
+    let(:leader_id) { stub.member_status.leader }
+    subject { stub.alarms(:deactivate, leader_id, :NOSPACE) }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AlarmResponse) }
   end
 
 end
