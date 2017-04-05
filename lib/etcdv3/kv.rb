@@ -6,7 +6,7 @@ class Etcd
       @metadata = metadata
     end
 
-    def put(key, value, lease)
+    def put(key, value, lease=nil)
       kv = Etcdserverpb::PutRequest.new(key: key, value: value)
       kv.lease = lease if lease
       @stub.put(kv, metadata: @metadata)
@@ -14,7 +14,7 @@ class Etcd
 
     def get(key, range_end="")
       kv = Etcdserverpb::RangeRequest.new(key: key, range_end: range_end)
-      @stub.range(kv, metadata: @metadata).kvs
+      @stub.range(kv, metadata: @metadata)
     end
   end
 end
