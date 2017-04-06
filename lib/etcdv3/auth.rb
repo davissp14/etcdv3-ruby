@@ -8,8 +8,8 @@ class Etcd
       'readwrite' => Authpb::Permission::Type::READWRITE
     }
 
-    def initialize(hostname, port, credentials, metadata = {})
-      @stub = Etcdserverpb::Auth::Stub.new("#{hostname}:#{port}", credentials)
+    def initialize(hostname, credentials, metadata = {})
+      @stub = Etcdserverpb::Auth::Stub.new(hostname, credentials)
       @metadata = metadata
     end
 

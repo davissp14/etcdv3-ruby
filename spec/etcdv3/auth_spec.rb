@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Etcd::Auth do
 
   let(:stub) do
-    Etcd::Auth.new("127.0.0.1", 2379, :this_channel_is_insecure, {})
+    Etcd::Auth.new("127.0.0.1:2379", :this_channel_is_insecure, {})
   end
 
   describe '#add_user' do

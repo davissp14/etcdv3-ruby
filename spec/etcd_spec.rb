@@ -82,5 +82,32 @@ describe Etcd do
         end
       end
     end
+
+    describe '#metacache' do
+      context 'uses cached request object' do
+        let!(:object_id) { conn.send(:request).object_id }
+        before { conn.add_user('root', 'test') }
+        after { conn.delete_user('root') }
+        subject { conn.send(:request).object_id }
+        it { is_expected.to eq(object_id) }
+      end
+      context 'resets cache on auth' do
+        let!(:object_id) { conn.send(:request).object_id }
+        before do
+          conn.add_user('root', 'test')
+          conn.grant_role_to_user('root', 'root')
+          conn.enable_auth
+          conn.authenticate('root', 'test')
+          conn.add_user('boom', 'password')
+        end
+        after do
+          conn.disable_auth
+          conn.delete_user('root')
+          conn.delete_user('boom')
+        end
+        subject { conn.send(:request).object_id }
+        it { is_expected.to_not eq(object_id) }
+      end
+    end
   end
 end

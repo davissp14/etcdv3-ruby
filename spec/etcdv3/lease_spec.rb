@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Etcd::Lease do
 
   let(:stub) do
-    Etcd::Lease.new("127.0.0.1", 2379, :this_channel_is_insecure, {})
+    Etcd::Lease.new("127.0.0.1:2379", :this_channel_is_insecure, {})
   end
 
   describe '#grant_lease' do
