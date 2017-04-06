@@ -27,4 +27,16 @@ describe Etcd::KV do
     subject { stub.get('test') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
   end
+
+  describe '#del' do
+    context 'del without range' do
+      subject { stub.del('test') }
+      it { is_expected.to be_an_instance_of(Etcdserverpb::DeleteRangeResponse) }
+    end
+    context 'del with range' do
+      subject { stub.del('test', 'testtt') }
+      it { is_expected.to be_an_instance_of(Etcdserverpb::DeleteRangeResponse) }
+    end
+  end
+
 end

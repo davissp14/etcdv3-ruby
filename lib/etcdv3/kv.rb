@@ -16,5 +16,13 @@ class Etcd
       kv = Etcdserverpb::RangeRequest.new(key: key, range_end: range_end)
       @stub.range(kv, metadata: @metadata)
     end
+
+    def del(key, range_end="")
+      request = Etcdserverpb::DeleteRangeRequest.new(
+        key: key,
+        range_end: range_end
+      )
+      @stub.delete_range(request, metadata: @metadata)
+    end
   end
 end
