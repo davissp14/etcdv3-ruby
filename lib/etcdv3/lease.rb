@@ -17,7 +17,7 @@ class Etcd
     end
 
     def lease_ttl(id)
-      request = Etcdserverpb::LeaseTimeToLiveRequest.new(ID: id)
+      request = Etcdserverpb::LeaseTimeToLiveRequest.new(ID: id, keys: true)
       @stub.lease_time_to_live(request, metadata: @metadata)
     end
 

@@ -32,21 +32,22 @@ conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
 ```
 
 **Adding, Fetching and Deleting Keys**
+```
+ # Put
+ conn.put("my", "value")
 
-     # Put
-     conn.put("my", "value")
+ # Get
+ conn.get("my")
 
-     # Get
-     conn.get("my")
+ # Get Key Range
+ conn.get('my', 'myyyy')
 
-     # Get Key Range
-     conn.get('my', 'myyyy')
+ # Delete Key
+ conn.del('my')
 
-     # Delete Key
-     conn.del('my')
-
-     # Delete Key Range
-     conn.del('my', 'myyy')
+ # Delete Key Range
+ conn.del('my', 'myyy')
+ ```
 
 **User Management**
 ```
@@ -94,6 +95,21 @@ conn.authenticate('root', 'mysecretpassword')
 Disabling auth will clear the auth token and all previously attached user information
 ```
 conn.disable_auth
+```
+
+**Leases**
+```
+# Grant a lease with a 100 second TTL
+conn.grant_lease(100)
+
+# Attach key to lease
+conn.put("testkey", "testvalue", lease: 1234566789)
+
+# Get information about lease and its attached keys
+conn.lease_ttl(1234566789)
+
+# Revoke lease and delete all keys attached
+conn.revoke_lease(1234566789)
 ```
 
 **Alarms**

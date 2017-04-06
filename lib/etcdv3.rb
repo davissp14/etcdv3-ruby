@@ -63,17 +63,13 @@ class Etcd
   end
 
   # Inserts a new key.
-  def put(key, value, lease_id=nil)
+  def put(key, value, lease_id: nil)
     kv.put(key, value, lease_id)
   end
 
   # Fetches key(s).
   def get(key, range_end='')
     kv.get(key, range_end)
-  end
-
-  def del(key, range_end='')
-    kv.del(key, range_end)
   end
 
   # Grant a lease with a speified TTL
