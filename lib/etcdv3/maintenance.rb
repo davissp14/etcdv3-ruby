@@ -14,8 +14,8 @@ class Etcd
       deactivate: 2
     }
 
-    def initialize(hostname, port, credentials, metadata = {})
-      @stub = Etcdserverpb::Maintenance::Stub.new("#{hostname}:#{port}", credentials)
+    def initialize(hostname, credentials, metadata = {})
+      @stub = Etcdserverpb::Maintenance::Stub.new(hostname, credentials)
       @metadata = metadata
     end
 

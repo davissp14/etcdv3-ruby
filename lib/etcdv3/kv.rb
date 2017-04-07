@@ -1,8 +1,8 @@
 
 class Etcd
   class KV
-    def initialize(hostname, port, credentials, metadata={})
-      @stub = Etcdserverpb::KV::Stub.new("#{hostname}:#{port}", credentials)
+    def initialize(hostname, credentials, metadata={})
+      @stub = Etcdserverpb::KV::Stub.new(hostname, credentials)
       @metadata = metadata
     end
 

@@ -3,11 +3,11 @@ require 'spec_helper'
 describe Etcd::KV do
 
   let(:stub) do
-    Etcd::KV.new("127.0.0.1", 2379, :this_channel_is_insecure, {})
+    Etcd::KV.new("127.0.0.1:2379", :this_channel_is_insecure, {})
   end
 
   let(:lease_stub) do
-    Etcd::Lease.new("127.0.0.1", 2379, :this_channel_is_insecure, {})
+    Etcd::Lease.new("127.0.0.1:2379", :this_channel_is_insecure, {})
   end
 
   describe '#put' do
