@@ -2,9 +2,7 @@ require 'spec_helper'
 
 describe Etcd::Maintenance do
 
-  let(:stub) do
-    Etcd::Maintenance.new("127.0.0.1:2379", :this_channel_is_insecure, {})
-  end
+  let(:stub) { local_stub(Etcd::Maintenance) }
 
   describe "#member_status" do
     subject { stub.member_status }
