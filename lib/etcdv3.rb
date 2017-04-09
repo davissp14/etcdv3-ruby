@@ -72,7 +72,7 @@ class Etcd
 
   # Disarm alarms on a specified member.
   def deactivate_alarms
-    request.handle(:maintenance, 'alarms', [leader_id])
+    request.handle(:maintenance, 'alarms', [:deactivate, leader_id])
   end
 
   # Inserts a new key.
