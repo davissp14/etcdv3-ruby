@@ -1,4 +1,4 @@
-# etcdv3-ruby  [![Gem Version](https://badge.fury.io/rb/etcdv3.svg)](https://badge.fury.io/rb/etcdv3) [![Build Status](https://travis-ci.org/davissp14/etcdv3-ruby.svg?branch=master)](https://travis-ci.org/davissp14/etcdv3-ruby)[![codecov](https://codecov.io/gh/davissp14/etcdv3-ruby/branch/master/graph/badge.svg)](https://codecov.io/gh/davissp14/etcdv3-ruby)
+# etcdv3-ruby  [![Gem Version](https://badge.fury.io/rb/etcdv3.svg)](https://badge.fury.io/rb/etcdv3) [![Build Status](https://travis-ci.org/davissp14/etcdv3-ruby.svg?branch=master)](https://travis-ci.org/davissp14/etcdv3-ruby) [![codecov](https://codecov.io/gh/davissp14/etcdv3-ruby/branch/master/graph/badge.svg)](https://codecov.io/gh/davissp14/etcdv3-ruby)
 
 
 Ruby client for Etcd V3
