@@ -65,6 +65,16 @@ class Etcd
     request.handle(:maintenance, 'member_status').leader
   end
 
+  # List active alarms
+  def alarm_list
+    request.handle(:maintenance, 'alarms', [:get, leader_id])
+  end
+
+  # Disarm alarms on a specified member.
+  def deactivate_alarms
+    request.handle(:maintenance, 'alarms', [:deactivate, leader_id])
+  end
+
   # Inserts a new key.
   def put(key, value, lease_id: nil)
     request.handle(:kv, 'put', [key, value, lease_id])
@@ -72,7 +82,7 @@ class Etcd
 
   # Fetches key(s).
   def get(key, range_end='')
-    request.handle(:get, 'get', [key, range_end])
+    request.handle(:kv, 'get', [key, range_end])
   end
 
   # Grant a lease with a speified TTL
@@ -152,16 +162,6 @@ class Etcd
 
   def revoke_permission_from_role(name, permission, key, range_end='')
     request.handle(:auth, 'revoke_permission_from_role', [name, permission, key, range_end])
-  end
-
-  # List active alarms
-  def alarm_list
-    request.handle(:maintenance, 'alarms', [:get, leader_id])
-  end
-
-  # Disarm alarms on a specified member.
-  def deactivate_alarms
-    request.handle(:maintenance, 'alarms', [leader_id])
   end
 
   # Enables authentication.
