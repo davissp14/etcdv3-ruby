@@ -41,8 +41,35 @@ describe Etcd do
     end
 
     describe '#get' do
-      subject { conn.get('test') }
-      it { is_expected.to_not be_nil }
+      before do
+        conn.put('apple', 'test')
+        conn.put('applee', 'test')
+        conn.put('appleee', 'test')
+      end
+      context 'no filters' do
+        subject { conn.get('apple') }
+        it { is_expected.to_not be_nil }
+      end
+      context 'sorts desc' do
+        subject do
+          conn.get('apple', range_end: 'appleeee', sort_order: :descend) \
+            .kvs.first.key
+        end
+        it { is_expected.to eq('appleee') }
+      end
+      context 'sorts asc' do
+        subject do
+          conn.get('apple', range_end: 'appleeee', sort_order: :ascend) \
+            .kvs.first.key
+        end
+        it { is_expected.to eq('apple') }
+      end
+      context 'count only' do
+        subject do
+          conn.get('apple', range_end: 'appleeee', count_only: true).kvs
+        end
+        it { is_expected.to be_empty }
+      end
     end
 
     describe '#put' do

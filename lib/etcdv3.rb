@@ -80,9 +80,21 @@ class Etcd
     request.handle(:kv, 'put', [key, value, lease_id])
   end
 
-  # Fetches key(s).
-  def get(key, range_end='')
-    request.handle(:kv, 'get', [key, range_end])
+  # key                           - string
+  # optional :range_end           - string
+  # optional :limit               - integer
+  # optional :revision            - integer
+  # optional :sort_order          - symbol - [:NONE, :ASCEND, :DESCEND]
+  # optional :sort_target         - symbol - [:KEY, :VERSION, :CREATE, :MOD, :VALUE]
+  # optional :serializable        - boolean
+  # optional :keys_only           - boolean
+  # optional :count_only          - boolean
+  # optional :min_mod_revision    - integer
+  # optional :max_mod_revision    - integer
+  # optional :min_create_revision - integer
+  # optional :max_create_revision - integer
+  def get(key, opts={})
+    request.handle(:kv, 'get', [key, opts])
   end
 
   # Grant a lease with a speified TTL
