@@ -41,7 +41,7 @@ conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
  conn.get("my")
 
  # Get Key Range
- conn.get('my', 'myyyy')
+ conn.get('my', range_end: 'myyyy')
 
  # Delete Key
  conn.del('my')

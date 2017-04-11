@@ -84,8 +84,8 @@ class Etcd
   # optional :range_end           - string
   # optional :limit               - integer
   # optional :revision            - integer
-  # optional :sort_order          - symbol - [:NONE, :ASCEND, :DESCEND]
-  # optional :sort_target         - symbol - [:KEY, :VERSION, :CREATE, :MOD, :VALUE]
+  # optional :sort_order          - symbol - [:none, :ascend, :descend]
+  # optional :sort_target         - symbol - [:key, :version, :create, :mode, :value]
   # optional :serializable        - boolean
   # optional :keys_only           - boolean
   # optional :count_only          - boolean
