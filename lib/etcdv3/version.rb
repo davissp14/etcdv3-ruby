@@ -1,3 +1,3 @@
-class Etcd
-  VERSION = '0.2.0'.freeze
+class Etcdv3
+  VERSION = '0.3.0'.freeze
 end

@@ -2,7 +2,7 @@ module Helpers
   module Connections
 
     def local_connection
-      Etcd.new(url: "http://#{local_url}")
+      Etcdv3.new(url: "http://#{local_url}")
     end
 
     def local_stub(interface)

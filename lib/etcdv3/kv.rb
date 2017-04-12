@@ -1,5 +1,5 @@
 
-class Etcd
+class Etcdv3
   class KV
 
     SORT_TARGET = {

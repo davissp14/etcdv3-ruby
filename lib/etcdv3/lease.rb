@@ -1,5 +1,5 @@
 
-class Etcd
+class Etcdv3
   class Lease
     def initialize(hostname, credentials, metadata={})
       @stub = Etcdserverpb::Lease::Stub.new(hostname, credentials)

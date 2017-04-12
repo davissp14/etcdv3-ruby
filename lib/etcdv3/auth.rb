@@ -1,5 +1,5 @@
 
-class Etcd
+class Etcdv3
   class Auth
 
     PERMISSIONS = {
@@ -79,7 +79,7 @@ class Etcd
 
     def grant_permission_to_role(name, permission, key, range_end)
       permission = Authpb::Permission.new(
-        permType: Etcd::Auth::PERMISSIONS[permission], key: key, range_end: range_end
+        permType: Etcdv3::Auth::PERMISSIONS[permission], key: key, range_end: range_end
       )
       @stub.role_grant_permission(
         Etcdserverpb::AuthRoleGrantPermissionRequest.new(

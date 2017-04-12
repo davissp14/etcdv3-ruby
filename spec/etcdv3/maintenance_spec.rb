@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Etcd::Maintenance do
+describe Etcdv3::Maintenance do
 
-  let(:stub) { local_stub(Etcd::Maintenance) }
+  let(:stub) { local_stub(Etcdv3::Maintenance) }
 
   describe "#member_status" do
     subject { stub.member_status }
