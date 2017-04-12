@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Etcd::Lease do
+describe Etcdv3::Lease do
 
-  let(:stub) { local_stub(Etcd::Lease) }
+  let(:stub) { local_stub(Etcdv3::Lease) }
 
   describe '#grant_lease' do
     subject { stub.grant_lease(10) }

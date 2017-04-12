@@ -10,7 +10,7 @@ require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/request'
 
-class Etcd
+class Etcdv3
 
   attr_reader :credentials, :options
 

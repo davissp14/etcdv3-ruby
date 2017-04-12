@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Etcd::KV do
-  let(:stub) { local_stub(Etcd::KV) }
-  let(:lease_stub) { local_stub(Etcd::Lease) }
+describe Etcdv3::KV do
+  let(:stub) { local_stub(Etcdv3::KV) }
+  let(:lease_stub) { local_stub(Etcdv3::Lease) }
 
   describe '#put' do
     context 'without lease' do

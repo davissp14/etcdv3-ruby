@@ -20,13 +20,13 @@ gem install etcdv3
 require 'etcdv3'
 
 # Insecure connection
-conn = Etcd.new(url: 'http://127.0.0.1:2379')
+conn = Etcdv3.new(url: 'http://127.0.0.1:2379')
 
 # Secure connection using default certificates
-conn = Etcd.new(url: 'https://hostname:port')
+conn = Etcdv3.new(url: 'https://hostname:port')
 
 # Secure connection with Auth
-conn = Etcd.new(url: 'https://hostname:port', user: "gary", password: "secret")
+conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret")
 
 # Secure connection specifying own certificates
 # Coming soon...

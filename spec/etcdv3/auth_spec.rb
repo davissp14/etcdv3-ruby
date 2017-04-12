@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Etcd::Auth do
+describe Etcdv3::Auth do
 
-  let(:stub) { local_stub(Etcd::Auth) }
+  let(:stub) { local_stub(Etcdv3::Auth) }
 
   describe '#add_user' do
     after { stub.delete_user('boom') }

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Etcd do
+describe Etcdv3 do
   context 'Insecure connection without Auth' do
 
     let(:conn) { local_connection }

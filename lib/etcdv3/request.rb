@@ -1,4 +1,4 @@
-class Etcd
+class Etcdv3
   class Request
 
     attr_reader :metacache
@@ -22,19 +22,19 @@ class Etcd
     end
 
     def auth
-      @auth ||= Etcd::Auth.new(@hostname, @credentials, @metadata)
+      @auth ||= Etcdv3::Auth.new(@hostname, @credentials, @metadata)
     end
 
     def kv
-      @kv ||= Etcd::KV.new(@hostname, @credentials, @metadata)
+      @kv ||= Etcdv3::KV.new(@hostname, @credentials, @metadata)
     end
 
     def maintenance
-      @maintenance ||= Etcd::Maintenance.new(@hostname, @credentials, @metadata)
+      @maintenance ||= Etcdv3::Maintenance.new(@hostname, @credentials, @metadata)
     end
 
     def lease
-      @lease ||= Etcd::Lease.new(@hostname, @credentials, @metadata)
+      @lease ||= Etcdv3::Lease.new(@hostname, @credentials, @metadata)
     end
 
   end
