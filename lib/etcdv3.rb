@@ -97,7 +97,12 @@ class Etcdv3
     request.handle(:kv, 'get', [key, opts])
   end
 
-  # Grant a lease with a speified TTL
+  # Deletes a specified key
+  def del(key, range_end: '')
+    request.handle(:kv, 'del', [key, range_end])
+  end
+
+  # Grant a lease with a specified TTL
   def grant_lease(ttl)
     request.handle(:lease, 'grant_lease', [ttl])
   end
