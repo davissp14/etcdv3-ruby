@@ -77,6 +77,22 @@ describe Etcdv3 do
       it { is_expected.to_not be_nil }
     end
 
+    describe '#del' do
+      context 'no range' do
+        before { conn.put('test', 'value') }
+        subject { conn.del('test') }
+        it { is_expected.to_not be_nil }
+      end
+      context 'ranged del' do
+        before do
+          conn.put('test', 'value')
+          conn.put('testt', 'value')
+        end
+        subject { conn.del('test', range_end: 'testtt') }
+        it { is_expected.to_not be_nil }
+      end
+    end
+
     describe '#grant_lease' do
       subject { conn.grant_lease(2) }
       it { is_expected.to_not be_nil }
