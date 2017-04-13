@@ -47,7 +47,7 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret"
  conn.del('my')
 
  # Delete Key Range
- conn.del('my', 'myyy')
+ conn.del('my', range_end: 'myyy')
  ```
 
 **User Management**
