@@ -1,5 +1,3 @@
-require 'ostruct'
-
 class Etcdv3
   class Maintenance
     # Sadly these are the only alarm types supported by the api right now.

@@ -37,5 +37,9 @@ class Etcdv3
       @lease ||= Etcdv3::Lease.new(@hostname, @credentials, @metadata)
     end
 
+    def watch
+      @watch ||= Etcdv3::Watch.new(@hostname, @credentials, @metadata)
+    end
+
   end
 end

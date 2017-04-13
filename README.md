@@ -113,6 +113,23 @@ conn.lease_ttl(1234566789)
 conn.revoke_lease(1234566789)
 ```
 
+**Watch**
+```
+# Watch for changes on a specified key and return
+events = conn.watch('names')
+
+# Watch for changes on a specified key range and return
+events = conn.watch('boom', range_end: 'booooooom')
+
+# Watches for changes continuously until killed.
+event_count = 0
+conn.watch('boom') do |events|
+  puts events
+  event_count = event_count + 1
+  break if event_count >= 10
+end
+```
+
 **Alarms**
 ```
 # List all active Alarms

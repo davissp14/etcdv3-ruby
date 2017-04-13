@@ -9,6 +9,7 @@ require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/request'
+require 'etcdv3/watch'
 
 class Etcdv3
 
@@ -63,6 +64,11 @@ class Etcdv3
   # Cluster leader id
   def leader_id
     request.handle(:maintenance, 'member_status').leader
+  end
+
+  # Watches for changes on a specified key range.
+  def watch(key, range_end: '', &block)
+    request.handle(:watch, 'watch', [key, range_end, block])
   end
 
   # List active alarms
