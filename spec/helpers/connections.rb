@@ -1,6 +1,10 @@
 module Helpers
   module Connections
 
+    def local_connection_with_auth(user, password)
+      Etcdv3.new(url: "http://#{local_url}", user: user, password: password)
+    end
+
     def local_connection
       Etcdv3.new(url: "http://#{local_url}")
     end

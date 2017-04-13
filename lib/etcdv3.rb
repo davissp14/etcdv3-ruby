@@ -46,7 +46,7 @@ class Etcdv3
     @options = options
     @credentials = resolve_credentials
     @metadata = {}
-    @metadata[:token] = auth.generate_token(user, password) unless user.nil?
+    @metadata[:token] = generate_token(user, password) unless user.nil?
     @metacache = set_metacache
   end
 
@@ -202,7 +202,7 @@ class Etcdv3
   # Authenticate using specified user and password.
   # On successful authentication, an auth token will be assigned to the instance.
   def authenticate(user, password)
-    token = request.handle(:auth, 'generate_token', [user, password])
+    token = generate_token(user, password)
     return false unless token
     @metadata[:token] = token
     @options[:user] = user
@@ -223,6 +223,10 @@ class Etcdv3
   # Generates a new hash using a base64 of the metadata.
   def set_metacache
     Base64.strict_encode64(@metadata.to_s)
+  end
+
+  def generate_token(user, password)
+    request.handle(:auth, 'generate_token', [user, password])
   end
 
   def resolve_credentials

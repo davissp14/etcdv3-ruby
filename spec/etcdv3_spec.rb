@@ -6,13 +6,33 @@ describe Etcdv3 do
     let(:conn) { local_connection }
 
     describe '#initialize' do
-      subject { conn }
-      it { is_expected.to have_attributes(scheme: 'http') }
-      it { is_expected.to have_attributes(hostname: '127.0.0.1') }
-      it { is_expected.to have_attributes(credentials: :this_channel_is_insecure) }
-      it { is_expected.to have_attributes(token: nil) }
-      it { is_expected.to have_attributes(user: nil) }
-      it { is_expected.to have_attributes(password: nil) }
+      context 'without auth' do
+        subject { conn }
+        it { is_expected.to have_attributes(scheme: 'http') }
+        it { is_expected.to have_attributes(hostname: '127.0.0.1') }
+        it { is_expected.to have_attributes(credentials: :this_channel_is_insecure) }
+        it { is_expected.to have_attributes(token: nil) }
+        it { is_expected.to have_attributes(user: nil) }
+        it { is_expected.to have_attributes(password: nil) }
+      end
+      context 'with auth' do
+        let(:auth_conn) { local_connection_with_auth('test', 'pass') }
+        before do
+          conn.add_user('root', 'pass')
+          conn.grant_role_to_user('root', 'root')
+          conn.add_user('test', 'pass')
+          conn.enable_auth
+        end
+        after do
+          conn.authenticate('root', 'pass')
+          conn.disable_auth
+          conn.delete_user('root')
+          conn.delete_user('test')
+        end
+        it 'doesnt raise error' do
+          expect{ auth_conn }.to_not raise_error
+        end
+      end
     end
 
     describe '#version' do
