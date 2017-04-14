@@ -10,13 +10,13 @@ Ruby client for Etcd V3
 [RubyDocs](http://www.rubydoc.info/gems/etcdv3/0.1.1/Etcd)
 
 To install etcdv3, run the following command:
-```
+```ruby
 gem install etcdv3
 ```
 
-**Establishing a connection**
+## Establishing a connection
 
-```
+```ruby
 require 'etcdv3'
 
 # Insecure connection
@@ -32,8 +32,8 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret"
 # Coming soon...
 ```
 
-**Adding, Fetching and Deleting Keys**
-```
+## Adding, Fetching and Deleting Keys
+```ruby
  # Put
  conn.put("my", "value")
 
@@ -50,8 +50,8 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret"
  conn.del('my', range_end: 'myyy')
  ```
 
-**User Management**
-```
+## User Management
+```ruby
  # Add User
  conn.add_user('admin', 'secret')
 
@@ -62,8 +62,8 @@ conn.delete_user('admin')
 conn.user_list
 ```
 
-**Role Management**
-```
+## Role Management
+```ruby
 # Add Role
 conn.add_role('rolename')
 
@@ -77,8 +77,8 @@ conn.delete_role('rolename')
 conn.role_list
 ```
 
-**Authentication Management**
-```
+## Authentication Management
+```ruby
 # Configure a root user
 conn.add_user('root', 'mysecretpassword')
 
@@ -89,7 +89,7 @@ conn.grant_role_to_user('root', 'root')
 conn.enable_auth
 ```
 After you enable authentication, you must authenticate.
-```
+```ruby
 # This will generate and assign an auth token that will be used in future requests.
 conn.authenticate('root', 'mysecretpassword')
 ```
@@ -98,8 +98,8 @@ Disabling auth will clear the auth token and all previously attached user inform
 conn.disable_auth
 ```
 
-**Leases**
-```
+## Leases
+```ruby
 # Grant a lease with a 100 second TTL
 conn.grant_lease(100)
 
@@ -113,8 +113,8 @@ conn.lease_ttl(1234566789)
 conn.revoke_lease(1234566789)
 ```
 
-**Watch**
-```
+## Watch
+```ruby
 # Watch for changes on a specified key and return
 events = conn.watch('names')
 
@@ -130,8 +130,8 @@ conn.watch('boom') do |events|
 end
 ```
 
-**Alarms**
-```
+## Alarms
+```ruby
 # List all active Alarms
 conn.alarm_list
 
