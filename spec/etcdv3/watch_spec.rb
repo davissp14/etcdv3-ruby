@@ -11,7 +11,6 @@ describe Etcdv3::Watch do
       it 'fires event on put' do
         th = Thread.new { stub.watch('test', '') }
         kv_stub.put('test', 'value')
-        th.kill
         expect(th.value).to be_an_instance_of(Google::Protobuf::RepeatedField)
       end
     end
