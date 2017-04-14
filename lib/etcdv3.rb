@@ -68,7 +68,7 @@ class Etcdv3
 
   # Watches for changes on a specified key range.
   def watch(key, range_end: '', &block)
-    request.handle(:watch, 'watch', [key, range_end, block])
+    request.handle(:watch, 'watch', [key, range_end], &block)
   end
 
   # List active alarms

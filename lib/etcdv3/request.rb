@@ -10,9 +10,9 @@ class Etcdv3
       @metacache = metacache
     end
 
-    def handle(interface, method, method_args=[])
+    def handle(interface, method, method_args=[], &block)
       interface = resolve_interface(interface)
-      interface.send(method, *method_args)
+      interface.send(method, *method_args, &block)
     end
 
     private
