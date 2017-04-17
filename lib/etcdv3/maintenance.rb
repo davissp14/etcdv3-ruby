@@ -24,7 +24,7 @@ class Etcdv3
         memberID: member_id,
         alarm: action == :deactivate ? ALARM_TYPES[:NOSPACE] : alarm
       )
-      @stub.alarm(request)
+      @stub.alarm(request, metadata: @metadata)
     end
 
     def member_status

@@ -52,8 +52,8 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret"
 
 ## User Management
 ```ruby
- # Add User
- conn.user_add('admin', 'secret')
+# Add User
+conn.user_add('admin', 'secret')
 
 # Delete User
 conn.user_delete('admin')
