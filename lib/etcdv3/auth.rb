@@ -82,12 +82,12 @@ class Etcdv3
 
     def user_delete(user)
       request = Etcdserverpb::AuthUserDeleteRequest.new(name: user)
-      @stub.user_delete(request)
+      @stub.user_delete(request, metadata: @metadata)
     end
 
     def user_get(user)
       request = Etcdserverpb::AuthUserGetRequest.new(name: user)
-      @stub.user_get(request)
+      @stub.user_get(request, metadata: @metadata)
     end
 
     def user_change_password(user, new_password)
