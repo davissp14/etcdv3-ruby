@@ -58,7 +58,10 @@ conn.user_add('admin', 'secret')
 # Delete User
 conn.user_delete('admin')
 
-# List users
+# Get User
+conn.user_get('admin')
+
+# List Users
 conn.user_list
 ```
 
@@ -82,7 +85,7 @@ conn.role_list
 # Configure a root user
 conn.user_add('root', 'mysecretpassword')
 
-# Grant root user the root role
+# Grant root role to root user
 conn.user_grant_role('root', 'root')
 
 # Enable Authentication
