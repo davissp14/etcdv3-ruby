@@ -53,10 +53,10 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret"
 ## User Management
 ```ruby
  # Add User
- conn.add_user('admin', 'secret')
+ conn.user_add('admin', 'secret')
 
 # Delete User
-conn.delete_user('admin')
+conn.user_delete('admin')
 
 # List users
 conn.user_list
@@ -65,13 +65,13 @@ conn.user_list
 ## Role Management
 ```ruby
 # Add Role
-conn.add_role('rolename')
+conn.role_add('rolename')
 
 # Grant Permission to Role
-conn.grant_permission_to_role('rolename', 'readwrite', 'a', 'z')
+conn.role_grant_permission('rolename', :readwrite, 'a', 'z')
 
 # Delete Role
-conn.delete_role('rolename')
+conn.role_delete('rolename')
 
 # List Roles
 conn.role_list
@@ -80,13 +80,13 @@ conn.role_list
 ## Authentication Management
 ```ruby
 # Configure a root user
-conn.add_user('root', 'mysecretpassword')
+conn.user_add('root', 'mysecretpassword')
 
 # Grant root user the root role
-conn.grant_role_to_user('root', 'root')
+conn.user_grant_role('root', 'root')
 
 # Enable Authentication
-conn.enable_auth
+conn.auth_enable
 ```
 After you enable authentication, you must authenticate.
 ```ruby
@@ -95,13 +95,13 @@ conn.authenticate('root', 'mysecretpassword')
 ```
 Disabling auth will clear the auth token and all previously attached user information
 ```
-conn.disable_auth
+conn.auth_disable
 ```
 
 ## Leases
 ```ruby
 # Grant a lease with a 100 second TTL
-conn.grant_lease(100)
+conn.lease_grant(100)
 
 # Attach key to lease
 conn.put("testkey", "testvalue", lease_id: 1234566789)
@@ -110,7 +110,7 @@ conn.put("testkey", "testvalue", lease_id: 1234566789)
 conn.lease_ttl(1234566789)
 
 # Revoke lease and delete all keys attached
-conn.revoke_lease(1234566789)
+conn.lease_revoke(1234566789)
 ```
 
 ## Watch
@@ -136,5 +136,5 @@ end
 conn.alarm_list
 
 # Deactivate ALL active Alarms
-conn.deactivate_alarms
+conn.alarm_deactivate
 ```

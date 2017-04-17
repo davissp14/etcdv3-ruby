@@ -6,12 +6,12 @@ class Etcdv3
       @metadata = metadata
     end
 
-    def grant_lease(ttl)
+    def lease_grant(ttl)
       request = Etcdserverpb::LeaseGrantRequest.new(TTL: ttl)
       @stub.lease_grant(request, metadata: @metadata)
     end
 
-    def revoke_lease(id)
+    def lease_revoke(id)
       request = Etcdserverpb::LeaseRevokeRequest.new(ID: id)
       @stub.lease_revoke(request, metadata: @metadata)
     end
@@ -20,6 +20,8 @@ class Etcdv3
       request = Etcdserverpb::LeaseTimeToLiveRequest.new(ID: id, keys: true)
       @stub.lease_time_to_live(request, metadata: @metadata)
     end
+
+
 
   end
 end

@@ -4,16 +4,16 @@ describe Etcdv3::Auth do
 
   let(:stub) { local_stub(Etcdv3::Auth) }
 
-  describe '#add_user' do
-    after { stub.delete_user('boom') }
-    subject { stub.add_user('boom', 'test') }
+  describe '#user_add' do
+    after { stub.user_delete('boom') }
+    subject { stub.user_add('boom', 'test') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserAddResponse) }
   end
 
-  describe '#get_user' do
-    before { stub.add_user('get_user', 'password') }
-    after { stub.delete_user('get_user') }
-    subject { stub.get_user('get_user') }
+  describe '#user_get' do
+    before { stub.user_add('user_get', 'password') }
+    after { stub.user_delete('user_get') }
+    subject { stub.user_get('user_get') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGetResponse) }
   end
 
@@ -22,51 +22,51 @@ describe Etcdv3::Auth do
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserListResponse) }
   end
 
-  describe '#delete_user' do
-    before { stub.add_user('delete_user', 'test') }
-    subject { stub.delete_user('delete_user') }
+  describe '#user_delete' do
+    before { stub.user_add('user_delete', 'test') }
+    subject { stub.user_delete('user_delete') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserDeleteResponse) }
   end
 
-  describe '#grant_role_to_user' do
-    before { stub.add_user('grant_user', 'test') }
-    after { stub.delete_user('grant_user') }
-    subject { stub.grant_role_to_user('grant_user', 'root') }
+  describe '#user_grant_role' do
+    before { stub.user_add('grant_user', 'test') }
+    after { stub.user_delete('grant_user') }
+    subject { stub.user_grant_role('grant_user', 'root') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGrantRoleResponse) }
   end
 
-  describe '#revoke_role_from_user' do
+  describe '#user_revoke_role' do
     before do
-      stub.add_user('revoke_user', 'password')
-      stub.grant_role_to_user('revoke_user', 'root')
+      stub.user_add('revoke_user', 'password')
+      stub.user_grant_role('revoke_user', 'root')
     end
-    after { stub.delete_user('revoke_user') }
-    subject { stub.revoke_role_from_user('revoke_user', 'root') }
+    after { stub.user_delete('revoke_user') }
+    subject { stub.user_revoke_role('revoke_user', 'root') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserRevokeRoleResponse) }
   end
 
-  describe '#add_role' do
-    after { stub.delete_role('add_role') }
-    subject { stub.add_role('add_role') }
+  describe '#role_add' do
+    after { stub.role_delete('role_add') }
+    subject { stub.role_add('role_add') }
     it 'adds a role' do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleAddResponse)
-      expect(stub.role_list.roles).to include('add_role')
+      expect(stub.role_list.roles).to include('role_add')
     end
   end
 
-  describe '#get_role' do
-    before { stub.add_role('get_role') }
-    after { stub.delete_role('get_role') }
-    subject { stub.get_role('get_role') }
+  describe '#role_get' do
+    before { stub.role_add('role_get') }
+    after { stub.role_delete('role_get') }
+    subject { stub.role_get('role_get') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthRoleGetResponse) }
   end
 
-  describe '#delete_role' do
-    before { stub.add_role('delete_role') }
-    subject { stub.delete_role('delete_role') }
+  describe '#role_delete' do
+    before { stub.role_add('role_delete') }
+    subject { stub.role_delete('role_delete') }
     it 'deletes role' do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleDeleteResponse)
-      expect(stub.role_list.roles).to_not include('delete_role')
+      expect(stub.role_list.roles).to_not include('role_delete')
     end
   end
 
@@ -75,10 +75,10 @@ describe Etcdv3::Auth do
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthRoleListResponse) }
   end
 
-  describe '#grant_permission_to_role' do
-    before { stub.add_role('grant_perm') }
-    after { stub.delete_role('grant_perm') }
-    subject { stub.grant_permission_to_role('grant_perm', 'write', 'c', 'cc') }
+  describe '#role_grant_permission' do
+    before { stub.role_add('grant_perm') }
+    after { stub.role_delete('grant_perm') }
+    subject { stub.role_grant_permission('grant_perm', :write, 'c', 'cc') }
     it 'sets permission' do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleGrantPermissionResponse)
     end
@@ -86,21 +86,21 @@ describe Etcdv3::Auth do
 
   describe '#revoke_permission_from_role' do
     before do
-      stub.add_role('myrole')
-      stub.grant_permission_to_role('myrole', 'write', 'c', 'cc')
+      stub.role_add('myrole')
+      stub.role_grant_permission('myrole', :write, 'c', 'cc')
     end
-    after { stub.delete_role('myrole') }
-    subject { stub.revoke_permission_from_role('myrole', 'write', 'c', 'cc') }
+    after { stub.role_delete('myrole') }
+    subject { stub.role_revoke_permission('myrole', :write, 'c', 'cc') }
     it 'revokes permission' do
       expect(subject).to be_an_instance_of(Etcdserverpb::AuthRoleRevokePermissionResponse)
-      expect(stub.get_role('myrole').perm.size).to eq(0)
+      expect(stub.role_get('myrole').perm.size).to eq(0)
     end
   end
 
-  describe '#change_user_password' do
-    before { stub.add_user('myuser', 'test') }
-    after { stub.delete_user('myuser') }
-    subject { stub.change_user_password('myuser', 'boom') }
+  describe '#user_change_password' do
+    before { stub.user_add('myuser', 'test') }
+    after { stub.user_delete('myuser') }
+    subject { stub.user_change_password('myuser', 'boom') }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserChangePasswordResponse) }
   end
 

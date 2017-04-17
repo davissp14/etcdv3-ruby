@@ -17,10 +17,6 @@ class Etcdv3
       @metadata = metadata
     end
 
-    def member_status
-      @stub.status(Etcdserverpb::StatusRequest.new, metadata: @metadata)
-    end
-
     def alarms(action, member_id, alarm=:NONE)
       alarm = ALARM_TYPES[alarm]
       request = Etcdserverpb::AlarmRequest.new(
@@ -30,5 +26,10 @@ class Etcdv3
       )
       @stub.alarm(request)
     end
+
+    def member_status
+      @stub.status(Etcdserverpb::StatusRequest.new, metadata: @metadata)
+    end
+
   end
 end
