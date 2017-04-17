@@ -113,6 +113,17 @@ describe Etcdv3 do
       end
     end
 
+    describe '#watch' do
+      after { conn.del('watchtest') }
+      it 'fires event on put' do
+        th = Thread.new { conn.watch('watchtest') }
+        conn.put('watchtest', 'WoW')
+        events = th.value
+        th.kill
+        expect(events.first.kv.value).to eq('WoW')
+      end
+    end
+
     describe '#grant_lease' do
       subject { conn.grant_lease(2) }
       it { is_expected.to_not be_nil }

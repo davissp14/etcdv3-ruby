@@ -6,7 +6,7 @@ class Etcdv3
       @metadata = metadata
     end
 
-    def watch(key, range_end, block)
+    def watch(key, range_end, &block)
       create_req = Etcdserverpb::WatchCreateRequest.new(key: key, range_end: range_end)
       watch_req = Etcdserverpb::WatchRequest.new(create_request: create_req)
       events = nil
