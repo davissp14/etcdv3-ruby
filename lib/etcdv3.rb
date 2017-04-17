@@ -148,6 +148,35 @@ class Etcdv3
     request.handle(:lease, 'lease_ttl', [id])
   end
 
+  # List all roles.
+  def role_list
+    request.handle(:auth, 'role_list')
+  end
+
+  # Add role with specified name.
+  def role_add(name)
+    request.handle(:auth, 'role_add', [name])
+  end
+
+  # Fetches a specified role.
+  def role_get(name)
+    request.handle(:auth, 'role_get', [name])
+  end
+
+  # Delete role.
+  def role_delete(name)
+    request.handle(:auth, 'role_delete', [name])
+  end
+
+  # Grants a new permission to an existing role.
+  def role_grant_permission(name, permission, key, range_end='')
+    request.handle(:auth, 'role_grant_permission', [name, permission, key, range_end])
+  end
+
+  def role_revoke_permission(name, permission, key, range_end='')
+    request.handle(:auth, 'role_revoke_permission', [name, permission, key, range_end])
+  end
+
   # Fetch specified user
   def user_get(user)
     request.handle(:auth, 'user_get', [user])
@@ -181,35 +210,6 @@ class Etcdv3
   # Revokes role from a specified user.
   def user_revoke_role(user, role)
     request.handle(:auth, 'user_revoke_role', [user, role])
-  end
-
-  # List all roles.
-  def role_list
-    request.handle(:auth, 'role_list')
-  end
-
-  # Add role with specified name.
-  def role_add(name)
-    request.handle(:auth, 'role_add', [name])
-  end
-
-  # Fetches a specified role.
-  def role_get(name)
-    request.handle(:auth, 'role_get', [name])
-  end
-
-  # Delete role.
-  def role_delete(name)
-    request.handle(:auth, 'role_delete', [name])
-  end
-
-  # Grants a new permission to an existing role.
-  def role_grant_permission(name, permission, key, range_end='')
-    request.handle(:auth, 'role_grant_permission', [name, permission, key, range_end])
-  end
-
-  def role_revoke_permission(name, permission, key, range_end='')
-    request.handle(:auth, 'role_revoke_permission', [name, permission, key, range_end])
   end
 
   # Watches for changes on a specified key range.

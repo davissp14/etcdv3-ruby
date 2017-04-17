@@ -21,12 +21,6 @@ class Etcdv3
       @metadata = metadata
     end
 
-    def put(key, value, lease=nil)
-      kv = Etcdserverpb::PutRequest.new(key: key, value: value)
-      kv.lease = lease if lease
-      @stub.put(kv, metadata: @metadata)
-    end
-
     def get(key, opts={})
       opts[:sort_order] = SORT_ORDER[opts[:sort_order]] \
         if opts[:sort_order]
@@ -43,6 +37,12 @@ class Etcdv3
         range_end: range_end
       )
       @stub.delete_range(request, metadata: @metadata)
+    end
+
+    def put(key, value, lease=nil)
+      kv = Etcdserverpb::PutRequest.new(key: key, value: value)
+      kv.lease = lease if lease
+      @stub.put(kv, metadata: @metadata)
     end
   end
 end
