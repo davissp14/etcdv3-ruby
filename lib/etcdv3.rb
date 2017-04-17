@@ -66,24 +66,44 @@ class Etcdv3
     request.handle(:maintenance, 'member_status').leader
   end
 
-  # Watches for changes on a specified key range.
-  def watch(key, range_end: '', &block)
-    request.handle(:watch, 'watch', [key, range_end, block])
-  end
-
   # List active alarms
   def alarm_list
     request.handle(:maintenance, 'alarms', [:get, leader_id])
   end
 
   # Disarm alarms on a specified member.
-  def deactivate_alarms
+  def alarm_deactivate
     request.handle(:maintenance, 'alarms', [:deactivate, leader_id])
   end
 
-  # Inserts a new key.
-  def put(key, value, lease_id: nil)
-    request.handle(:kv, 'put', [key, value, lease_id])
+  # Authenticate using specified user and password.
+  # On successful authentication, an auth token will be assigned to the instance.
+  def authenticate(user, password)
+    token = generate_token(user, password)
+    return false unless token
+    @metadata[:token] = token
+    @options[:user] = user
+    @options[:password] = password
+    @metacache = set_metacache
+    true
+  end
+
+  # Enables authentication.
+  def auth_enable
+    request.handle(:auth, 'auth_enable')
+  end
+
+  # Disables authentication.
+  # This will clear any active auth / token data.
+  def auth_disable
+    response = request.handle(:auth, 'auth_disable')
+    if response
+      @metadata.delete(:token)
+      @options[:user] = nil
+      @options[:password] = nil
+      @metacache = set_metacache
+    end
+    response
   end
 
   # key                           - string
@@ -103,19 +123,24 @@ class Etcdv3
     request.handle(:kv, 'get', [key, opts])
   end
 
+  # Inserts a new key.
+  def put(key, value, lease_id: nil)
+    request.handle(:kv, 'put', [key, value, lease_id])
+  end
+
   # Deletes a specified key
   def del(key, range_end: '')
     request.handle(:kv, 'del', [key, range_end])
   end
 
   # Grant a lease with a specified TTL
-  def grant_lease(ttl)
-    request.handle(:lease, 'grant_lease', [ttl])
+  def lease_grant(ttl)
+    request.handle(:lease, 'lease_grant', [ttl])
   end
 
   # Revokes lease and delete all attached keys
-  def revoke_lease(id)
-    request.handle(:lease, 'revoke_lease', [id])
+  def lease_revoke(id)
+    request.handle(:lease, 'lease_revoke', [id])
   end
 
   # Returns information regarding the current state of the lease
@@ -123,29 +148,39 @@ class Etcdv3
     request.handle(:lease, 'lease_ttl', [id])
   end
 
-  # Creates new user.
-  def add_user(user, password)
-    request.handle(:auth, 'add_user', [user, password])
+  # Fetch specified user
+  def user_get(user)
+    request.handle(:auth, 'user_get', [user])
   end
 
-  # Fetch specified user
-  def get_user(user)
-    request.handle(:auth, 'get_user', [user])
+  # Creates new user.
+  def user_add(user, password)
+    request.handle(:auth, 'user_add', [user, password])
   end
 
   # Delete specified user.
-  def delete_user(user)
-    request.handle(:auth, 'delete_user', [user])
+  def user_delete(user)
+    request.handle(:auth, 'user_delete', [user])
   end
 
   # Changes the specified users password.
-  def change_user_password(user, new_password)
-    request.handle(:auth, 'change_user_password', [user, new_password])
+  def user_change_password(user, new_password)
+    request.handle(:auth, 'user_change_password', [user, new_password])
   end
 
   # List all users.
   def user_list
     request.handle(:auth, 'user_list')
+  end
+
+  # Grants role to an existing user.
+  def user_grant_role(user, role)
+    request.handle(:auth, 'user_grant_role', [user, role])
+  end
+
+  # Revokes role from a specified user.
+  def user_revoke_role(user, role)
+    request.handle(:auth, 'user_revoke_role', [user, role])
   end
 
   # List all roles.
@@ -154,68 +189,32 @@ class Etcdv3
   end
 
   # Add role with specified name.
-  def add_role(name)
-    request.handle(:auth, 'add_role', [name])
+  def role_add(name)
+    request.handle(:auth, 'role_add', [name])
   end
 
   # Fetches a specified role.
-  def get_role(name)
-    request.handle(:auth, 'get_role', [name])
+  def role_get(name)
+    request.handle(:auth, 'role_get', [name])
   end
 
   # Delete role.
-  def delete_role(name)
-    request.handle(:auth, 'delete_role', [name])
-  end
-
-  # Grants role to an existing user.
-  def grant_role_to_user(user, role)
-    request.handle(:auth, 'grant_role_to_user', [user, role])
-  end
-
-  # Revokes role from a specified user.
-  def revoke_role_from_user(user, role)
-    request.handle(:auth, 'revoke_role_from_user', [user, role])
+  def role_delete(name)
+    request.handle(:auth, 'role_delete', [name])
   end
 
   # Grants a new permission to an existing role.
-  def grant_permission_to_role(name, permission, key, range_end='')
-    request.handle(:auth, 'grant_permission_to_role', [name, permission, key, range_end])
+  def role_grant_permission(name, permission, key, range_end='')
+    request.handle(:auth, 'role_grant_permission', [name, permission, key, range_end])
   end
 
-  def revoke_permission_from_role(name, permission, key, range_end='')
-    request.handle(:auth, 'revoke_permission_from_role', [name, permission, key, range_end])
+  def role_revoke_permission(name, permission, key, range_end='')
+    request.handle(:auth, 'role_revoke_permission', [name, permission, key, range_end])
   end
 
-  # Enables authentication.
-  def enable_auth
-    request.handle(:auth, 'enable_auth')
-  end
-
-  # Disables authentication.
-  # This will clear any active auth / token data.
-  def disable_auth
-    response = request.handle(:auth, 'disable_auth')
-    if response
-      @metadata.delete(:token)
-      @options[:user] = nil
-      @options[:password] = nil
-      @metacache = set_metacache
-    end
-    response
-  end
-
-  # Authenticate using specified user and password.
-  # On successful authentication, an auth token will be assigned to the instance.
-  def authenticate(user, password)
-    token = generate_token(user, password)
-    return false unless token
-    @metadata[:token] = token
-    @options[:user] = user
-    @options[:password] = password
-    @metacache = set_metacache
-
-    true
+  # Watches for changes on a specified key range.
+  def watch(key, range_end: '', &block)
+    request.handle(:watch, 'watch', [key, range_end, block])
   end
 
   private

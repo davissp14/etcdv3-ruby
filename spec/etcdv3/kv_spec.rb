@@ -11,7 +11,7 @@ describe Etcdv3::KV do
     end
 
     context 'with lease' do
-      let(:lease_id) { lease_stub.grant_lease(1)['ID'] }
+      let(:lease_id) { lease_stub.lease_grant(1)['ID'] }
       subject { stub.put('lease', 'test', lease_id) }
       it { is_expected.to be_an_instance_of(Etcdserverpb::PutResponse) }
     end

@@ -15,7 +15,7 @@ describe Etcdv3::Maintenance do
     it { is_expected.to be_an_instance_of(Etcdserverpb::AlarmResponse) }
   end
 
-  describe '#deactivate_alarms' do
+  describe '#alarm_deactivate' do
     let(:leader_id) { stub.member_status.leader }
     subject { stub.alarms(:deactivate, leader_id, :NOSPACE) }
     it { is_expected.to be_an_instance_of(Etcdserverpb::AlarmResponse) }

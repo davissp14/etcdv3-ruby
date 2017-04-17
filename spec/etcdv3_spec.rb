@@ -18,16 +18,16 @@ describe Etcdv3 do
       context 'with auth' do
         let(:auth_conn) { local_connection_with_auth('test', 'pass') }
         before do
-          conn.add_user('root', 'pass')
-          conn.grant_role_to_user('root', 'root')
-          conn.add_user('test', 'pass')
-          conn.enable_auth
+          conn.user_add('root', 'pass')
+          conn.user_grant_role('root', 'root')
+          conn.user_add('test', 'pass')
+          conn.auth_enable
         end
         after do
           conn.authenticate('root', 'pass')
-          conn.disable_auth
-          conn.delete_user('root')
-          conn.delete_user('test')
+          conn.auth_disable
+          conn.user_delete('root')
+          conn.user_delete('test')
         end
         it 'doesnt raise error' do
           expect{ auth_conn }.to_not raise_error
@@ -55,8 +55,8 @@ describe Etcdv3 do
       it { is_expected.to_not be_nil }
     end
 
-    describe '#deactivate_alarms' do
-      subject { conn.deactivate_alarms }
+    describe '#alarm_deactivate' do
+      subject { conn.alarm_deactivate }
       it { is_expected.to_not be_nil }
     end
 
@@ -113,39 +113,39 @@ describe Etcdv3 do
       end
     end
 
-    describe '#grant_lease' do
-      subject { conn.grant_lease(2) }
+    describe '#lease_grant' do
+      subject { conn.lease_grant(2) }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#revoke_lease' do
-      let!(:lease_id) { conn.grant_lease(2)['ID'] }
-      subject { conn.revoke_lease(lease_id) }
+    describe '#lease_revoke' do
+      let!(:lease_id) { conn.lease_grant(2)['ID'] }
+      subject { conn.lease_revoke(lease_id) }
       it { is_expected.to_not be_nil }
     end
 
     describe '#lease_ttl' do
-      let!(:lease_id) { conn.grant_lease(2)['ID'] }
+      let!(:lease_id) { conn.lease_grant(2)['ID'] }
       subject { conn.lease_ttl(lease_id) }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#add_user' do
-      after { conn.delete_user('test') }
-      subject { conn.add_user('test', 'user') }
+    describe '#user_add' do
+      after { conn.user_delete('test') }
+      subject { conn.user_add('test', 'user') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#delete_user' do
-      before { conn.add_user('test', 'user') }
-      subject { conn.delete_user('test') }
+    describe '#user_delete' do
+      before { conn.user_add('test', 'user') }
+      subject { conn.user_delete('test') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#change_user_password' do
-      before { conn.add_user('change_user', 'pass') }
-      after { conn.delete_user('change_user') }
-      subject { conn.change_user_password('change_user', 'new_pass') }
+    describe '#user_change_password' do
+      before { conn.user_add('change_user', 'pass') }
+      after { conn.user_delete('change_user') }
+      subject { conn.user_change_password('change_user', 'new_pass') }
       it { is_expected.to_not be_nil }
     end
 
@@ -159,76 +159,76 @@ describe Etcdv3 do
       it { is_expected.to_not be_nil }
     end
 
-    describe '#add_role' do
-      subject { conn.add_role('add_role') }
+    describe '#role_add' do
+      subject { conn.role_add('role_add') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#delete_role' do
-      before { conn.add_role('delete_role') }
-      subject { conn.delete_role('delete_role') }
+    describe '#role_delete' do
+      before { conn.role_add('role_delete') }
+      subject { conn.role_delete('role_delete') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#grant_role_to_user' do
-      before { conn.add_user('grant_me', 'pass') }
-      subject { conn.grant_role_to_user('grant_me', 'root') }
+    describe '#user_grant_role' do
+      before { conn.user_add('grant_me', 'pass') }
+      subject { conn.user_grant_role('grant_me', 'root') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#revoke_role_from_user' do
-      subject { conn.revoke_role_from_user('grant_me', 'root') }
+    describe '#user_revoke_role' do
+      subject { conn.user_revoke_role('grant_me', 'root') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#grant_permission_to_role' do
-      before { conn.add_role('grant') }
-      subject { conn.grant_permission_to_role('grant', 'readwrite', 'a', 'Z') }
+    describe '#role_grant_permission' do
+      before { conn.role_add('grant') }
+      subject { conn.role_grant_permission('grant', :readwrite, 'a', 'Z') }
       it { is_expected.to_not be_nil }
     end
 
     describe '#revoke_permission_to_role' do
-      subject { conn.revoke_permission_from_role('grant', 'readwrite', 'a', 'Z') }
+      subject { conn.role_revoke_permission('grant', :readwrite, 'a', 'Z') }
       it { is_expected.to_not be_nil }
     end
 
-    describe '#disable_auth' do
+    describe '#auth_disable' do
       before do
-        conn.add_user('root', 'test')
-        conn.grant_role_to_user('root', 'root')
-        conn.enable_auth
+        conn.user_add('root', 'test')
+        conn.user_grant_role('root', 'root')
+        conn.auth_enable
         conn.authenticate('root', 'test')
       end
-      after { conn.delete_user('root') }
-      subject { conn.disable_auth }
+      after { conn.user_delete('root') }
+      subject { conn.auth_disable }
       it { is_expected.to be_an_instance_of(Etcdserverpb::AuthDisableResponse) }
     end
 
-    describe '#enable_auth' do
+    describe '#auth_enable' do
       before do
-        conn.add_user('root', 'test')
-        conn.grant_role_to_user('root', 'root')
+        conn.user_add('root', 'test')
+        conn.user_grant_role('root', 'root')
       end
       after do
         conn.authenticate('root', 'test')
-        conn.disable_auth
-        conn.delete_user('root')
+        conn.auth_disable
+        conn.user_delete('root')
       end
-      subject { conn.enable_auth }
+      subject { conn.auth_enable }
       it { is_expected.to be_an_instance_of(Etcdserverpb::AuthEnableResponse) }
     end
 
     describe "#authenticate" do
       context "auth enabled" do
         before do
-          conn.add_user('root', 'test')
-          conn.grant_role_to_user('root', 'root')
-          conn.enable_auth
+          conn.user_add('root', 'test')
+          conn.user_grant_role('root', 'root')
+          conn.auth_enable
           conn.authenticate('root', 'test')
         end
         after do
-          conn.disable_auth
-          conn.delete_user('root')
+          conn.auth_disable
+          conn.user_delete('root')
         end
         it 'properly reconfigures auth and token' do
           expect(conn.token).to_not be_nil
@@ -247,24 +247,24 @@ describe Etcdv3 do
     describe '#metacache' do
       context 'uses cached request object' do
         let!(:object_id) { conn.send(:request).object_id }
-        before { conn.add_user('root', 'test') }
-        after { conn.delete_user('root') }
+        before { conn.user_add('root', 'test') }
+        after { conn.user_delete('root') }
         subject { conn.send(:request).object_id }
         it { is_expected.to eq(object_id) }
       end
       context 'resets cache on auth' do
         let!(:object_id) { conn.send(:request).object_id }
         before do
-          conn.add_user('root', 'test')
-          conn.grant_role_to_user('root', 'root')
-          conn.enable_auth
+          conn.user_add('root', 'test')
+          conn.user_grant_role('root', 'root')
+          conn.auth_enable
           conn.authenticate('root', 'test')
-          conn.add_user('boom', 'password')
+          conn.user_add('boom', 'password')
         end
         after do
-          conn.disable_auth
-          conn.delete_user('root')
-          conn.delete_user('boom')
+          conn.auth_disable
+          conn.user_delete('root')
+          conn.user_delete('boom')
         end
         subject { conn.send(:request).object_id }
         it { is_expected.to_not eq(object_id) }
