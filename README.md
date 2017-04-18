@@ -26,7 +26,7 @@ conn = Etcdv3.new(url: 'http://127.0.0.1:2379')
 conn = Etcdv3.new(url: 'https://hostname:port')
 
 # Secure connection with Auth
-conn = Etcdv3.new(url: 'https://hostname:port', user: 'gary', password: 'secret')
+conn = Etcdv3.new(url: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
 # Secure connection specifying own certificates
 # Coming soon...
@@ -35,19 +35,19 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: 'gary', password: 'secret'
 ## Adding, Fetching and Deleting Keys
 ```ruby
  # Put
- conn.put('my', 'value')
+ conn.put('foo', 'bar')
 
  # Get
  conn.get('my')
 
  # Get Key Range
- conn.get('my', range_end: 'myyyy')
+ conn.get('foo', range_end: 'foo80')
 
  # Delete Key
- conn.del('my')
+ conn.del('foo')
 
  # Delete Key Range
- conn.del('my', range_end: 'myyy')
+ conn.del('foo', range_end: 'foo80')
  ```
 
 ## User Management
@@ -68,13 +68,13 @@ conn.user_list
 ## Role Management
 ```ruby
 # Add Role
-conn.role_add('rolename')
+conn.role_add('admin')
 
 # Grant Permission to Role
-conn.role_grant_permission('rolename', :readwrite, 'a', 'z')
+conn.role_grant_permission('admin', :readwrite, 'foo', 'foo99')
 
 # Delete Role
-conn.role_delete('rolename')
+conn.role_delete('admin')
 
 # List Roles
 conn.role_list
@@ -107,7 +107,7 @@ conn.auth_disable
 conn.lease_grant(100)
 
 # Attach key to lease
-conn.put('testkey', 'testvalue', lease_id: 1234566789)
+conn.put('foo', 'bar', lease_id: 1234566789)
 
 # Get information about lease and its attached keys
 conn.lease_ttl(1234566789)
@@ -119,10 +119,10 @@ conn.lease_revoke(1234566789)
 ## Watch
 ```ruby
 # Watch for changes on a specified key and return
-events = conn.watch('names')
+events = conn.watch('foo')
 
 # Watch for changes on a specified key range and return
-events = conn.watch('boom', range_end: 'booooooom')
+events = conn.watch('foo', range_end: 'fop')
 
 # Watches for changes continuously until killed.
 event_count = 0
