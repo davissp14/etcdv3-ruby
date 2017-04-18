@@ -26,7 +26,7 @@ conn = Etcdv3.new(url: 'http://127.0.0.1:2379')
 conn = Etcdv3.new(url: 'https://hostname:port')
 
 # Secure connection with Auth
-conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret")
+conn = Etcdv3.new(url: 'https://hostname:port', user: 'gary', password: 'secret')
 
 # Secure connection specifying own certificates
 # Coming soon...
@@ -35,10 +35,10 @@ conn = Etcdv3.new(url: 'https://hostname:port', user: "gary", password: "secret"
 ## Adding, Fetching and Deleting Keys
 ```ruby
  # Put
- conn.put("my", "value")
+ conn.put('my', 'value')
 
  # Get
- conn.get("my")
+ conn.get('my')
 
  # Get Key Range
  conn.get('my', range_end: 'myyyy')
@@ -107,7 +107,7 @@ conn.auth_disable
 conn.lease_grant(100)
 
 # Attach key to lease
-conn.put("testkey", "testvalue", lease_id: 1234566789)
+conn.put('testkey', 'testvalue', lease_id: 1234566789)
 
 # Get information about lease and its attached keys
 conn.lease_ttl(1234566789)
