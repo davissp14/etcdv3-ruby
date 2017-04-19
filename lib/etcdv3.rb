@@ -1,15 +1,15 @@
 
 require 'grpc'
 require 'uri'
-require 'base64'
 
 require 'etcdv3/etcdrpc/rpc_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
-require 'etcdv3/request'
 require 'etcdv3/watch'
+
+require 'etcdv3/request'
 
 class Etcdv3
 
@@ -31,24 +31,22 @@ class Etcdv3
     uri.hostname
   end
 
-  def token
-    @metadata[:token]
-  end
-
   def user
-    @options[:user]
+    request.user
   end
 
   def password
-    @options[:password]
+    request.password
+  end
+
+  def token
+    request.token
   end
 
   def initialize(options = {})
     @options = options
     @credentials = resolve_credentials
-    @metadata = {}
-    @metadata[:token] = generate_token(user, password) unless user.nil?
-    @metacache = set_metacache
+    authenticate(options[:user], options[:password]) unless options[:user].nil?
   end
 
   # Version of Etcd running on member
@@ -77,33 +75,23 @@ class Etcdv3
   end
 
   # Authenticate using specified user and password.
-  # On successful authentication, an auth token will be assigned to the instance.
+  # On successful authentication, an auth token will be assigned to the request instance.
   def authenticate(user, password)
-    token = generate_token(user, password)
-    return false unless token
-    @metadata[:token] = token
-    @options[:user] = user
-    @options[:password] = password
-    @metacache = set_metacache
-    true
+    request.authenticate(user, password)
   end
 
   # Enables authentication.
   def auth_enable
     request.handle(:auth, 'auth_enable')
+    true
   end
 
   # Disables authentication.
   # This will clear any active auth / token data.
   def auth_disable
-    response = request.handle(:auth, 'auth_disable')
-    if response
-      @metadata.delete(:token)
-      @options[:user] = nil
-      @options[:password] = nil
-      @metacache = set_metacache
-    end
-    response
+    request.handle(:auth, 'auth_disable')
+    request(reset: true)
+    true
   end
 
   # key                           - string
@@ -219,19 +207,9 @@ class Etcdv3
 
   private
 
-  def request
-    # Only re-initialize when metadata changes.
-    return @request if @request && @request.metacache == @metacache
-    @request = Request.new("#{hostname}:#{port}", @credentials, @metadata, @metacache)
-  end
-
-  # Generates a new hash using a base64 of the metadata.
-  def set_metacache
-    Base64.strict_encode64(@metadata.to_s)
-  end
-
-  def generate_token(user, password)
-    request.handle(:auth, 'generate_token', [user, password])
+  def request(reset: false)
+    return @request if @request && !reset
+    @request = Request.new("#{hostname}:#{port}", @credentials)
   end
 
   def resolve_credentials
