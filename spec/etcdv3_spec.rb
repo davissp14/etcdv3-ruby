@@ -201,7 +201,7 @@ describe Etcdv3 do
       end
       after { conn.user_delete('root') }
       subject { conn.auth_disable }
-      it { is_expected.to be_an_instance_of(Etcdserverpb::AuthDisableResponse) }
+      it { is_expected.to eq(true) }
     end
 
     describe '#auth_enable' do
@@ -215,7 +215,7 @@ describe Etcdv3 do
         conn.user_delete('root')
       end
       subject { conn.auth_enable }
-      it { is_expected.to be_an_instance_of(Etcdserverpb::AuthEnableResponse) }
+      it { is_expected.to eq(true) }
     end
 
     describe "#authenticate" do
@@ -241,33 +241,6 @@ describe Etcdv3 do
         it 'raises error' do
           expect { conn.authenticate('root', 'root') }.to raise_error(GRPC::InvalidArgument)
         end
-      end
-    end
-
-    describe '#metacache' do
-      context 'uses cached request object' do
-        let!(:object_id) { conn.send(:request).object_id }
-        before { conn.user_add('root', 'test') }
-        after { conn.user_delete('root') }
-        subject { conn.send(:request).object_id }
-        it { is_expected.to eq(object_id) }
-      end
-      context 'resets cache on auth' do
-        let!(:object_id) { conn.send(:request).object_id }
-        before do
-          conn.user_add('root', 'test')
-          conn.user_grant_role('root', 'root')
-          conn.auth_enable
-          conn.authenticate('root', 'test')
-          conn.user_add('boom', 'password')
-        end
-        after do
-          conn.auth_disable
-          conn.user_delete('root')
-          conn.user_delete('boom')
-        end
-        subject { conn.send(:request).object_id }
-        it { is_expected.to_not eq(object_id) }
       end
     end
   end
