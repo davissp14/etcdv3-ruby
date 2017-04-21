@@ -1,6 +1,7 @@
 
 class Etcdv3
   class KV
+    include Etcdv3::KV::Requests
 
     SORT_TARGET = {
       key: 0,
@@ -22,27 +23,42 @@ class Etcdv3
     end
 
     def get(key, opts={})
-      opts[:sort_order] = SORT_ORDER[opts[:sort_order]] \
-        if opts[:sort_order]
-      opts[:sort_target] = SORT_TARGET[opts[:sort_target]] \
-        if opts[:sort_target]
-      opts[:key] = key
-      kv = Etcdserverpb::RangeRequest.new(opts)
-      @stub.range(kv, metadata: @metadata)
+      @stub.range(get_request(key, opts), metadata: @metadata)
     end
 
     def del(key, range_end="")
-      request = Etcdserverpb::DeleteRangeRequest.new(
-        key: key,
-        range_end: range_end
-      )
-      @stub.delete_range(request, metadata: @metadata)
+      @stub.delete_range(del_request(key, range_end), metadata: @metadata)
     end
 
     def put(key, value, lease=nil)
-      kv = Etcdserverpb::PutRequest.new(key: key, value: value)
-      kv.lease = lease if lease
-      @stub.put(kv, metadata: @metadata)
+      @stub.put(put_request(key, value, lease), metadata: @metadata)
+    end
+
+    def transaction(block)
+      txn = Etcdv3::KV::Transaction.new
+      block.call(txn)
+      request = Etcdserverpb::TxnRequest.new(
+        compare: txn.compare,
+        success: generate_request_ops(txn.success),
+        failure: generate_request_ops(txn.failure)
+      )
+      @stub.txn(request)
+    end
+
+    private
+
+    def generate_request_ops(requests)
+      requests.map do |request|
+        if request.is_a?(Etcdserverpb::RangeRequest)
+          Etcdserverpb::RequestOp.new(request_range: request)
+        elsif request.is_a?(Etcdserverpb::PutRequest)
+          Etcdserverpb::RequestOp.new(request_put: request)
+        elsif request.is_a?(Etcdserverpb::DeleteRangeRequest)
+          Etcdserverpb::RequestOp.new(request_delete_range: request)
+        else
+          raise "Invalid command. Not sure how you got here!"
+        end
+      end
     end
   end
 end
