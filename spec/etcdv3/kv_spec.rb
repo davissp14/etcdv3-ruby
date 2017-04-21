@@ -33,4 +33,15 @@ describe Etcdv3::KV do
     end
   end
 
+  describe '#transaction' do
+    let!(:block) do
+      Proc.new do |txn|
+        txn.compare = [ txn.value('txn', :equal, 'value') ]
+        txn.success = [ txn.put('txn-test', 'success') ]
+        txn.failure = [ txn.put('txn-test', 'failed') ]
+      end
+    end
+    subject { stub.transaction(block) }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::TxnResponse) }
+  end
 end

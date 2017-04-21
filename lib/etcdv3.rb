@@ -4,6 +4,8 @@ require 'uri'
 
 require 'etcdv3/etcdrpc/rpc_services_pb'
 require 'etcdv3/auth'
+require 'etcdv3/kv/requests'
+require 'etcdv3/kv/transaction'
 require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
@@ -203,6 +205,10 @@ class Etcdv3
   # Watches for changes on a specified key range.
   def watch(key, range_end: '', &block)
     request.handle(:watch, 'watch', [key, range_end, block])
+  end
+
+  def transaction(&block)
+    request.handle(:kv, 'transaction', [block])
   end
 
   private

@@ -116,6 +116,29 @@ conn.lease_ttl(1234566789)
 conn.lease_revoke(1234566789)
 ```
 
+## Transactions
+Transaction provides an easy way to process multiple requests in a single transaction.
+Note: You cannot modify the same key multiple times within a single transaction.
+
+```ruby
+# txn definition can be found here:
+# https://github.com/davissp14/etcdv3-ruby/blob/txns/lib/etcdv3/kv/transaction.rb
+conn.transaction do |txn|
+  txn.compare = [
+    # Translation: Is the value of 'target_key' equal to 'compare_value'
+    txn.value('target_key', :equal, 'compare_value'),
+    # Translation: Is the version of 'target_key' greater than 10
+    txn.version('target_key', :greater, 10)
+  ]
+  txn.success = [
+    txn.put('txn1', 'success')
+  ]
+  txn.failure = [
+    txn.put('txn1', 'failed')
+  ]
+end
+```
+
 ## Watch
 ```ruby
 # Watch for changes on a specified key and return

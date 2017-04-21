@@ -243,5 +243,48 @@ describe Etcdv3 do
         end
       end
     end
+
+    describe '#transaction' do
+      context 'success' do
+        before { conn.put('txn', 'value') }
+        after { conn.del('txn') }
+        subject do
+          conn.transaction do |txn|
+            txn.compare = [ txn.value('txn', :equal, 'value') ]
+            txn.success = [ txn.put('txn-test', 'success') ]
+            txn.failure = [ txn.put('txn-test', 'failed') ]
+          end
+        end
+        it { is_expected.to be_an_instance_of(Etcdserverpb::TxnResponse) }
+        it 'returns successful' do
+          expect(subject.succeeded).to eq(true)
+        end
+        it 'sets correct key' do
+          expect(conn.get('txn-test').kvs.first.value).to eq('success')
+        end
+      end
+
+      context 'failure' do
+        before { conn.put('txn', 'value') }
+        after { conn.del('txn') }
+        subject do
+          conn.transaction do |txn|
+            txn.compare = [
+              txn.create_revision('txn', :greater, 500),
+              txn.mod_revision('txn', :less, 1000)
+            ]
+            txn.success = [ txn.put('txn-test', 'success') ]
+            txn.failure = [ txn.put('txn-test', 'failed') ]
+          end
+        end
+        it 'returns successful' do
+          expect(subject.succeeded).to eq(false)
+        end
+        it 'sets correct key' do
+          expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+        end
+      end
+    end
+
   end
 end
