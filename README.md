@@ -122,7 +122,7 @@ Transactions provide an easy way to process multiple requests in a single transa
 _Note: You cannot modify the same key multiple times within a single transaction._
 
 ```ruby
-# https://github.com/davissp14/etcdv3-ruby/blob/txns/lib/etcdv3/kv/transaction.rb
+# https://github.com/davissp14/etcdv3-ruby/blob/master/lib/etcdv3/kv/transaction.rb
 conn.transaction do |txn|
   txn.compare = [
     # Is the value of 'target_key' equal to 'compare_value'
