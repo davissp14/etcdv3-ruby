@@ -118,7 +118,8 @@ conn.lease_revoke(1234566789)
 
 ## Transaction
 Transactions provide an easy way to process multiple requests in a single transaction.
-Note: You cannot modify the same key multiple times within a single transaction.
+
+_Note: You cannot modify the same key multiple times within a single transaction._
 
 ```ruby
 # https://github.com/davissp14/etcdv3-ruby/blob/txns/lib/etcdv3/kv/transaction.rb
