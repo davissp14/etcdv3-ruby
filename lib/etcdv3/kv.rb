@@ -3,20 +3,6 @@ class Etcdv3
   class KV
     include Etcdv3::KV::Requests
 
-    SORT_TARGET = {
-      key: 0,
-      version: 1,
-      create: 2,
-      mod: 3,
-      value: 4
-    }
-
-    SORT_ORDER = {
-      none: 0,
-      ascend: 1,
-      descend: 2
-    }
-
     def initialize(hostname, credentials, metadata={})
       @stub = Etcdserverpb::KV::Stub.new(hostname, credentials)
       @metadata = metadata
