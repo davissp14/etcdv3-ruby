@@ -166,3 +166,7 @@ conn.alarm_list
 # Deactivate ALL active Alarms
 conn.alarm_deactivate
 ```
+
+## Contributing
+
+If you're looking to get involved, [Fork the project](https://github.com/davissp14/etcdv3-ruby) and send pull requests.
