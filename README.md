@@ -3,8 +3,6 @@
 
 Ruby client for Etcd V3
 
-**Warning: This is under active development and should be considered unstable**
-
 ## Getting Started
 
 [RubyDocs](http://www.rubydoc.info/gems/etcdv3)
