@@ -6,7 +6,7 @@ rvm:
 
 env:
   global:
-    - ETCD_VERSION=v3.1.6
+    - ETCD_VERSION=v3.2.0
 
 install:
     - bundle install

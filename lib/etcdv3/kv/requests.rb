@@ -1,6 +1,20 @@
 class Etcdv3::KV
   module Requests
 
+    SORT_TARGET = {
+      key: 0,
+      version: 1,
+      create: 2,
+      mod: 3,
+      value: 4
+    }
+
+    SORT_ORDER = {
+      none: 0,
+      ascend: 1,
+      descend: 2
+    }
+
     def get_request(key, opts)
       opts[:sort_order] = SORT_ORDER[opts[:sort_order]] \
         if opts[:sort_order]

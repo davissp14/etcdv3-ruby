@@ -3,8 +3,6 @@
 
 Ruby client for Etcd V3
 
-**Warning: This is under active development and should be considered unstable**
-
 ## Getting Started
 
 [RubyDocs](http://www.rubydoc.info/gems/etcdv3)
@@ -122,7 +120,7 @@ Transactions provide an easy way to process multiple requests in a single transa
 _Note: You cannot modify the same key multiple times within a single transaction._
 
 ```ruby
-# https://github.com/davissp14/etcdv3-ruby/blob/txns/lib/etcdv3/kv/transaction.rb
+# https://github.com/davissp14/etcdv3-ruby/blob/master/lib/etcdv3/kv/transaction.rb
 conn.transaction do |txn|
   txn.compare = [
     # Is the value of 'target_key' equal to 'compare_value'
@@ -166,3 +164,7 @@ conn.alarm_list
 # Deactivate ALL active Alarms
 conn.alarm_deactivate
 ```
+
+## Contributing
+
+If you're looking to get involved, [Fork the project](https://github.com/davissp14/etcdv3-ruby) and send pull requests.
