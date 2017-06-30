@@ -239,7 +239,7 @@ describe Etcdv3 do
 
       context 'auth disabled' do
         it 'raises error' do
-          expect { conn.authenticate('root', 'root') }.to raise_error(GRPC::InvalidArgument)
+          expect { conn.authenticate('root', 'root') }.to raise_error(GRPC::FailedPrecondition)
         end
       end
     end
