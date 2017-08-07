@@ -45,6 +45,23 @@ class Etcdv3
     request.token
   end
 
+  def key
+    File.read(File.expand_path(@options[:key])) if options.has_key?(:key)
+  end
+
+  def cert
+    File.read(File.expand_path(@options[:cert])) if options.has_key?(:cert)
+  end
+
+  def cacert
+    File.read(File.expand_path(@options[:cacert])) if options.has_key?(:cacert)
+  end
+
+  def tls_creds
+    # The order of the elements in the array is important
+    [cacert, key, cert].compact
+  end
+
   def initialize(options = {})
     @options = options
     @credentials = resolve_credentials
@@ -223,8 +240,7 @@ class Etcdv3
     when 'http'
       :this_channel_is_insecure
     when 'https'
-      # Use default certs for now.
-      GRPC::Core::ChannelCredentials.new
+      GRPC::Core::ChannelCredentials.new(*tls_creds)
     else
       raise "Unknown scheme: #{scheme}"
     end

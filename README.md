@@ -27,7 +27,23 @@ conn = Etcdv3.new(url: 'https://hostname:port')
 conn = Etcdv3.new(url: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
 # Secure connection specifying own certificates
-# Coming soon...
+## Server Authentication
+conn = Etcdv3.new(
+  url: 'https://hostname:port',
+  user: 'root',
+  password: 'mysecretpassword',
+  cacert: '/path/to/cacert.pem'
+)
+
+## Server and Client Authentication
+conn = Etcdv3.new(
+  url: 'https://hostname:port',
+  user: 'root',
+  password: 'mysecretpassword',
+  cacert: '/path/to/cacert.pem',
+  key: '/path/to/key.pem',
+  cert: '/path/to/cert.pem'
+)
 ```
 
 ## Adding, Fetching and Deleting Keys
