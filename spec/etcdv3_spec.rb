@@ -33,6 +33,54 @@ describe Etcdv3 do
           expect{ auth_conn }.to_not raise_error
         end
       end
+      context 'with tls server auth' do
+        let(:tls_conn) { local_connection_with_tls_server_auth('cacert.pem') }
+        it 'doesnt raise error' do
+          expect{ tls_conn }.to_not raise_error
+        end
+      end
+      context 'with tls client auth' do
+        let(:tls_conn) { local_connection_with_tls_client_auth('cacert.pem', 'key.pem', 'cert.pem') }
+        it 'doesnt raise error' do
+          expect{ tls_conn }.to_not raise_error
+        end
+      end
+      context 'with auth and tls server auth' do
+        let(:auth_tls_conn) { local_connection_with_auth_and_tls_server_auth('test', 'pass', 'cacert.pem') }
+        before do
+          conn.user_add('root', 'pass')
+          conn.user_grant_role('root', 'root')
+          conn.user_add('test', 'pass')
+          conn.auth_enable
+        end
+        after do
+          conn.authenticate('root', 'pass')
+          conn.auth_disable
+          conn.user_delete('root')
+          conn.user_delete('test')
+        end
+        it 'doesnt raise error' do
+          expect{ auth_tls_conn }.to_not raise_error
+        end
+      end
+      context 'with auth and tls client auth' do
+        let(:auth_tls_conn) { local_connection_with_auth_and_tls_client_auth('test', 'pass', 'cacert.pem', 'key.pem', 'cert.pem') }
+        before do
+          conn.user_add('root', 'pass')
+          conn.user_grant_role('root', 'root')
+          conn.user_add('test', 'pass')
+          conn.auth_enable
+        end
+        after do
+          conn.authenticate('root', 'pass')
+          conn.auth_disable
+          conn.user_delete('root')
+          conn.user_delete('test')
+        end
+        it 'doesnt raise error' do
+          expect{ auth_tls_conn }.to_not raise_error
+        end
+      end
     end
 
     describe '#version' do
