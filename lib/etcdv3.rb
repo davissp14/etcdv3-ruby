@@ -46,20 +46,15 @@ class Etcdv3
   end
 
   def key
-    File.read(File.expand_path(@options[:key])) if options.has_key?(:key)
+    File.read(File.expand_path(@options.fetch(:key)))
   end
 
   def cert
-    File.read(File.expand_path(@options[:cert])) if options.has_key?(:cert)
+    File.read(File.expand_path(@options.fetch(:cert)))
   end
 
   def cacert
-    File.read(File.expand_path(@options[:cacert])) if options.has_key?(:cacert)
-  end
-
-  def tls_creds
-    # The order of the elements in the array is important
-    [cacert, key, cert].compact
+    File.read(File.expand_path(@options.fetch(:cacert)))
   end
 
   def initialize(options = {})
@@ -233,6 +228,22 @@ class Etcdv3
   def request(reset: false)
     return @request if @request && !reset
     @request = Request.new("#{hostname}:#{port}", @credentials)
+  end
+
+  def tls_creds
+    if options.key?(:key) || options.key?(:cert)
+      unless options.key?(:cacert) && options.key?(:key) && options.key?(:cert)
+        raise 'Must pass cacert, key and cert when using client auth'
+      end
+
+      return [cacert, key, cert]
+    end
+
+    if options.key?(:cacert)
+      return [cacert]
+    end
+
+    []
   end
 
   def resolve_credentials
