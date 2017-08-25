@@ -15,6 +15,10 @@ class Etcdv3
       @q.push(@sentinel)
     end
 
+    def error(error)
+      @q.push(error)
+    end
+
     def each_item
       return enum_for(:each_item) unless block_given?
       loop do

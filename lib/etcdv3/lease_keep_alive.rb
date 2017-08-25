@@ -43,7 +43,7 @@ class Etcdv3
       # like:
       #   1. on_open - called when the session opens
       #   2. on_error - called when the session errors for some reason
-      #   3. on_close - called when the session is closed by user
+      #   3. on_revoke - called when the session is closed and the user wants to recoke the lease
       #   4. on_orphan - called when the lease is orphaned (no longer being kept alive)
       @listener = listener
 
@@ -109,29 +109,27 @@ class Etcdv3
       end
     end
 
-    def state
-      @lock.synchronize do
-        @state
-      end
-    end
-
-    def close
-      @lock.synchronize do
-        on_close
-      end
-    end
-
     def lease_id
       @lock.synchronize do
         @lease_id
       end
     end
 
+    def state
+      @lock.synchronize do
+        @state
+      end
+    end
+
+    def revoke
+      @lock.synchronize do
+        on_revoke
+      end
+    end
+
     def orphan
       @lock.synchronize do
-        @q.push(self)
-        @state = :ORPHANED
-        @listener.on_orphan(self) if @listener
+        on_orphan
       end
     end
 
@@ -148,6 +146,14 @@ class Etcdv3
       end
     end
 
+    def on_orphan
+      @lock.synchronize do
+        @q.cancel
+        @state = :ORPHANED
+        @listener.on_orphan(self) if @listener
+      end
+    end
+
     def on_open
       @lock.synchronize do
         @listener.on_open(self) if @listener
@@ -156,21 +162,21 @@ class Etcdv3
 
     def on_error(error)
       @lock.synchronize do
-        @q.push(error)
+        @q.error(error)
         @state = :ERROR
         @listener.on_error(self, error) if @listener
       end
     end
 
-    def on_close
+    def on_revoke
       @lock.synchronize do
         # Can only close a currently open session
         if state == :OPEN
           # Let the keep alive connection know we are done
-          @q.push(self)
+          @q.cancel
           @conn.lease_revoke(@lease_id)
-          @state = :CLOSED
-          @listener.on_close(self) if @listener
+          @state = :REVOKED
+          @listener.on_revoke(self) if @listener
         end
       end
     end
