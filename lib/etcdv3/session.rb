@@ -82,7 +82,15 @@ class Etcdv3
     end
 
     def close
-      @lock.synchronize
+      @lock.synchronize do
+        on_close
+      end
+    end
+
+    def lease
+      @lock.synchronize do
+        @lease
+      end
     end
 
     private
