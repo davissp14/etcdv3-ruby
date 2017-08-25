@@ -1,43 +1,5 @@
+
 class Etcdv3
-  class KeepAlive
-    def initialize(stub,
-                   lease_id,
-                   refresh_padding: 10,
-                   listener: nil)
-      @lease_id = id
-      @refresh_padding = refresh_padding
-      @q = EnumeratorQueue.new
-      @responses = @stub.lease_keep_alive(@q)
-
-      # Session listener that can receive messages
-      # like:
-      #   1. on_open - called when the session opens
-      #   2. on_error - called when the session errors for some reason
-      #   3. on_close - called when the session is closed by user
-      @listener = listener
-      @lock = Monitor.new
-
-      @response_thread = Thread.new do
-        begin
-          @responses.each do |_|
-            # Do nothing
-          end
-        rescue => e
-          on_error(e)
-        end
-
-        on_close
-      end
-
-      @keep_alive_thread = Thread.new do
-      end
-    end
-
-    def cancel
-      @q.cancel
-    end
-  end
-
   class Lease
     def initialize(hostname, credentials, metadata={})
       @stub = Etcdserverpb::Lease::Stub.new(hostname, credentials)
