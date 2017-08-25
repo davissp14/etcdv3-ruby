@@ -12,11 +12,20 @@ class Etcdv3
   # listener. This will allow our applications to respond
   # in case we let a lease expire accidentally or there
   # is a connection issue and we need to close the session.
+  #
+  # Parameters
+  # keep_alive_interval - send a keep alive request every n seconds
+  # lease_ttl - TTL for the lease, defaults to 60 seconds
+  # listener - object that receives lifetime hooks
+  # lease_id - id of existing lease to take over, this is
+  #   useful when passing the lease from an old session
+  #   to a new session, such as after authentication
   class Session
     def initialize(conn,
-                   keep_alive_interval: 10,
-                   lease_ttl: 15,
-                   listener: nil)
+                   keep_alive_interval: 30,
+                   lease_ttl: 60,
+                   listener: nil,
+                   lease_id: nil)
       # The etcd3 connection to associate the session with
       @conn = conn
 
@@ -39,7 +48,13 @@ class Etcdv3
 
       # Create the lease that we will keep open for the
       # duration of the session
-      @lease = @conn.lease_grant(@lease_ttl)
+      #
+      # If we are passed a lease_id, use that instead (transfer ownsership)
+      if lease_id
+        @lease_id = lease_id
+      else
+        @lease_id = @conn.lease_grant(@lease_ttl).ID
+      end
 
       # Use this queue object to push keep
       # alive requests to the server
@@ -83,7 +98,7 @@ class Etcdv3
 
           @lock.synchronize do
             if state == :OPEN
-              @q.push @lease.ID
+              @q.push @lease_id
             end
           end
         end
@@ -102,15 +117,17 @@ class Etcdv3
       end
     end
 
-    def lease
+    def lease_id
       @lock.synchronize do
-        @lease
+        @lease_id
       end
     end
 
-    def lease_id
-      @loack.synchronize do
-        @lease.ID
+    def orphan
+      @lock.synchronize do
+        @q.push(self)
+        @state = :ORPHANED
+        @listener.on_orphan(self) if @listener
       end
     end
 
@@ -124,11 +141,9 @@ class Etcdv3
 
     def on_error(error)
       @lock.synchronize do
-        @listener.on_error(self, error) if @listener
-
         @q.push(error)
-
         @state = :ERROR
+        @listener.on_error(self, error) if @listener
       end
     end
 
@@ -136,12 +151,11 @@ class Etcdv3
       @lock.synchronize do
         # Can only close a currently open session
         if state == :OPEN
-          @listener.on_close(self) if @listener
-
           # Let the keep alive connection know we are done
           @q.push(self)
-
+          @conn.lease_revoke(@lease_id)
           @state = :CLOSED
+          @listener.on_close(self) if @listener
         end
       end
     end
