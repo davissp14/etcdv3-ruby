@@ -1,6 +1,5 @@
-
 class Etcdv3
-  # A session is used to keep a lease alive for the duration
+    # A session is used to keep a lease alive for the duration
   # of a connection with an etcd3 server.
   #
   # This is useful for implementing functionality, such
@@ -14,46 +13,54 @@ class Etcdv3
   # is a connection issue and we need to close the session.
   #
   # Parameters
-  # keep_alive_interval - send a keep alive request every n seconds
+  # stub - the client stub to send requests to
+  # keep_alive_padding - how much padding to give to the refresh calls
+  #   if the TTL of the lease is 60 seconds and the refresh_padding
+  #   is 10 seconds, then a lease keep alive request will be
+  #   sent to the server every 50 seconds. refresh_padding must
+  #   be at least 1 second and at most 1 second less than the TTL.
   # lease_ttl - TTL for the lease, defaults to 60 seconds
   # listener - object that receives lifetime hooks
   # lease_id - id of existing lease to take over, this is
   #   useful when passing the lease from an old session
   #   to a new session, such as after authentication
-  class Session
-    def initialize(conn,
-                   keep_alive_interval: 30,
-                   lease_ttl: 60,
-                   listener: nil,
-                   lease_id: nil)
-      # The etcd3 connection to associate the session with
-      @conn = conn
+  class LeaseKeepAlive
+    MIN_REFRESH_INTERVAL = 5
+    MIN_KEEP_ALIVE_PADDING = 5
+    DEFAULT_KEEP_ALIVE_PADDING = MIN_KEEP_ALIVE_PADDING
+
+    def initialize(stub,
+                   lease_id,
+                   keep_alive_padding: DEFAULT_KEEP_ALIVE_PADDING,
+                   listener: nil)
+      raise "keep_alive_padding must be >= #{MIN_KEEP_ALIVE_PADDING}" unless keep_alive_padding >= MIN_KEEP_ALIVE_PADDING
 
       # Monitor used to synchronize access to the session
       # we use a Monitor instead of Mutex for reentrancy
       @lock = Monitor.new
-
-      # How often we send a keep alive request
-      @keep_alive_interval = keep_alive_interval
 
       # Session listener that can receive messages
       # like:
       #   1. on_open - called when the session opens
       #   2. on_error - called when the session errors for some reason
       #   3. on_close - called when the session is closed by user
+      #   4. on_orphan - called when the lease is orphaned (no longer being kept alive)
       @listener = listener
 
-      # The Time To Live for the lease
-      @lease_ttl = lease_ttl
+      # The lease id that we are keeping alive
+      @lease_id = lease_id
 
-      # Create the lease that we will keep open for the
-      # duration of the session
-      #
-      # If we are passed a lease_id, use that instead (transfer ownsership)
-      if lease_id
-        @lease_id = lease_id
-      else
-        @lease_id = @conn.lease_grant(@lease_ttl).ID
+      # Get the lease TTL
+      request = Etcdserverpb::LeaseTimeToLiveRequest.new(ID: id, keys: true)
+      @lease_granted_ttl = @stub.lease_time_to_live(request, metadata: @metadata).grantedTTL
+
+      # Set the refresh interval
+      @refresh_interval = @lease_granted_ttl - keep_alive_padding
+
+      # Refresh interval must be at least MIN_REFRESH_INTERVAL
+      if @refresh_interval < MIN_REFRESH_INTERVAL
+        max_refresh_interval = @lease_granted_ttl - MIN_REFRESH_INTERVAL
+        raise "keep_alive_padding is too high, must be at most #{max_refresh_interval}"
       end
 
       # Use this queue object to push keep
@@ -63,16 +70,15 @@ class Etcdv3
       # Get the enumerable that comes back
       # with all of the responses from the
       # etcd3 server
-      @responses = @conn.lease_keep_alive(@q)
+      @responses = @stub.lease_keep_alive(@q)
 
       # We are in the OPEN state until
-      # until we close the session or
+      # until we close the stream or
       # receive an error
       @state = :OPEN
 
       # Call on_open of the listener if passed in
       on_open
-      @listener.on_open(self) if @listener
 
       # This thread is responsible for monitoring
       # the responses from the server in case
@@ -93,14 +99,12 @@ class Etcdv3
       # This thread is responsible for keeping the
       # lease alive
       @keep_alive_thread = Thread.new do
+        # Immediately send a keep alive request
+        keep_alive!
+
         while state == :OPEN
           sleep @refresh_interval
-
-          @lock.synchronize do
-            if state == :OPEN
-              @q.push @lease_id
-            end
-          end
+          keep_alive!
         end
       end
     end
@@ -132,6 +136,17 @@ class Etcdv3
     end
 
     private
+
+    def keep_alive!
+      @lock.synchronize do
+        if state == :OPEN
+          # Push a keep alive request to the stream
+
+          request = Etcdserverpb::LeaseKeepAliveRequest.new ID: @lease_id
+          @q.push request
+        end
+      end
+    end
 
     def on_open
       @lock.synchronize do

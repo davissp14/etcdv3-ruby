@@ -1,12 +1,18 @@
 
 class Etcdv3
   class EnumeratorQueue
+    SENTINEL = Object.new
+
     extend Forwardable
     def_delegators :@q, :push
 
-    def initialize(sentinel)
+    def initialize(sentinel: SENTINEL)
       @q = Queue.new
       @sentinel = sentinel
+    end
+
+    def cancel
+      @q.push(@sentinel)
     end
 
     def each_item
