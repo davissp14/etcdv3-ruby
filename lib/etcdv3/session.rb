@@ -113,9 +113,6 @@ class Etcdv3
 
         @q.push(error)
 
-        @keep_alive_thread.join
-        @response_thread.join
-
         @state = :ERROR
       end
     end
@@ -128,9 +125,6 @@ class Etcdv3
 
           # Let the keep alive connection know we are done
           @q.push(self)
-
-          @keep_alive_thread.join
-          @response_thread.join
 
           @state = :CLOSED
         end
