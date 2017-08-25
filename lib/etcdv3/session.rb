@@ -71,13 +71,28 @@ class Etcdv3
         rescue => e
           on_error(e)
         end
+
+        on_close
       end
 
       # This thread is responsible for keeping the
       # lease alive
       @keep_alive_thread = Thread.new do
-        sleep @refresh_interval
-        @q.push @lease.ID
+        while state == :OPEN
+          sleep @refresh_interval
+
+          @lock.synchronize do
+            if state == :OPEN
+              @q.push @lease.ID
+            end
+          end
+        end
+      end
+    end
+
+    def state
+      @lock.synchronize do
+        @state
       end
     end
 
