@@ -93,6 +93,12 @@ class Etcdv3
       end
     end
 
+    def lease_id
+      @loack.synchronize do
+        @lease.ID
+      end
+    end
+
     private
 
     def on_open
