@@ -10,6 +10,8 @@ require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/watch'
+require 'etcdv3/enumerator_queue'
+require 'etcdv3/session'
 
 require 'etcdv3/request'
 

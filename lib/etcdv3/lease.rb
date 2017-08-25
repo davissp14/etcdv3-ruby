@@ -21,6 +21,13 @@ class Etcdv3
       @stub.lease_time_to_live(request, metadata: @metadata)
     end
 
+    def lease_keep_alive(ids)
+      requests = ids.map do |id|
+        Etcdserverpb::LeaseKeepAliveRequest.new ID: id
+      end
+
+      @stub.lease_keep_alive(requests)
+    end
 
 
   end
