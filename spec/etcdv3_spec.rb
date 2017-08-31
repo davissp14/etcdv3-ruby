@@ -238,6 +238,13 @@ describe Etcdv3 do
       end
 
       context 'auth disabled' do
+        before do
+          conn.user_add('root', 'root')
+          conn.auth_disable
+        end
+        after do
+          conn.user_delete('root')
+        end
         it 'raises error' do
           expect { conn.authenticate('root', 'root') }.to raise_error(GRPC::FailedPrecondition)
         end
