@@ -15,6 +15,5 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
   s.add_dependency("grpc", "1.2.5")
-  s.add_dependency("faraday", "0.11.0")
   s.add_development_dependency("rspec")
 end
