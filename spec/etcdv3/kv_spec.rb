@@ -4,6 +4,16 @@ describe Etcdv3::KV do
   let(:stub) { local_stub(Etcdv3::KV) }
   let(:lease_stub) { local_stub(Etcdv3::Lease) }
 
+  test_instance = Helpers::TestInstance.new(tls: false)
+
+  before(:context) do
+    test_instance.start
+  end
+
+  after(:context) do
+    test_instance.stop
+  end
+
   describe '#put' do
     context 'without lease' do
       subject { stub.put('test', 'test') }

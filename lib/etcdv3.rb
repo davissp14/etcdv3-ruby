@@ -14,49 +14,6 @@ require 'etcdv3/watch'
 require 'etcdv3/request'
 
 class Etcdv3
-
-  attr_reader :credentials, :options
-
-  def uri
-    URI(@options[:url])
-  end
-
-  def scheme
-    uri.scheme
-  end
-
-  def port
-    uri.port
-  end
-
-  def hostname
-    uri.hostname
-  end
-
-  def user
-    request.user
-  end
-
-  def password
-    request.password
-  end
-
-  def token
-    request.token
-  end
-
-  def key
-    File.read(File.expand_path(@options.fetch(:key)))
-  end
-
-  def cert
-    File.read(File.expand_path(@options.fetch(:cert)))
-  end
-
-  def cacert
-    File.read(File.expand_path(@options.fetch(:cacert)))
-  end
-
   def initialize(options = {})
     @options = options
     @credentials = resolve_credentials
@@ -224,6 +181,49 @@ class Etcdv3
   end
 
   private
+
+  attr_reader :credentials, :options
+
+  def uri
+    URI(@options[:url])
+  end
+
+  def scheme
+    uri.scheme
+  end
+
+  def port
+    uri.port
+  end
+
+  def hostname
+    uri.hostname
+  end
+
+  def user
+    request.user
+  end
+
+  def password
+    request.password
+  end
+
+  def token
+    request.token
+  end
+
+  def key
+    File.read(File.expand_path(@options.fetch(:key)))
+  end
+
+  def cert
+    File.read(File.expand_path(@options.fetch(:cert)))
+  end
+
+  def cacert
+    File.read(File.expand_path(@options.fetch(:cacert)))
+  end
+
 
   def request(reset: false)
     return @request if @request && !reset
