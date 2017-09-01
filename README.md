@@ -134,7 +134,7 @@ conn.transaction do |txn|
   ]
   
   txn.failure = [
-    txn.put('txn1', 'failed')
+    txn.put('txn1', 'failed', lease: lease_id)
   ]
 end
 ```
