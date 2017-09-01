@@ -36,9 +36,9 @@ class Etcdv3::KV
 
     # Request Operations
 
-    # txn.put('my', 'key')
-    def put(key, value)
-      put_request(key, value)
+    # txn.put('my', 'key', lease_id: 1)
+    def put(key, value, lease=nil)
+      put_request(key, value, lease)
     end
 
     # txn.get('key')
