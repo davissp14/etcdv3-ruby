@@ -238,6 +238,13 @@ describe Etcdv3 do
       end
 
       context 'auth disabled' do
+        before do
+          conn.user_add('root', 'root')
+          conn.auth_disable
+        end
+        after do
+          conn.user_delete('root')
+        end
         it 'raises error' do
           expect { conn.authenticate('root', 'root') }.to raise_error(GRPC::FailedPrecondition)
         end
@@ -248,7 +255,7 @@ describe Etcdv3 do
       context 'success' do
         before { conn.put('txn', 'value') }
         after { conn.del('txn') }
-        subject do
+        subject! do
           conn.transaction do |txn|
             txn.compare = [ txn.value('txn', :equal, 'value') ]
             txn.success = [ txn.put('txn-test', 'success') ]
@@ -264,10 +271,27 @@ describe Etcdv3 do
         end
       end
 
+      context "success, with a lease" do
+        let!(:lease_id) { conn.lease_grant(2)['ID'] }
+        before { conn.put('txn', 'value') }
+        subject! do
+          conn.transaction do |txn|
+            txn.compare = [ txn.value('txn', :equal, 'value') ]
+            txn.success = [ txn.put('txn-test', 'success', lease_id) ]
+            txn.failure = [ txn.put('txn-test', 'failed', lease_id) ]
+          end
+        end
+
+        it 'sets correct key, with a lease' do
+          expect(conn.get('txn-test').kvs.first.value).to eq('success')
+          expect(conn.get('txn-test').kvs.first.lease).to eq(lease_id)
+        end
+      end
+
       context 'failure' do
         before { conn.put('txn', 'value') }
         after { conn.del('txn') }
-        subject do
+        subject! do
           conn.transaction do |txn|
             txn.compare = [
               txn.create_revision('txn', :greater, 500),
@@ -285,6 +309,5 @@ describe Etcdv3 do
         end
       end
     end
-
   end
 end
