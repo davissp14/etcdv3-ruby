@@ -5,6 +5,7 @@ require 'google/protobuf'
 
 require_relative 'kv_pb'
 require_relative 'auth_pb'
+
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "etcdserverpb.ResponseHeader" do
     optional :cluster_id, :uint64, 1
@@ -50,6 +51,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :value, :bytes, 2
     optional :lease, :int64, 3
     optional :prev_kv, :bool, 4
+    optional :ignore_value, :bool, 5
+    optional :ignore_lease, :bool, 6
   end
   add_message "etcdserverpb.PutResponse" do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
@@ -70,6 +73,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :request_range, :message, 1, "etcdserverpb.RangeRequest"
       optional :request_put, :message, 2, "etcdserverpb.PutRequest"
       optional :request_delete_range, :message, 3, "etcdserverpb.DeleteRangeRequest"
+      optional :request_txn, :message, 4, "etcdserverpb.TxnRequest"
     end
   end
   add_message "etcdserverpb.ResponseOp" do
@@ -77,17 +81,20 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :response_range, :message, 1, "etcdserverpb.RangeResponse"
       optional :response_put, :message, 2, "etcdserverpb.PutResponse"
       optional :response_delete_range, :message, 3, "etcdserverpb.DeleteRangeResponse"
+      optional :response_txn, :message, 4, "etcdserverpb.TxnResponse"
     end
   end
   add_message "etcdserverpb.Compare" do
     optional :result, :enum, 1, "etcdserverpb.Compare.CompareResult"
     optional :target, :enum, 2, "etcdserverpb.Compare.CompareTarget"
     optional :key, :bytes, 3
+    optional :range_end, :bytes, 64
     oneof :target_union do
       optional :version, :int64, 4
       optional :create_revision, :int64, 5
       optional :mod_revision, :int64, 6
       optional :value, :bytes, 7
+      optional :lease, :int64, 8
     end
   end
   add_enum "etcdserverpb.Compare.CompareResult" do
@@ -101,6 +108,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     value :CREATE, 1
     value :MOD, 2
     value :VALUE, 3
+    value :LEASE, 4
   end
   add_message "etcdserverpb.TxnRequest" do
     repeated :compare, :message, 1, "etcdserverpb.Compare"
@@ -120,6 +128,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
   end
   add_message "etcdserverpb.HashRequest" do
+  end
+  add_message "etcdserverpb.HashKVRequest" do
+    optional :revision, :int64, 1
+  end
+  add_message "etcdserverpb.HashKVResponse" do
+    optional :header, :message, 1, "etcdserverpb.ResponseHeader"
+    optional :hash, :uint32, 2
+    optional :compact_revision, :int64, 3
   end
   add_message "etcdserverpb.HashResponse" do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
@@ -159,6 +175,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :created, :bool, 3
     optional :canceled, :bool, 4
     optional :compact_revision, :int64, 5
+    optional :cancel_reason, :string, 6
     repeated :events, :message, 11, "mvccpb.Event"
   end
   add_message "etcdserverpb.LeaseGrantRequest" do
@@ -196,6 +213,15 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :grantedTTL, :int64, 4
     repeated :keys, :bytes, 5
   end
+  add_message "etcdserverpb.LeaseLeasesRequest" do
+  end
+  add_message "etcdserverpb.LeaseStatus" do
+    optional :ID, :int64, 1
+  end
+  add_message "etcdserverpb.LeaseLeasesResponse" do
+    optional :header, :message, 1, "etcdserverpb.ResponseHeader"
+    repeated :leases, :message, 2, "etcdserverpb.LeaseStatus"
+  end
   add_message "etcdserverpb.Member" do
     optional :ID, :uint64, 1
     optional :name, :string, 2
@@ -208,12 +234,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "etcdserverpb.MemberAddResponse" do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
     optional :member, :message, 2, "etcdserverpb.Member"
+    repeated :members, :message, 3, "etcdserverpb.Member"
   end
   add_message "etcdserverpb.MemberRemoveRequest" do
     optional :ID, :uint64, 1
   end
   add_message "etcdserverpb.MemberRemoveResponse" do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
+    repeated :members, :message, 2, "etcdserverpb.Member"
   end
   add_message "etcdserverpb.MemberUpdateRequest" do
     optional :ID, :uint64, 1
@@ -221,6 +249,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
   add_message "etcdserverpb.MemberUpdateResponse" do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
+    repeated :members, :message, 2, "etcdserverpb.Member"
   end
   add_message "etcdserverpb.MemberListRequest" do
   end
@@ -231,6 +260,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "etcdserverpb.DefragmentRequest" do
   end
   add_message "etcdserverpb.DefragmentResponse" do
+    optional :header, :message, 1, "etcdserverpb.ResponseHeader"
+  end
+  add_message "etcdserverpb.MoveLeaderRequest" do
+    optional :targetID, :uint64, 1
+  end
+  add_message "etcdserverpb.MoveLeaderResponse" do
     optional :header, :message, 1, "etcdserverpb.ResponseHeader"
   end
   add_message "etcdserverpb.AlarmRequest" do
@@ -369,6 +404,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_enum "etcdserverpb.AlarmType" do
     value :NONE, 0
     value :NOSPACE, 1
+    value :CORRUPT, 2
   end
 end
 
@@ -392,6 +428,8 @@ module Etcdserverpb
   CompactionRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.CompactionRequest").msgclass
   CompactionResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.CompactionResponse").msgclass
   HashRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.HashRequest").msgclass
+  HashKVRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.HashKVRequest").msgclass
+  HashKVResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.HashKVResponse").msgclass
   HashResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.HashResponse").msgclass
   SnapshotRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.SnapshotRequest").msgclass
   SnapshotResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.SnapshotResponse").msgclass
@@ -408,6 +446,9 @@ module Etcdserverpb
   LeaseKeepAliveResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.LeaseKeepAliveResponse").msgclass
   LeaseTimeToLiveRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.LeaseTimeToLiveRequest").msgclass
   LeaseTimeToLiveResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.LeaseTimeToLiveResponse").msgclass
+  LeaseLeasesRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.LeaseLeasesRequest").msgclass
+  LeaseStatus = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.LeaseStatus").msgclass
+  LeaseLeasesResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.LeaseLeasesResponse").msgclass
   Member = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.Member").msgclass
   MemberAddRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.MemberAddRequest").msgclass
   MemberAddResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.MemberAddResponse").msgclass
@@ -419,6 +460,8 @@ module Etcdserverpb
   MemberListResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.MemberListResponse").msgclass
   DefragmentRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.DefragmentRequest").msgclass
   DefragmentResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.DefragmentResponse").msgclass
+  MoveLeaderRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.MoveLeaderRequest").msgclass
+  MoveLeaderResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.MoveLeaderResponse").msgclass
   AlarmRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.AlarmRequest").msgclass
   AlarmRequest::AlarmAction = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.AlarmRequest.AlarmAction").enummodule
   AlarmMember = Google::Protobuf::DescriptorPool.generated_pool.lookup("etcdserverpb.AlarmMember").msgclass
