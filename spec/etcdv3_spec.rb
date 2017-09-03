@@ -252,60 +252,133 @@ describe Etcdv3 do
     end
 
     describe '#transaction' do
-      context 'success' do
+      describe 'txn.value' do
         before { conn.put('txn', 'value') }
         after { conn.del('txn') }
-        subject! do
-          conn.transaction do |txn|
-            txn.compare = [ txn.value('txn', :equal, 'value') ]
-            txn.success = [ txn.put('txn-test', 'success') ]
-            txn.failure = [ txn.put('txn-test', 'failed') ]
+        context 'success' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.value('txn', :equal, 'value') ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('success')
           end
         end
-        it { is_expected.to be_an_instance_of(Etcdserverpb::TxnResponse) }
-        it 'returns successful' do
-          expect(subject.succeeded).to eq(true)
+        context "success, value with lease" do
+          let!(:lease_id) { conn.lease_grant(2)['ID'] }
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.value('txn', :equal, 'value') ]
+              txn.success = [ txn.put('txn-test', 'success', lease_id) ]
+              txn.failure = [ txn.put('txn-test', 'failed', lease_id) ]
+            end
+          end
+          it 'sets correct key, with a lease' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('success')
+            expect(conn.get('txn-test').kvs.first.lease).to eq(lease_id)
+          end
         end
-        it 'sets correct key' do
-          expect(conn.get('txn-test').kvs.first.value).to eq('success')
+        context 'failure' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.value('txn', :equal, 'notright') ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+          end
         end
       end
 
-      context "success, with a lease" do
-        let!(:lease_id) { conn.lease_grant(2)['ID'] }
+      describe 'txn.create_revision' do
         before { conn.put('txn', 'value') }
-        subject! do
-          conn.transaction do |txn|
-            txn.compare = [ txn.value('txn', :equal, 'value') ]
-            txn.success = [ txn.put('txn-test', 'success', lease_id) ]
-            txn.failure = [ txn.put('txn-test', 'failed', lease_id) ]
+        after { conn.del('txn') }
+        context 'success' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.create_revision('txn', :greater, 1) ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('success')
           end
         end
-
-        it 'sets correct key, with a lease' do
-          expect(conn.get('txn-test').kvs.first.value).to eq('success')
-          expect(conn.get('txn-test').kvs.first.lease).to eq(lease_id)
+        context 'failure' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.create_revision('txn', :equal, 1) ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+          end
         end
       end
 
-      context 'failure' do
+      describe 'txn.mod_revision' do
         before { conn.put('txn', 'value') }
         after { conn.del('txn') }
-        subject! do
-          conn.transaction do |txn|
-            txn.compare = [
-              txn.create_revision('txn', :greater, 500),
-              txn.mod_revision('txn', :less, 1000)
-            ]
-            txn.success = [ txn.put('txn-test', 'success') ]
-            txn.failure = [ txn.put('txn-test', 'failed') ]
+        context 'success' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.mod_revision('txn', :less, 1000) ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('success')
           end
         end
-        it 'returns successful' do
-          expect(subject.succeeded).to eq(false)
+        context 'failure' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.mod_revision('txn', :greater, 1000) ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+          end
         end
-        it 'sets correct key' do
-          expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+      end
+
+      describe 'txn.version' do
+        before { conn.put('txn', 'value') }
+        after { conn.del('txn') }
+        context 'success' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.version('txn', :equal, 1) ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('success')
+          end
+        end
+        context 'failure' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.version('txn', :equal, 100)]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+          end
         end
       end
     end
