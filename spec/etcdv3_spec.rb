@@ -381,6 +381,38 @@ describe Etcdv3 do
           end
         end
       end
+
+      describe 'txn.lease' do
+        let!(:lease_id) { conn.lease_grant(2)['ID'] }
+        before { conn.put('txn', 'value') }
+        after { conn.del('txn') }
+        context 'success' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.lease('txn', :equal, lease_id) ]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            expect(conn.get('txn-test').kvs.first.value).to eq('success')
+          end
+        end
+        context 'failure' do
+          subject! do
+            conn.transaction do |txn|
+              txn.compare = [ txn.lease('txn', :equal, 123456)]
+              txn.success = [ txn.put('txn-test', 'success') ]
+              txn.failure = [ txn.put('txn-test', 'failed') ]
+            end
+          end
+          it 'sets correct key' do
+            puts conn.get('txn').inspect
+            expect(conn.get('txn-test').kvs.first.value).to eq('failed')
+          end
+        end
+      end
+
     end
   end
 end
