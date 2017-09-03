@@ -15,7 +15,8 @@ class Etcdv3::KV
       version: 0,
       create_revision: 1,
       mod_revision: 2,
-      value: 3
+      value: 3,
+      lease: 4
     }
 
     attr_writer :compare, :success, :failure
@@ -71,6 +72,11 @@ class Etcdv3::KV
     # txn.create_revision('names', :less, 10)
     def create_revision(key, compare_type, value)
       generate_compare(:create_revision, key, compare_type, value)
+    end
+
+    # txn.lease('names', :equal, 12456)
+    def lease(key, compare_type, value)
+      generate_compare(:lease, key, compare_type, value)
     end
 
     private
