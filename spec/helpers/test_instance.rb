@@ -13,14 +13,15 @@ module Helpers
 
     MINIMUM_VERSION = Gem::Version.new('3.0.0')
 
-    def initialize
+    def initialize(tls: false)
       @pids = []
       @tmpdir = Dir.mktmpdir
       @bin = discover_binary_path
       @version = discover_binary_version
+      @tls = tls
 
       raise InvalidVersionException if @version < MINIMUM_VERSION
-      raise PortInUseException if port_open?
+      raise PortInUseException if port_open?(port)
 
     rescue InvalidVersionException
       puts "Invalid Etcd Version: #{@version}. Must be running 3.0+"
@@ -38,9 +39,16 @@ module Helpers
     end
 
     def spawn_etcd_instance
-      peer_url = "http://127.0.0.1:#{port+1}"
-      client_url = "http://127.0.0.1:#{port}"
-      cluster_url = "node=http://127.0.0.1:#{port+1}"
+      if @tls
+        client_url = "https://localhost:#{port}"
+        advertise_client_url = "https://localhost:#{port}"
+      else
+        client_url = "http://localhost:#{port}"
+        advertise_client_url = "http://localhost:#{port}"
+      end
+
+      peer_url = "http://localhost:#{port+1}"
+      cluster_url = "node=http://localhost:#{port+1}"
       flags =  ' --name=node'
       flags << " --initial-advertise-peer-urls=#{peer_url}"
       flags << " --listen-peer-urls=#{peer_url}"
@@ -49,17 +57,25 @@ module Helpers
       flags << " --initial-cluster=#{cluster_url}"
       flags << " --data-dir=#{@tmpdir} "
 
+      if @tls
+        flags << " --cert-file=spec/fixtures/cert.pem "
+        flags << " --key-file=spec/fixtures/key.pem "
+        flags << " --trusted-ca-file=spec/fixtures/cacert.pem "
+      end
+
       # Assumes etcd is in PATH
       command = "ETCDCTL_API=3 #{@bin} " + flags
-      pid = spawn(command, out: '/dev/null', err: '/dev/null')
+      pid = spawn(command, out: '/tmp/etcd.log', err: '/tmp/etcd.err')
       Process.detach(pid)
       pid
     end
 
     def stop
-      @pids.each { |pid| Process.kill('TERM', pid) } rescue nil
+      puts "Stopping testing environment on port #{port}..."
+      @pids.each { |pid| Process.kill('KILL', pid) } rescue nil
       FileUtils.remove_entry_secure(@tmpdir, true)
       @pids.clear
+      sleep(5)
     end
 
     private
@@ -76,10 +92,10 @@ module Helpers
       exit(1)
     end
 
-    def port_open?(seconds=1)
+    def port_open?(port, seconds=1)
       Timeout::timeout(seconds) do
         begin
-          TCPSocket.new('127.0.0.1', port).close
+          TCPSocket.new('localhost', port).close
           true
         rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
           false

@@ -20,12 +20,4 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
   config.shared_context_metadata_behavior = :apply_to_host_groups
-
-  instance = Helpers::TestInstance.new
-  config.before(:suite) do
-    instance.start
-  end
-  config.after(:suite) do
-    instance.stop
-  end
 end

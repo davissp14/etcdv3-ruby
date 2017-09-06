@@ -4,6 +4,16 @@ describe Etcdv3::Auth do
 
   let(:stub) { local_stub(Etcdv3::Auth) }
 
+  test_instance = Helpers::TestInstance.new(tls: false)
+
+  before(:context) do
+    test_instance.start
+  end
+
+  after(:context) do
+    test_instance.stop
+  end
+
   describe '#user_add' do
     after { stub.user_delete('boom') }
     subject { stub.user_add('boom', 'test') }

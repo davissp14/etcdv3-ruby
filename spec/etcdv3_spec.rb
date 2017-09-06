@@ -1,38 +1,148 @@
 require 'spec_helper'
 
 describe Etcdv3 do
-  context 'Insecure connection without Auth' do
-
+  describe 'connect insecure' do
+    test_instance = Helpers::TestInstance.new(tls: false)
     let(:conn) { local_connection }
 
-    describe '#initialize' do
-      context 'without auth' do
-        subject { conn }
-        it { is_expected.to have_attributes(scheme: 'http') }
-        it { is_expected.to have_attributes(hostname: '127.0.0.1') }
-        it { is_expected.to have_attributes(credentials: :this_channel_is_insecure) }
-        it { is_expected.to have_attributes(token: nil) }
-        it { is_expected.to have_attributes(user: nil) }
-        it { is_expected.to have_attributes(password: nil) }
+    before(:context) do
+      test_instance.start
+    end
+
+    after(:context) do
+      test_instance.stop
+    end
+
+    context 'without auth' do
+      subject { local_connection }
+
+      it { expect{subject}.to_not raise_error }
+      it { expect(subject.send(:scheme)).to eq('http') }
+      it { expect(subject.send(:hostname)).to eq(hostname) }
+      it { expect(subject.send(:credentials)).to eq(:this_channel_is_insecure) }
+      it { expect(subject.send(:token)).to be_nil }
+      it { expect(subject.send(:user)).to be_nil }
+      it { expect(subject.send(:password)).to be_nil }
+    end
+
+    context 'with auth' do
+      before do
+        conn.user_add('root', 'pass')
+        conn.user_grant_role('root', 'root')
+        conn.user_add('test', 'pass')
+        conn.auth_enable
       end
-      context 'with auth' do
-        let(:auth_conn) { local_connection_with_auth('test', 'pass') }
-        before do
-          conn.user_add('root', 'pass')
-          conn.user_grant_role('root', 'root')
-          conn.user_add('test', 'pass')
-          conn.auth_enable
-        end
-        after do
-          conn.authenticate('root', 'pass')
-          conn.auth_disable
-          conn.user_delete('root')
-          conn.user_delete('test')
-        end
-        it 'doesnt raise error' do
-          expect{ auth_conn }.to_not raise_error
-        end
+
+      after do
+        conn.authenticate('root', 'pass')
+        conn.auth_disable
+        conn.user_delete('root')
+        conn.user_delete('test')
       end
+
+      subject { local_connection_with_auth('test', 'pass') }
+
+      it { expect{subject}.to_not raise_error }
+      it { expect(subject.send(:scheme)).to eq('http') }
+      it { expect(subject.send(:hostname)).to eq(hostname) }
+      it { expect(subject.send(:credentials)).to eq(:this_channel_is_insecure) }
+      it { expect(subject.send(:token)).to be_an_instance_of(String) }
+      it { expect(subject.send(:user)).to eq('test') }
+      it { expect(subject.send(:password)).to eq('pass') }
+
+    end
+  end
+
+  describe 'connect secure' do
+    test_instance = Helpers::TestInstance.new(tls: true)
+    let(:conn) { local_connection_with_tls_server_auth('spec/fixtures/cacert.pem') }
+
+    before(:context) do
+      test_instance.start
+    end
+
+    after(:context) do
+      test_instance.stop
+    end
+
+    context 'without auth' do
+      context 'with tls server auth' do
+        subject { local_connection_with_tls_server_auth('spec/fixtures/cacert.pem') }
+
+        it { expect{subject}.to_not raise_error }
+        it { expect(subject.send(:scheme)).to eq('https') }
+        it { expect(subject.send(:hostname)).to eq(hostname) }
+        it { expect(subject.send(:credentials)).to be_an_instance_of(GRPC::Core::ChannelCredentials) }
+        it { expect(subject.send(:token)).to be_nil }
+        it { expect(subject.send(:user)).to be_nil }
+        it { expect(subject.send(:password)).to be_nil }
+      end
+
+      context 'with tls client auth' do
+        subject { local_connection_with_tls_client_auth('spec/fixtures/cacert.pem', 'spec/fixtures/key.pem', 'spec/fixtures/cert.pem') }
+
+        it { expect{subject}.to_not raise_error }
+        it { expect(subject.send(:scheme)).to eq('https') }
+        it { expect(subject.send(:hostname)).to eq(hostname) }
+        it { expect(subject.send(:credentials)).to be_an_instance_of(GRPC::Core::ChannelCredentials) }
+        it { expect(subject.send(:token)).to be_nil }
+        it { expect(subject.send(:user)).to be_nil }
+        it { expect(subject.send(:password)).to be_nil }
+      end
+    end
+
+    context 'with auth' do
+      before do
+        conn.user_add('root', 'pass')
+        conn.user_grant_role('root', 'root')
+        conn.user_add('test', 'pass')
+        conn.auth_enable
+      end
+
+      after do
+        conn.authenticate('root', 'pass')
+        conn.auth_disable
+        conn.user_delete('root')
+        conn.user_delete('test')
+      end
+
+      context 'with tls server auth' do
+        subject { local_connection_with_auth_and_tls_server_auth('test', 'pass', 'spec/fixtures/cacert.pem') }
+
+        it { expect{subject}.to_not raise_error }
+        it { expect(subject.send(:scheme)).to eq('https') }
+        it { expect(subject.send(:hostname)).to eq(hostname) }
+        it { expect(subject.send(:credentials)).to be_an_instance_of(GRPC::Core::ChannelCredentials) }
+        it { expect(subject.send(:token)).to be_an_instance_of(String) }
+        it { expect(subject.send(:user)).to eq('test') }
+        it { expect(subject.send(:password)).to eq('pass') }
+      end
+
+      context 'with tls client auth' do
+        subject { local_connection_with_auth_and_tls_client_auth('test', 'pass', 'spec/fixtures/cacert.pem', 'spec/fixtures/key.pem', 'spec/fixtures/cert.pem') }
+
+        it { expect{subject}.to_not raise_error }
+        it { expect(subject.send(:scheme)).to eq('https') }
+        it { expect(subject.send(:hostname)).to eq(hostname) }
+        it { expect(subject.send(:credentials)).to be_an_instance_of(GRPC::Core::ChannelCredentials) }
+        it { expect(subject.send(:token)).to be_an_instance_of(String) }
+        it { expect(subject.send(:user)).to eq('test') }
+        it { expect(subject.send(:password)).to eq('pass') }
+      end
+    end
+  end
+
+  context 'insecure connection without auth' do
+    let(:conn) { local_connection }
+
+    test_instance = Helpers::TestInstance.new(tls: false)
+
+    before(:context) do
+      test_instance.start
+    end
+
+    after(:context) do
+      test_instance.stop
     end
 
     describe '#version' do
@@ -231,9 +341,9 @@ describe Etcdv3 do
           conn.user_delete('root')
         end
         it 'properly reconfigures auth and token' do
-          expect(conn.token).to_not be_nil
-          expect(conn.user).to eq('root')
-          expect(conn.password).to eq('test')
+          expect(conn.send(:token)).to_not be_nil
+          expect(conn.send(:user)).to eq('root')
+          expect(conn.send(:password)).to eq('test')
         end
       end
 

@@ -14,37 +14,6 @@ require 'etcdv3/watch'
 require 'etcdv3/request'
 
 class Etcdv3
-
-  attr_reader :credentials, :options
-
-  def uri
-    URI(@options[:url])
-  end
-
-  def scheme
-    uri.scheme
-  end
-
-  def port
-    uri.port
-  end
-
-  def hostname
-    uri.hostname
-  end
-
-  def user
-    request.user
-  end
-
-  def password
-    request.password
-  end
-
-  def token
-    request.token
-  end
-
   def initialize(options = {})
     @options = options
     @credentials = resolve_credentials
@@ -213,9 +182,68 @@ class Etcdv3
 
   private
 
+  attr_reader :credentials, :options
+
+  def uri
+    URI(@options[:url])
+  end
+
+  def scheme
+    uri.scheme
+  end
+
+  def port
+    uri.port
+  end
+
+  def hostname
+    uri.hostname
+  end
+
+  def user
+    request.user
+  end
+
+  def password
+    request.password
+  end
+
+  def token
+    request.token
+  end
+
+  def key
+    File.read(File.expand_path(@options.fetch(:key)))
+  end
+
+  def cert
+    File.read(File.expand_path(@options.fetch(:cert)))
+  end
+
+  def cacert
+    File.read(File.expand_path(@options.fetch(:cacert)))
+  end
+
+
   def request(reset: false)
     return @request if @request && !reset
     @request = Request.new("#{hostname}:#{port}", @credentials)
+  end
+
+  def tls_creds
+    if options.key?(:key) || options.key?(:cert)
+      unless options.key?(:cacert) && options.key?(:key) && options.key?(:cert)
+        raise 'Must pass cacert, key and cert when using client auth'
+      end
+
+      return [cacert, key, cert]
+    end
+
+    if options.key?(:cacert)
+      return [cacert]
+    end
+
+    []
   end
 
   def resolve_credentials
@@ -223,8 +251,7 @@ class Etcdv3
     when 'http'
       :this_channel_is_insecure
     when 'https'
-      # Use default certs for now.
-      GRPC::Core::ChannelCredentials.new
+      GRPC::Core::ChannelCredentials.new(*tls_creds)
     else
       raise "Unknown scheme: #{scheme}"
     end
