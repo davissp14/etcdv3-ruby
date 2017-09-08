@@ -30,6 +30,19 @@ describe Etcdv3 do
           expect{ auth_conn }.to_not raise_error
         end
       end
+      context 'with a timeout' do
+        it "sets the timeout in the kv handler" do
+          etcd = local_connection_with_timeout(1.5)
+          kv_handler = etcd.conn.connection.instance_variable_get("@handlers")[:kv]
+          expect(kv_handler.instance_variable_get "@timeout").to eq(1.5)
+        end
+
+        it "sets a default timeout" do
+          etcd = local_connection
+          kv_handler = etcd.conn.connection.instance_variable_get("@handlers")[:kv]
+          expect(kv_handler.instance_variable_get "@timeout").to eq(120)
+        end
+      end
     end
 
     describe '#version' do
