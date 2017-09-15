@@ -17,18 +17,23 @@ gem install etcdv3
 ```ruby
 require 'etcdv3'
 
-# Insecure connection
-conn = Etcdv3.new(url: 'http://127.0.0.1:2379')
+# Insecure connection with multiple endpoints
+conn = Etcdv3.new(endpoints: 'http://127.0.0.1:2379, http://127.0.0.1:2389, http://127.0.0.1:2399')
 
 # Secure connection using default certificates
-conn = Etcdv3.new(url: 'https://hostname:port')
+conn = Etcdv3.new(endpoint: 'https://hostname:port')
 
 # Secure connection with Auth
-conn = Etcdv3.new(url: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
+conn = Etcdv3.new(endpoint: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
 # Secure connection specifying own certificates
 # Coming soon...
+
 ```
+**High Availability**
+
+In the event of a failure, the client will work to restore connectivity by cycling through the specified endpoints until a connection can be established.  With that being said, it is encouraged to specify multiple endpoints when available.
+
 
 ## Adding, Fetching and Deleting Keys
 ```ruby
@@ -128,11 +133,11 @@ conn.transaction do |txn|
     # Is the version of 'target_key' greater than 10
     txn.version('target_key', :greater, 10)
   ]
-  
+
   txn.success = [
     txn.put('txn1', 'success')
   ]
-  
+
   txn.failure = [
     txn.put('txn1', 'failed', lease: lease_id)
   ]
@@ -163,6 +168,11 @@ conn.alarm_list
 
 # Deactivate ALL active Alarms
 conn.alarm_deactivate
+```
+
+```ruby
+# Example
+conn = Etcdv3.new(endpoints: 'http://127.0.0.1:2379, http://127.0.0.1:2389, http://127.0.0.1:2399')
 ```
 
 ## Contributing
