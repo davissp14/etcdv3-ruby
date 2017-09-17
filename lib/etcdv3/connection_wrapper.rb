@@ -37,6 +37,7 @@ class Etcdv3
       @connection.refresh_metadata({})
     end
 
+    # Authenticate using specified user and password..
     def authenticate(user, password)
       @token = handle(:auth, 'generate_token', [user, password])
       @user, @password = user, password

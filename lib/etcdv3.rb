@@ -13,29 +13,16 @@ require 'etcdv3/connection'
 require 'etcdv3/connection_wrapper'
 
 class Etcdv3
+  extend Forwardable
+  def_delegators :conn, :user, :password, :token, :authenticate
 
   attr_reader :options
 
-  def endpoints
-    (@options[:endpoints] || @options[:endpoint] || @options[:url]).split(',').map(&:strip)
-  end
-
-  def user
-    conn.user
-  end
-
-  def password
-    conn.password
-  end
-
-  def token
-    conn.token
-  end
-
   def initialize(options = {})
     @options = options
-    warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if options[:url]
-    authenticate(options[:user], @options[:password]) unless @options[:user].nil?
+    @endpoints = (@options[:endpoints] || @options[:url]).split(',').map(&:strip)
+    warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
+    authenticate(@options[:user], @options[:password]) if @options.key?(:user)
   end
 
   # Version of Etcd running on member
@@ -61,12 +48,6 @@ class Etcdv3
   # Disarm alarms on a specified member.
   def alarm_deactivate
     conn.handle(:maintenance, 'alarms', [:deactivate, leader_id])
-  end
-
-  # Authenticate using specified user and password.
-  # On successful authentication, an auth token will be assigned to wrapper instance.
-  def authenticate(user, password)
-    conn.authenticate(user, password)
   end
 
   # Enables authentication.
@@ -201,6 +182,6 @@ class Etcdv3
   private
 
   def conn
-    @conn ||= ConnectionWrapper.new(endpoints)
+    @conn ||= ConnectionWrapper.new(@endpoints)
   end
 end
