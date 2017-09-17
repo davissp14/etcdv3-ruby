@@ -26,7 +26,7 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port')
 # Secure connection with Auth
 conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
-# Secure connection specifying own certificates
+# Secure connection specifying custom certificates
 # Coming soon...
 
 ```
