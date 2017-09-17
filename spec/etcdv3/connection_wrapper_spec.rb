@@ -7,7 +7,9 @@ describe Etcdv3::ConnectionWrapper do
   describe '#initialize' do
     subject { Etcdv3::ConnectionWrapper.new(endpoints) }
     it { is_expected.to have_attributes(user: nil, password: nil, token: nil) }
-    it { is_expected.to have_attributes(endpoints: ['http://localhost:2379', 'http://localhost:2389']) }
+    it 'sets hostnames in correct order' do
+      expect(subject.endpoints.map(&:hostname)).to eq(['localhost:2379', 'localhost:2389'])
+    end
     it 'stubs connection with the correct hostname' do
       expect(subject.connection.hostname).to eq('localhost:2379')
     end
@@ -18,7 +20,9 @@ describe Etcdv3::ConnectionWrapper do
     before do
       subject.rotate_connection_endpoint
     end
-    it { is_expected.to have_attributes(endpoints: ['http://localhost:2389', 'http://localhost:2379']) }
+    it 'sets hostnames in correct order' do
+      expect(subject.endpoints.map(&:hostname)).to eq(['localhost:2389', 'localhost:2379'])
+    end
     it 'sets correct hostname' do
       expect(subject.connection.hostname).to eq('localhost:2389')
     end

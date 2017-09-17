@@ -1,12 +1,12 @@
 class Etcdv3
   class ConnectionWrapper
 
-    attr_accessor :connection, :token, :endpoints, :user, :password
+    attr_accessor :connection, :endpoints, :user, :password, :token
 
     def initialize(endpoints)
       @user, @password, @token = nil, nil, nil
-      @endpoints = endpoints
-      @connection = Etcdv3::Connection.new(endpoints.first)
+      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint) }
+      @connection = @endpoints.first
     end
 
     def handle(stub, method, method_args=[], retries: 1)
@@ -48,7 +48,7 @@ class Etcdv3
     # attempt to recover connectivity.
     def rotate_connection_endpoint
       @endpoints.rotate!
-      @connection = Etcdv3::Connection.new(@endpoints.first)
+      @connection = @endpoints.first
       @connection.refresh_metadata(token: @token) if @token
     end
   end
