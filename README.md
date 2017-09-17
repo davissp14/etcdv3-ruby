@@ -17,14 +17,14 @@ gem install etcdv3
 ```ruby
 require 'etcdv3'
 
-# Insecure connection with multiple endpoints
+# Insecure connection
 conn = Etcdv3.new(endpoints: 'http://127.0.0.1:2379, http://127.0.0.1:2389, http://127.0.0.1:2399')
 
 # Secure connection using default certificates
-conn = Etcdv3.new(endpoint: 'https://hostname:port')
+conn = Etcdv3.new(endpoints: 'https://hostname:port')
 
 # Secure connection with Auth
-conn = Etcdv3.new(endpoint: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
+conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
 # Secure connection specifying own certificates
 # Coming soon...
