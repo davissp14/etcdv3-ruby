@@ -170,11 +170,6 @@ conn.alarm_list
 conn.alarm_deactivate
 ```
 
-```ruby
-# Example
-conn = Etcdv3.new(endpoints: 'http://127.0.0.1:2379, http://127.0.0.1:2389, http://127.0.0.1:2399')
-```
-
 ## Contributing
 
 If you're looking to get involved, [Fork the project](https://github.com/davissp14/etcdv3-ruby) and send pull requests.
