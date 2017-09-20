@@ -9,6 +9,7 @@ require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/watch'
+require 'etcdv3/cluster'
 require 'etcdv3/connection'
 require 'etcdv3/connection_wrapper'
 
@@ -38,6 +39,11 @@ class Etcdv3
   # Cluster leader id
   def leader_id
     @conn.handle(:maintenance, 'member_status').leader
+  end
+
+  # List members in cluster
+  def member_list
+    @conn.handle(:cluster, 'member_list')
   end
 
   # List active alarms
