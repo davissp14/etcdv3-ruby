@@ -20,4 +20,20 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
   config.shared_context_metadata_behavior = :apply_to_host_groups
+
+
+  $etcd_port = ENV.fetch('ETCD_TEST_PORT', 2379).to_i
+  $etcd_tls_port = ENV.fetch('ETCD_TEST_TLS_PORT', 2379+10).to_i
+
+  instance = Helpers::TestInstance.new(port: $etcd_port)
+  tls_instance = Helpers::TestInstance.new(tls: true, port: $etcd_tls_port)
+
+  config.before(:suite) do
+    instance.start
+    tls_instance.start
+  end
+  config.after(:suite) do
+    instance.stop
+    tls_instance.stop
+  end
 end

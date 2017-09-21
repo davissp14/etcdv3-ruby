@@ -2,16 +2,7 @@ require 'spec_helper'
 
 describe Etcdv3 do
   describe 'connect insecure' do
-    test_instance = Helpers::TestInstance.new(tls: false)
     let(:conn) { local_connection }
-
-    before(:context) do
-      test_instance.start
-    end
-
-    after(:context) do
-      test_instance.stop
-    end
 
     context 'without auth' do
       subject { local_connection }
@@ -54,16 +45,7 @@ describe Etcdv3 do
   end
 
   describe 'connect secure' do
-    test_instance = Helpers::TestInstance.new(tls: true)
     let(:conn) { local_connection_with_tls_server_auth('spec/fixtures/cacert.pem') }
-
-    before(:context) do
-      test_instance.start
-    end
-
-    after(:context) do
-      test_instance.stop
-    end
 
     context 'without auth' do
       context 'with tls server auth' do
@@ -134,16 +116,6 @@ describe Etcdv3 do
 
   context 'insecure connection without auth' do
     let(:conn) { local_connection }
-
-    test_instance = Helpers::TestInstance.new(tls: false)
-
-    before(:context) do
-      test_instance.start
-    end
-
-    after(:context) do
-      test_instance.stop
-    end
 
     describe '#version' do
       subject { conn.version }

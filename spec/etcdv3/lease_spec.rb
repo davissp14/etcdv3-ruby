@@ -3,15 +3,6 @@ require 'spec_helper'
 describe Etcdv3::Lease do
 
   let(:stub) { local_stub(Etcdv3::Lease) }
-  test_instance = Helpers::TestInstance.new(tls: false)
-
-  before(:context) do
-    test_instance.start
-  end
-
-  after(:context) do
-    test_instance.stop
-  end
 
   describe '#lease_grant' do
     subject { stub.lease_grant(10) }

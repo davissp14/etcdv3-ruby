@@ -6,49 +6,49 @@ require 'helpers/connections'
 
 module Helpers
   class TestInstance
-    include Helpers::Connections
 
     class InvalidVersionException < StandardError; end
     class PortInUseException < StandardError; end
 
     MINIMUM_VERSION = Gem::Version.new('3.0.0')
 
-    def initialize(tls: false)
+    def initialize(options={})
       @pids = []
       @tmpdir = Dir.mktmpdir
       @bin = discover_binary_path
       @version = discover_binary_version
-      @tls = tls
+      @port = options.fetch(:port)
+      @tls = options.fetch(:tls) { false }
 
       raise InvalidVersionException if @version < MINIMUM_VERSION
-      raise PortInUseException if port_open?(port)
+      raise PortInUseException if port_open?(@port)
 
     rescue InvalidVersionException
       puts "Invalid Etcd Version: #{@version}. Must be running 3.0+"
       exit(1)
     rescue PortInUseException
-      puts "Port #{port} is already in use. To choose a new port: `export ETCD_TEST_PORT=new_port`"
+      puts "Port #{@port} is already in use. To choose a new port: `export ETCD_TEST_PORT=new_port`"
       exit(1)
     end
 
     def start
+      puts "Starting up testing environment on port #{@port}..."
       raise "Already running etcd servers(#{@pids.inspect})" unless @pids.empty?
-      puts "Starting up testing environment on port #{port}..."
       @pids << spawn_etcd_instance
       sleep(5)
     end
 
     def spawn_etcd_instance
       if @tls
-        client_url = "https://localhost:#{port}"
-        advertise_client_url = "https://localhost:#{port}"
+        client_url = "https://localhost:#{@port}"
+        advertise_client_url = "https://localhost:#{@port}"
       else
-        client_url = "http://localhost:#{port}"
-        advertise_client_url = "http://localhost:#{port}"
+        client_url = "http://localhost:#{@port}"
+        advertise_client_url = "http://localhost:#{@port}"
       end
 
-      peer_url = "http://localhost:#{port+1}"
-      cluster_url = "node=http://localhost:#{port+1}"
+      peer_url = "http://localhost:#{@port+1}"
+      cluster_url = "node=http://localhost:#{@port+1}"
       flags =  ' --name=node'
       flags << " --initial-advertise-peer-urls=#{peer_url}"
       flags << " --listen-peer-urls=#{peer_url}"
@@ -71,7 +71,7 @@ module Helpers
     end
 
     def stop
-      puts "Stopping testing environment on port #{port}..."
+      puts "Stopping testing environment on port #{@port}..."
       @pids.each { |pid| Process.kill('KILL', pid) } rescue nil
       FileUtils.remove_entry_secure(@tmpdir, true)
       @pids.clear

@@ -26,7 +26,7 @@ module Helpers
     end
 
     def local_stub(interface)
-      interface.new("#{hostname}:#{port}", :this_channel_is_insecure, {})
+      interface.new("#{hostname}:#{$etcd_port}", :this_channel_is_insecure, {})
     end
 
     def hostname
@@ -34,15 +34,11 @@ module Helpers
     end
 
     def local_url
-      "http://#{hostname}:#{port}"
+      "http://#{hostname}:#{$etcd_port}"
     end
 
     def local_url_tls
-      "https://#{hostname}:#{port}"
-    end
-
-    def port
-      ENV.fetch('ETCD_TEST_PORT', 2379).to_i
+      "https://#{hostname}:#{$etcd_tls_port}"
     end
 
   end
