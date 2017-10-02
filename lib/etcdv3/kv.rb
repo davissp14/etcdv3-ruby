@@ -3,26 +3,24 @@ class Etcdv3
   class KV
     include Etcdv3::KV::Requests
 
-    def initialize(hostname, credentials, timeout, metadata={})
+    def initialize(hostname, credentials, metadata={})
       @stub = Etcdserverpb::KV::Stub.new(hostname, credentials)
-      @timeout = timeout
       @metadata = metadata
     end
 
     def get(key, opts={})
-      timeout = opts.delete(:timeout)
-      @stub.range(get_request(key, opts), metadata: @metadata, deadline: deadline(timeout))
+      @stub.range(get_request(key, opts), metadata: @metadata)
     end
 
-    def del(key, range_end="", timeout: nil)
-      @stub.delete_range(del_request(key, range_end), metadata: @metadata, deadline: deadline(timeout))
+    def del(key, range_end="")
+      @stub.delete_range(del_request(key, range_end), metadata: @metadata)
     end
 
-    def put(key, value, lease=nil, timeout: nil)
-      @stub.put(put_request(key, value, lease), metadata: @metadata, deadline: deadline(timeout))
+    def put(key, value, lease=nil)
+      @stub.put(put_request(key, value, lease), metadata: @metadata)
     end
 
-    def transaction(block, timeout: nil)
+    def transaction(block)
       txn = Etcdv3::KV::Transaction.new
       block.call(txn)
       request = Etcdserverpb::TxnRequest.new(
@@ -30,14 +28,10 @@ class Etcdv3
         success: generate_request_ops(txn.success),
         failure: generate_request_ops(txn.failure)
       )
-      @stub.txn(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.txn(request)
     end
 
     private
-
-    def deadline(timeout)
-      Time.now.to_f + (timeout || @timeout)
-    end
 
     def generate_request_ops(requests)
       requests.map do |request|

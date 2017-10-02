@@ -6,7 +6,6 @@ require 'simplecov'
 require 'codecov'
 require 'helpers/test_instance'
 require 'helpers/connections'
-require 'helpers/shared_examples_for_timeout'
 
 SimpleCov.start
 SimpleCov.formatter = SimpleCov::Formatter::Codecov

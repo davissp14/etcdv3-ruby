@@ -16,13 +16,11 @@ class Etcdv3
   extend Forwardable
   def_delegators :@conn, :user, :password, :token, :endpoints, :authenticate
 
-  attr_reader :conn, :credentials, :options
-  DEFAULT_TIMEOUT = 120
+  attr_reader :conn, :options
 
   def initialize(options = {})
     @options = options
-    @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
-    @conn = ConnectionWrapper.new(@timeout, *sanitized_endpoints)
+    @conn = ConnectionWrapper.new(sanitized_endpoints)
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)
   end

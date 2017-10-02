@@ -8,38 +8,37 @@ class Etcdv3
       :readwrite => Authpb::Permission::Type::READWRITE
     }
 
-    def initialize(hostname, credentials, timeout, metadata = {})
+    def initialize(hostname, credentials, metadata = {})
       @stub = Etcdserverpb::Auth::Stub.new(hostname, credentials)
-      @timeout = timeout
       @metadata = metadata
     end
 
-    def auth_enable(timeout: nil)
+    def auth_enable
       request = Etcdserverpb::AuthEnableRequest.new
-      @stub.auth_enable(request, deadline: deadline(timeout))
+      @stub.auth_enable(request)
     end
 
-    def auth_disable(timeout: nil)
+    def auth_disable
       request = Etcdserverpb::AuthDisableRequest.new
-      @stub.auth_disable(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.auth_disable(request, metadata: @metadata)
     end
 
-    def role_add(name, timeout: nil)
+    def role_add(name)
       request = Etcdserverpb::AuthRoleAddRequest.new(name: name)
-      @stub.role_add(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.role_add(request, metadata: @metadata)
     end
 
-    def role_get(name, timeout: nil)
+    def role_get(name)
       request = Etcdserverpb::AuthRoleGetRequest.new(role: name)
-      @stub.role_get(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.role_get(request, metadata: @metadata)
     end
 
-    def role_delete(name, timeout: nil)
+    def role_delete(name)
       request = Etcdserverpb::AuthRoleDeleteRequest.new(role: name)
-      @stub.role_delete(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.role_delete(request, metadata: @metadata)
     end
 
-    def role_grant_permission(name, permission, key, range_end, timeout: nil)
+    def role_grant_permission(name, permission, key, range_end)
       permission = Authpb::Permission.new(
         permType: Etcdv3::Auth::PERMISSIONS[permission], key: key, range_end: range_end
       )
@@ -48,81 +47,74 @@ class Etcdv3
           name: name,
           perm: permission
         ),
-        metadata: @metadata,
-        deadline: deadline(timeout)
+        metadata: @metadata
       )
     end
 
-    def role_revoke_permission(name, permission, key, range_end, timeout: nil)
+    def role_revoke_permission(name, permission, key, range_end)
       @stub.role_revoke_permission(
         Etcdserverpb::AuthRoleRevokePermissionRequest.new(
           role: name,
           key: key,
           range_end: range_end
         ),
-        metadata: @metadata,
-        deadline: deadline(timeout)
+        metadata: @metadata
       )
     end
 
-    def role_list(timeout: nil)
+    def role_list
       request = Etcdserverpb::AuthRoleListRequest.new
-      @stub.role_list(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.role_list(request, metadata: @metadata)
     end
 
-    def user_list(timeout: nil)
+    def user_list
       request = Etcdserverpb::AuthUserListRequest.new
-      @stub.user_list(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_list(request, metadata: @metadata)
     end
 
-    def user_add(user, password, timeout: nil)
+    def user_add(user, password)
       request = Etcdserverpb::AuthUserAddRequest.new(
         name: user,
         password: password
       )
-      @stub.user_add(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_add(request, metadata: @metadata)
     end
 
-    def user_delete(user, timeout: nil)
+    def user_delete(user)
       request = Etcdserverpb::AuthUserDeleteRequest.new(name: user)
-      @stub.user_delete(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_delete(request, metadata: @metadata)
     end
 
-    def user_get(user, timeout: nil)
+    def user_get(user)
       request = Etcdserverpb::AuthUserGetRequest.new(name: user)
-      @stub.user_get(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_get(request, metadata: @metadata)
     end
 
-    def user_change_password(user, new_password, timeout: nil)
+    def user_change_password(user, new_password)
       request = Etcdserverpb::AuthUserChangePasswordRequest.new(
         name: user,
         password: new_password
       )
-      @stub.user_change_password(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_change_password(request, metadata: @metadata)
     end
 
-    def user_grant_role(user, role, timeout: nil)
+    def user_grant_role(user, role)
       request = Etcdserverpb::AuthUserGrantRoleRequest.new(user: user, role: role)
-      @stub.user_grant_role(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_grant_role(request, metadata: @metadata)
     end
 
-    def user_revoke_role(user, role, timeout: nil)
+    def user_revoke_role(user, role)
       request = Etcdserverpb::AuthUserRevokeRoleRequest.new(name: user, role: role)
-      @stub.user_revoke_role(request, metadata: @metadata, deadline: deadline(timeout))
+      @stub.user_revoke_role(request, metadata: @metadata)
     end
 
-    def generate_token(user, password, timeout: nil)
+    def generate_token(user, password)
       request = Etcdserverpb::AuthenticateRequest.new(
         name: user,
         password: password
       )
-      @stub.authenticate(request, deadline: deadline(timeout)).token
+      @stub.authenticate(request).token
     end
 
-    private
-
-    def deadline(timeout)
-      Time.now.to_f + (timeout || @timeout)
-    end
   end
 end
