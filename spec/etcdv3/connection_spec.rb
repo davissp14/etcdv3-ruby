@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Etcdv3::Connection do
 
   describe '#initialize - without metadata' do
-    subject { Etcdv3::Connection.new('http://localhost:2379', 10) }
+    subject { Etcdv3::Connection.new('http://localhost:2379') }
 
     it { is_expected.to have_attributes(endpoint: URI('http://localhost:2379')) }
     it { is_expected.to have_attributes(credentials: :this_channel_is_insecure) }
@@ -22,7 +22,7 @@ describe Etcdv3::Connection do
   end
 
   describe '#initialize - with metadata' do
-    subject { Etcdv3::Connection.new('http://localhost:2379', 10, token: 'token123') }
+    subject { Etcdv3::Connection.new('http://localhost:2379', token: 'token123') }
 
     [:kv, :maintenance, :lease, :watch, :auth].each do |handler|
       let(:handler_stub) { subject.handlers[handler].instance_variable_get(:@stub) }

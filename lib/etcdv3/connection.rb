@@ -11,11 +11,10 @@ class Etcdv3
 
     attr_reader :endpoint, :hostname, :handlers, :credentials
 
-    def initialize(url, timeout, metadata={})
+    def initialize(url, metadata={})
       @endpoint = URI(url)
       @hostname = "#{@endpoint.hostname}:#{@endpoint.port}"
       @credentials = resolve_credentials
-      @timeout = timeout
       @handlers = handler_map(metadata)
     end
 
@@ -32,7 +31,7 @@ class Etcdv3
     def handler_map(metadata={})
       Hash[
         HANDLERS.map do |key, klass|
-          [key, klass.new("#{@hostname}", @credentials, @timeout, metadata)]
+          [key, klass.new("#{@hostname}", @credentials, metadata)]
         end
       ]
     end

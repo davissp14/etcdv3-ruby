@@ -1,12 +1,11 @@
 class Etcdv3
   class ConnectionWrapper
 
-    attr_accessor :connection, :endpoints, :user, :password, :token, :timeout
+    attr_accessor :connection, :endpoints, :user, :password, :token
 
-    def initialize(timeout, *endpoints)
+    def initialize(endpoints)
       @user, @password, @token = nil, nil, nil
-      @timeout = timeout
-      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint, @timeout) }
+      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint) }
       @connection = @endpoints.first
     end
 
