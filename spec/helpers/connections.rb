@@ -9,8 +9,12 @@ module Helpers
       Etcdv3.new(endpoints: endpoints)
     end
 
-    def local_stub(interface)
-      interface.new(local_url, :this_channel_is_insecure, {})
+    def local_connection_with_timeout(timeout)
+      Etcdv3.new(endpoints: "http://#{local_url}", command_timeout: timeout)
+    end
+
+    def local_stub(interface, timeout=nil)
+      interface.new(local_url, :this_channel_is_insecure, timeout, {})
     end
 
     def local_url

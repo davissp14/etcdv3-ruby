@@ -1,7 +1,7 @@
 class Etcdv3
   class Watch
 
-    def initialize(hostname, credentials, metadata = {})
+    def initialize(hostname, credentials, _timeout, metadata = {})
       @stub = Etcdserverpb::Watch::Stub.new(hostname, credentials)
       @metadata = metadata
     end

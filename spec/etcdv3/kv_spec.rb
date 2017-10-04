@@ -1,8 +1,17 @@
 require 'spec_helper'
 
 describe Etcdv3::KV do
-  let(:stub) { local_stub(Etcdv3::KV) }
-  let(:lease_stub) { local_stub(Etcdv3::Lease) }
+  let(:stub) { local_stub(Etcdv3::KV, 1) }
+  let(:lease_stub) { local_stub(Etcdv3::Lease, 1) }
+
+  it_should_behave_like "a method with a GRPC timeout", described_class, :get, :range, "key"
+  it_should_behave_like "a method with a GRPC timeout", described_class, :del, :delete_range, "key"
+  it_should_behave_like "a method with a GRPC timeout", described_class, :put, :put, "key", "val"
+
+  it "should timeout transactions" do
+    stub = local_stub(Etcdv3::KV, 0)
+    expect { stub.transaction(Proc.new { nil }) }.to raise_error(GRPC::DeadlineExceeded)
+  end
 
   describe '#put' do
     context 'without lease' do
@@ -12,7 +21,7 @@ describe Etcdv3::KV do
 
     context 'with lease' do
       let(:lease_id) { lease_stub.lease_grant(1)['ID'] }
-      subject { stub.put('lease', 'test', lease_id) }
+      subject { stub.put('lease', 'test', lease: lease_id) }
       it { is_expected.to be_an_instance_of(Etcdserverpb::PutResponse) }
     end
   end
@@ -28,7 +37,7 @@ describe Etcdv3::KV do
       it { is_expected.to be_an_instance_of(Etcdserverpb::DeleteRangeResponse) }
     end
     context 'del with range' do
-      subject { stub.del('test', 'testtt') }
+      subject { stub.del('test', range_end: 'testtt') }
       it { is_expected.to be_an_instance_of(Etcdserverpb::DeleteRangeResponse) }
     end
   end

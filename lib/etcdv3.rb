@@ -16,11 +16,13 @@ class Etcdv3
   extend Forwardable
   def_delegators :@conn, :user, :password, :token, :endpoints, :authenticate
 
-  attr_reader :conn, :options
+  attr_reader :conn, :credentials, :options
+  DEFAULT_TIMEOUT = 120
 
   def initialize(options = {})
     @options = options
-    @conn = ConnectionWrapper.new(sanitized_endpoints)
+    @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
+    @conn = ConnectionWrapper.new(@timeout, *sanitized_endpoints)
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)
   end
@@ -51,15 +53,15 @@ class Etcdv3
   end
 
   # Enables authentication.
-  def auth_enable
-    @conn.handle(:auth, 'auth_enable')
+  def auth_enable(timeout: nil)
+    @conn.handle(:auth, 'auth_enable', [timeout: timeout])
     true
   end
 
   # Disables authentication.
   # This will clear any active auth / token data.
-  def auth_disable
-    @conn.handle(:auth, 'auth_disable')
+  def auth_disable(timeout: nil)
+    @conn.handle(:auth, 'auth_disable', [timeout: timeout])
     @conn.clear_authentication
     true
   end
@@ -77,97 +79,105 @@ class Etcdv3
   # optional :max_mod_revision    - integer
   # optional :min_create_revision - integer
   # optional :max_create_revision - integer
+  # optional :timeout             - integer
   def get(key, opts={})
     @conn.handle(:kv, 'get', [key, opts])
   end
 
   # Inserts a new key.
-  def put(key, value, lease_id: nil)
-    @conn.handle(:kv, 'put', [key, value, lease_id])
+  # key                           - string
+  # value                         - string
+  # optional :lease               - integer
+  # optional :timeout             - integer
+  def put(key, value, opts={})
+    @conn.handle(:kv, 'put', [key, value, opts])
   end
 
   # Deletes a specified key
-  def del(key, range_end: '')
-    @conn.handle(:kv, 'del', [key, range_end])
+  # key                           - string
+  # optional :range_end           - string
+  # optional :timeout             - integer
+  def del(key, opts={})
+    @conn.handle(:kv, 'del', [key, opts])
   end
 
   # Grant a lease with a specified TTL
-  def lease_grant(ttl)
-    @conn.handle(:lease, 'lease_grant', [ttl])
+  def lease_grant(ttl, timeout: nil)
+    @conn.handle(:lease, 'lease_grant', [ttl, timeout: timeout])
   end
 
   # Revokes lease and delete all attached keys
-  def lease_revoke(id)
-    @conn.handle(:lease, 'lease_revoke', [id])
+  def lease_revoke(id, timeout: nil)
+    @conn.handle(:lease, 'lease_revoke', [id, timeout: timeout])
   end
 
   # Returns information regarding the current state of the lease
-  def lease_ttl(id)
-    @conn.handle(:lease, 'lease_ttl', [id])
+  def lease_ttl(id, timeout: nil)
+    @conn.handle(:lease, 'lease_ttl', [id, timeout: timeout])
   end
 
   # List all roles.
-  def role_list
-    @conn.handle(:auth, 'role_list')
+  def role_list(timeout: nil)
+    @conn.handle(:auth, 'role_list', [timeout: timeout])
   end
 
   # Add role with specified name.
-  def role_add(name)
-    @conn.handle(:auth, 'role_add', [name])
+  def role_add(name, timeout: nil)
+    @conn.handle(:auth, 'role_add', [name, timeout: timeout])
   end
 
   # Fetches a specified role.
-  def role_get(name)
-    @conn.handle(:auth, 'role_get', [name])
+  def role_get(name, timeout: nil)
+    @conn.handle(:auth, 'role_get', [name, timeout: timeout])
   end
 
   # Delete role.
-  def role_delete(name)
-    @conn.handle(:auth, 'role_delete', [name])
+  def role_delete(name, timeout: nil)
+    @conn.handle(:auth, 'role_delete', [name, timeout: timeout])
   end
 
   # Grants a new permission to an existing role.
-  def role_grant_permission(name, permission, key, range_end='')
-    @conn.handle(:auth, 'role_grant_permission', [name, permission, key, range_end])
+  def role_grant_permission(name, permission, key, range_end: '', timeout: nil)
+    @conn.handle(:auth, 'role_grant_permission', [name, permission, key, range_end, timeout: timeout])
   end
 
-  def role_revoke_permission(name, permission, key, range_end='')
-    @conn.handle(:auth, 'role_revoke_permission', [name, permission, key, range_end])
+  def role_revoke_permission(name, permission, key, range_end: '', timeout: nil)
+    @conn.handle(:auth, 'role_revoke_permission', [name, permission, key, range_end, timeout: timeout])
   end
 
   # Fetch specified user
-  def user_get(user)
-    @conn.handle(:auth, 'user_get', [user])
+  def user_get(user, timeout: nil)
+    @conn.handle(:auth, 'user_get', [user, timeout: timeout])
   end
 
   # Creates new user.
-  def user_add(user, password)
-    @conn.handle(:auth, 'user_add', [user, password])
+  def user_add(user, password, timeout: nil)
+    @conn.handle(:auth, 'user_add', [user, password, timeout: timeout])
   end
 
   # Delete specified user.
-  def user_delete(user)
-    @conn.handle(:auth, 'user_delete', [user])
+  def user_delete(user, timeout: nil)
+    @conn.handle(:auth, 'user_delete', [user, timeout: timeout])
   end
 
   # Changes the specified users password.
-  def user_change_password(user, new_password)
-    @conn.handle(:auth, 'user_change_password', [user, new_password])
+  def user_change_password(user, new_password, timeout: nil)
+    @conn.handle(:auth, 'user_change_password', [user, new_password, timeout: timeout])
   end
 
   # List all users.
-  def user_list
-    @conn.handle(:auth, 'user_list')
+  def user_list(timeout: nil)
+    @conn.handle(:auth, 'user_list', [timeout: timeout])
   end
 
   # Grants role to an existing user.
-  def user_grant_role(user, role)
-    @conn.handle(:auth, 'user_grant_role', [user, role])
+  def user_grant_role(user, role, timeout: nil)
+    @conn.handle(:auth, 'user_grant_role', [user, role, timeout: timeout])
   end
 
   # Revokes role from a specified user.
-  def user_revoke_role(user, role)
-    @conn.handle(:auth, 'user_revoke_role', [user, role])
+  def user_revoke_role(user, role, timeout: nil)
+    @conn.handle(:auth, 'user_revoke_role', [user, role, timeout: timeout])
   end
 
   # Watches for changes on a specified key range.
@@ -175,8 +185,8 @@ class Etcdv3
     @conn.handle(:watch, 'watch', [key, range_end, block])
   end
 
-  def transaction(&block)
-    @conn.handle(:kv, 'transaction', [block])
+  def transaction(timeout: timeout, &block)
+    @conn.handle(:kv, 'transaction', [block, timeout: timeout])
   end
 
   private
