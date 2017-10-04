@@ -29,9 +29,6 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'm
 # Secure connection specifying custom certificates
 # Coming soon...
 
-# Per-request timeouts
-conn = Etcdv3.new(endpoints: 'https://hostname:port', command_timeout: 5) # seconds
-
 ```
 **High Availability**
 
@@ -175,24 +172,23 @@ conn.alarm_deactivate
 
 ## Timeouts
 
-The default timeout for all requests is 120 seconds. A timeout can be set on the connection:
+The default timeout for all requests is 120 seconds.
 
 ```ruby
-conn = Etcdv3.new(endpoints: 'https://hostname:port', command_timeout: 5) # seconds
+# Specify `command_timeout` to override the default global timeout.
+conn = Etcdv3.new(endpoints: 'https://hostname:port', command_timeout: 5) # 5 seconds
+
+# You can also specify request specific timeouts.
+conn.get("foo", timeout: 2)
 ```
 
-Or a timeout can be set on an individual request.
-
-```ruby
-conn = Etcdv3.new(endpoints: 'https://hostname:port', command_timeout: 5)
-conn.get("foo", timeout: 2) # Timeout of 2 seconds
-```
-
-This timeout applies to and can be set when:
+Timeouts apply to and can be set when:
  - Adding, Fetching and Deleting keys
  - User, Role, and Authentication Management
  - Leases
  - Transactions
+
+_Note: Timeouts currently do not affect Watch or Maintenance related commands._
 
 ## Contributing
 
