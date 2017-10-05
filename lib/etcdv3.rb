@@ -185,7 +185,7 @@ class Etcdv3
     @conn.handle(:watch, 'watch', [key, range_end, block])
   end
 
-  def transaction(timeout: timeout, &block)
+  def transaction(timeout: nil, &block)
     @conn.handle(:kv, 'transaction', [block, timeout: timeout])
   end
 
