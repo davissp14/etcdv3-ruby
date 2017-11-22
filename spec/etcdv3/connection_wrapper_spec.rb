@@ -3,33 +3,41 @@ require 'spec_helper'
 describe Etcdv3::ConnectionWrapper do
   let(:conn) { local_connection }
   let(:endpoints) { ['http://localhost:2379', 'http://localhost:2389'] }
+  let(:credentials) { Etcdv3::Credentials.new }
+  let(:timeout) { 2 }
 
   describe '#initialize' do
-    subject { Etcdv3::ConnectionWrapper.new(10, *endpoints) }
+    subject { Etcdv3::ConnectionWrapper.new(credentials, timeout, *endpoints) }
     it { is_expected.to have_attributes(user: nil, password: nil, token: nil) }
     it 'sets hostnames in correct order' do
-      expect(subject.endpoints.map(&:hostname)).to eq(['localhost:2379', 'localhost:2389'])
+      expect(subject.endpoints.map(&:hostname)).to eq(
+        ['localhost:2379', 'localhost:2389']
+      )
     end
     it 'stubs connection with the correct hostname' do
       expect(subject.connection.hostname).to eq('localhost:2379')
     end
   end
 
-  describe "#rotate_connection_endpoint" do
-    subject { Etcdv3::ConnectionWrapper.new(10, *endpoints) }
+  describe '#rotate_connection_endpoint' do
+    subject { Etcdv3::ConnectionWrapper.new(credentials, timeout, *endpoints) }
     before do
       subject.rotate_connection_endpoint
     end
     it 'sets hostnames in correct order' do
-      expect(subject.endpoints.map(&:hostname)).to eq(['localhost:2389', 'localhost:2379'])
+      expect(subject.endpoints.map(&:hostname)).to eq(
+        ['localhost:2389', 'localhost:2379']
+      )
     end
     it 'sets correct hostname' do
       expect(subject.connection.hostname).to eq('localhost:2389')
     end
   end
 
-  describe "Failover Simulation" do
-    let(:modified_conn) { local_connection("http://localhost:2369, http://localhost:2379") }
+  describe 'Failover Simulation' do
+    let(:modified_conn) do
+      local_connection('http://localhost:2369, http://localhost:2379')
+    end
     context 'without auth' do
       # Set primary endpoint to a non-existing etcd endpoint
       subject { modified_conn.get('boom') }
@@ -55,7 +63,7 @@ describe Etcdv3::ConnectionWrapper do
     end
   end
 
-  describe "GRPC::Unauthenticated recovery" do
+  describe 'GRPC::Unauthenticated recovery' do
     let(:wrapper) { conn.send(:conn) }
     let(:connection) { wrapper.connection }
     before do
@@ -63,8 +71,8 @@ describe Etcdv3::ConnectionWrapper do
       conn.user_grant_role('root', 'root')
       conn.auth_enable
       conn.authenticate('root', 'pass')
-      wrapper.token = "thiswontwork"
-      connection.refresh_metadata(token: "thiswontwork")
+      wrapper.token = 'thiswontwork'
+      connection.refresh_metadata(token: 'thiswontwork')
     end
     after do
       conn.auth_disable

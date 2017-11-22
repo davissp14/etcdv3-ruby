@@ -9,6 +9,7 @@ require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/watch'
+require 'etcdv3/credentials'
 require 'etcdv3/connection'
 require 'etcdv3/connection_wrapper'
 
@@ -22,8 +23,13 @@ class Etcdv3
   def initialize(options = {})
     @options = options
     @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
-    @conn = ConnectionWrapper.new(@timeout, *sanitized_endpoints)
-    warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
+    @credentials = Etcdv3::Credentials.new(
+      key: @options[:key],
+      cert: @options[:cert],
+      cacert: @options[:cacert]
+    )
+    @conn = ConnectionWrapper.new(@credentials, @timeout, *sanitized_endpoints)
+    warn 'WARNING: `url` is deprecated. Please use `endpoints` instead.' if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)
   end
 

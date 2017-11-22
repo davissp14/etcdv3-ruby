@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Etcdv3::Connection do
+  let(:timeout) { 3 }
+  let(:credentials) { Etcdv3::Credentials.new }
 
   describe '#initialize - without metadata' do
-    subject { Etcdv3::Connection.new('http://localhost:2379', 10) }
+    subject do
+      Etcdv3::Connection.new('http://localhost:2379', credentials, timeout)
+    end
 
     it { is_expected.to have_attributes(endpoint: URI('http://localhost:2379')) }
     it { is_expected.to have_attributes(credentials: :this_channel_is_insecure) }
@@ -22,7 +26,14 @@ describe Etcdv3::Connection do
   end
 
   describe '#initialize - with metadata' do
-    subject { Etcdv3::Connection.new('http://localhost:2379', 10, token: 'token123') }
+    subject do
+      Etcdv3::Connection.new(
+        'http://localhost:2379',
+        credentials,
+        timeout,
+        token: 'token123'
+      )
+    end
 
     [:kv, :maintenance, :lease, :watch, :auth].each do |handler|
       let(:handler_stub) { subject.handlers[handler].instance_variable_get(:@stub) }
@@ -37,7 +48,14 @@ describe Etcdv3::Connection do
   end
 
   describe '#refresh_metadata' do
-    subject { Etcdv3::Connection.new('http://localhost:2379', token: 'token123') }
+    subject do
+      Etcdv3::Connection.new(
+        'http://localhost:2379',
+        credentials,
+        timeout,
+        token: 'token123'
+      )
+    end
     before { subject.refresh_metadata(token: 'newtoken') }
     [:kv, :maintenance, :lease, :watch, :auth].each do |handler|
       let(:handler_metadata) { subject.handlers[handler].instance_variable_get(:@metadata) }
