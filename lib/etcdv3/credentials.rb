@@ -27,25 +27,25 @@ class Etcdv3
       return nil unless key
       File.read(File.expand_path(key))
     rescue Errno::ENOENT
-      raise FailedToResolveCredentials("Unable to resolve `key`: #{key}")
+      raise FailedToResolveCredentials.new("Unable to resolve `key`: #{key}")
     end
 
     def resolve_cert(cert)
       return nil unless cert
       File.read(File.expand_path(cert))
     rescue Errno::ENOENT
-      raise FailedToResolveCredentials("Unable to resolve `cert`: #{cert}")
+      raise FailedToResolveCredentials.new("Unable to resolve `cert`: #{cert}")
     end
 
     def resolve_cacert(cacert)
       return nil unless cacert
       File.read(File.expand_path(cacert))
     rescue Errno::ENOENT
-      raise FailedToResolveCredentials("Unable to resolve `cacert`: #{cacert}")
+      raise FailedToResolveCredentials.new("Unable to resolve `cacert`: #{cacert}")
     end
 
     def tls_creds
-      [@cacert, @key, @cert].compact
+      [@cacert, @key, @cert]
     end
   end
 end
