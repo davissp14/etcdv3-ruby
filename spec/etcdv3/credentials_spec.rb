@@ -39,8 +39,8 @@ describe Etcdv3::Credentials do
   end
 
   describe '#resolve' do
-    let(:insecure_endpoint) { URI('http://localhost:2379') }
-    let(:secure_endpoint) { URI('https://localhost:2379') }
+    let(:insecure_endpoint) { URI('http://127.0.0.1:2379') }
+    let(:secure_endpoint) { URI('https://127.0.0.1:2379') }
 
     context 'http' do
       subject { Etcdv3::Credentials.new.resolve(insecure_endpoint) }

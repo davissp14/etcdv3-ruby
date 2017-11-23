@@ -6,18 +6,18 @@ describe Etcdv3::Connection do
 
   describe '#initialize - without metadata' do
     subject do
-      Etcdv3::Connection.new('http://localhost:2379', credentials, timeout)
+      Etcdv3::Connection.new('http://127.0.0.1:2379', credentials, timeout)
     end
 
-    it { is_expected.to have_attributes(endpoint: URI('http://localhost:2379')) }
+    it { is_expected.to have_attributes(endpoint: URI('http://127.0.0.1:2379')) }
     it { is_expected.to have_attributes(credentials: :this_channel_is_insecure) }
-    it { is_expected.to have_attributes(hostname: 'localhost:2379') }
+    it { is_expected.to have_attributes(hostname: '127.0.0.1:2379') }
 
     [:kv, :maintenance, :lease, :watch, :auth].each do |handler|
       let(:handler_stub) { subject.handlers[handler].instance_variable_get(:@stub) }
       let(:handler_metadata) { subject.handlers[handler].instance_variable_get(:@metadata) }
       it 'sets hostname' do
-        expect(handler_stub.instance_variable_get(:@host)).to eq('localhost:2379')
+        expect(handler_stub.instance_variable_get(:@host)).to eq('127.0.0.1:2379')
       end
       it 'sets token' do
         expect(handler_metadata[:token]).to be_nil
@@ -28,7 +28,7 @@ describe Etcdv3::Connection do
   describe '#initialize - with metadata' do
     subject do
       Etcdv3::Connection.new(
-        'http://localhost:2379',
+        'http://127.0.0.1:2379',
         credentials,
         timeout,
         token: 'token123'
@@ -39,7 +39,7 @@ describe Etcdv3::Connection do
       let(:handler_stub) { subject.handlers[handler].instance_variable_get(:@stub) }
       let(:handler_metadata) { subject.handlers[handler].instance_variable_get(:@metadata) }
       it 'sets hostname' do
-        expect(handler_stub.instance_variable_get(:@host)).to eq('localhost:2379')
+        expect(handler_stub.instance_variable_get(:@host)).to eq('127.0.0.1:2379')
       end
       it 'sets token' do
         expect(handler_metadata[:token]).to eq('token123')
@@ -50,7 +50,7 @@ describe Etcdv3::Connection do
   describe '#refresh_metadata' do
     subject do
       Etcdv3::Connection.new(
-        'http://localhost:2379',
+        'http://127.0.0.1:2379',
         credentials,
         timeout,
         token: 'token123'

@@ -22,7 +22,7 @@ class Etcdv3
 
   def initialize(options = {})
     @options = options
-    @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
+    @timeout = @options.fetch(:command_timeout, DEFAULT_TIMEOUT)
     @credentials = Etcdv3::Credentials.new(
       key: @options[:key],
       cert: @options[:cert],

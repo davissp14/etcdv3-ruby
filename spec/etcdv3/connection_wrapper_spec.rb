@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Etcdv3::ConnectionWrapper do
   let(:conn) { local_connection }
-  let(:endpoints) { ['http://localhost:2379', 'http://localhost:2389'] }
+  let(:endpoints) { ['http://127.0.0.1:2379', 'http://127.0.0.1:2389'] }
   let(:credentials) { Etcdv3::Credentials.new }
   let(:timeout) { 2 }
 
@@ -11,11 +11,11 @@ describe Etcdv3::ConnectionWrapper do
     it { is_expected.to have_attributes(user: nil, password: nil, token: nil) }
     it 'sets hostnames in correct order' do
       expect(subject.endpoints.map(&:hostname)).to eq(
-        ['localhost:2379', 'localhost:2389']
+        ['127.0.0.1:2379', '127.0.0.1:2389']
       )
     end
     it 'stubs connection with the correct hostname' do
-      expect(subject.connection.hostname).to eq('localhost:2379')
+      expect(subject.connection.hostname).to eq('127.0.0.1:2379')
     end
   end
 
@@ -26,17 +26,17 @@ describe Etcdv3::ConnectionWrapper do
     end
     it 'sets hostnames in correct order' do
       expect(subject.endpoints.map(&:hostname)).to eq(
-        ['localhost:2389', 'localhost:2379']
+        ['127.0.0.1:2389', '127.0.0.1:2379']
       )
     end
     it 'sets correct hostname' do
-      expect(subject.connection.hostname).to eq('localhost:2389')
+      expect(subject.connection.hostname).to eq('127.0.0.1:2389')
     end
   end
 
   describe 'Failover Simulation' do
     let(:modified_conn) do
-      local_connection('http://localhost:2369, http://localhost:2379')
+      local_connection('http://127.0.0.1:2369, http://127.0.0.1:2379')
     end
     context 'without auth' do
       # Set primary endpoint to a non-existing etcd endpoint

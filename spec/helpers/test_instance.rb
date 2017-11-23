@@ -13,11 +13,14 @@ module Helpers
 
     MINIMUM_VERSION = Gem::Version.new('3.0.0')
 
-    def initialize
+    def initialize(options={})
       @pids = []
       @tmpdir = Dir.mktmpdir
       @bin = discover_binary_path
       @version = discover_binary_version
+
+      @port = options.fetch(:port, 2379)
+      @tls = options.fetch(:tls, false)
 
       raise InvalidVersionException if @version < MINIMUM_VERSION
       raise PortInUseException if port_open?
@@ -38,9 +41,9 @@ module Helpers
     end
 
     def spawn_etcd_instance
-      peer_url = "http://127.0.0.1:#{port+1}"
-      client_url = "http://127.0.0.1:#{port}"
-      cluster_url = "node=http://127.0.0.1:#{port+1}"
+      peer_url = "#{hostname}:#{port+1}"
+      client_url = "#{hostname}:#{port}"
+      cluster_url = "node=#{hostname}:#{port+1}"
       flags =  ' --name=node'
       flags << " --initial-advertise-peer-urls=#{peer_url}"
       flags << " --listen-peer-urls=#{peer_url}"
@@ -49,9 +52,15 @@ module Helpers
       flags << " --initial-cluster=#{cluster_url}"
       flags << " --data-dir=#{@tmpdir} "
 
+      if @tls
+        flags << ' --cert-file=spec/fixtures/cert.pem'
+        flags << ' --key-file=spec/fixtures/key.pem'
+        flags << ' --trusted-ca-file=spec/fixtures/cacert.pem'
+      end
+
       # Assumes etcd is in PATH
       command = "ETCDCTL_API=3 #{@bin} " + flags
-      pid = spawn(command, out: '/dev/null', err: '/dev/null')
+      pid = spawn(command, out: '/tmp/etcd.log', err: '/tmp/etcd.err')
       Process.detach(pid)
       pid
     end
@@ -63,6 +72,10 @@ module Helpers
     end
 
     private
+
+    def hostname
+      "#{@tls ? 'https' : 'http'}://localhost"
+    end
 
     def discover_binary_path
       'etcd'
