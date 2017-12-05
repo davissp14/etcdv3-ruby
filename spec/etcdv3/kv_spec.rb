@@ -43,11 +43,37 @@ describe Etcdv3::KV do
   end
 
   describe '#transaction' do
+    context 'put' do
+      let!(:block) do
+        Proc.new do |txn|
+          txn.compare = [ txn.value('txn', :equal, 'value') ]
+          txn.success = [ txn.put('txn-test', 'success') ]
+          txn.failure = [ txn.put('txn-test', 'failed') ]
+        end
+      end
+      subject { stub.transaction(block) }
+      it { is_expected.to be_an_instance_of(Etcdserverpb::TxnResponse) }
+    end
+
+    context 'del' do
+      let!(:block) do
+        Proc.new do |txn|
+          txn.compare = [ txn.value('txn', :equal, 'value') ]
+          txn.success = [ txn.del('txn-one') ]
+          txn.failure = [ txn.del('txn-two') ]
+        end
+      end
+      subject { stub.transaction(block) }
+      it { is_expected.to be_an_instance_of(Etcdserverpb::TxnResponse) }
+    end
+  end
+
+  context 'get' do
     let!(:block) do
       Proc.new do |txn|
         txn.compare = [ txn.value('txn', :equal, 'value') ]
-        txn.success = [ txn.put('txn-test', 'success') ]
-        txn.failure = [ txn.put('txn-test', 'failed') ]
+        txn.success = [ txn.get('txn-success') ]
+        txn.failure = [ txn.get('txn-failure') ]
       end
     end
     subject { stub.transaction(block) }

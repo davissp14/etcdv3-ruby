@@ -47,8 +47,8 @@ class Etcdv3::KV
     end
 
     # txn.del('key')
-    def del(key, opts={})
-      del_request(key, opts)
+    def del(key, range_end='')
+      del_request(key, range_end)
     end
 
     ###  Compare Operations
