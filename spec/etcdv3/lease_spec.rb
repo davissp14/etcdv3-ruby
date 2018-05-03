@@ -24,6 +24,16 @@ describe Etcdv3::Lease do
     end
   end
 
+  describe '#lease_keep_alive_once' do
+    let(:id) { stub.lease_grant(60)['ID'] }
+    subject { stub.lease_keep_alive_once(id) }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::LeaseKeepAliveResponse) }
+    it 'raises a GRPC:DeadlineExceeded if the request takes too long' do
+      stub = local_stub(Etcdv3::Lease, 0)
+      expect { stub.lease_keep_alive_once(id) }.to raise_error(GRPC::DeadlineExceeded)
+    end
+  end
+
   describe '#lease_ttl' do
     let(:stub) { local_stub(Etcdv3::Lease, 1) }
     let(:lease_id) { stub.lease_grant(10)['ID'] }
