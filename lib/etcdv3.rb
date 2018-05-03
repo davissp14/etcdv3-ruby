@@ -116,6 +116,11 @@ class Etcdv3
     @conn.handle(:lease, 'lease_ttl', [id, timeout: timeout])
   end
 
+  # Sends one lease keep-alive request
+  def lease_keep_alive_once(id, timeout: nil)
+    @conn.handle(:lease, 'lease_keep_alive_once', [id, timeout: timeout])
+  end
+
   # List all roles.
   def role_list(timeout: nil)
     @conn.handle(:auth, 'role_list', [timeout: timeout])

@@ -21,6 +21,13 @@ class Etcdv3
       @stub.lease_time_to_live(request, metadata: @metadata, deadline: deadline(timeout))
     end
 
+    def lease_keep_alive_once(id, timeout: nil)
+      request = Etcdserverpb::LeaseKeepAliveRequest.new(ID: id)
+      @stub.lease_keep_alive([request], metadata: @metadata, deadline: deadline(timeout)).each do |resp|
+        return resp
+      end
+    end
+
     private
 
     def deadline(timeout)

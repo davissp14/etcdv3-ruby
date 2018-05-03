@@ -160,6 +160,20 @@ describe Etcdv3 do
       end
     end
 
+    describe '#lease_keep_alive_once' do
+      let!(:lease_id) { conn.lease_grant(2)['ID'] }
+      subject { conn.lease_keep_alive_once(lease_id) }
+      it { is_expected.to_not be_nil }
+      it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
+        expect do
+          conn.lease_keep_alive_once(lease_id, timeout: 0)
+        end.to raise_exception(GRPC::DeadlineExceeded)
+      end
+      it "accepts a timeout" do
+        expect{ conn.lease_keep_alive_once(lease_id, timeout: 10) }.to_not raise_exception
+      end
+    end
+
     describe '#user_add' do
       after { conn.user_delete('test') rescue nil }
       subject { conn.user_add('test', 'user') }
