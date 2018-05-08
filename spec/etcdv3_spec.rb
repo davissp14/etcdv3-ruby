@@ -138,7 +138,7 @@ describe Etcdv3 do
       it { is_expected.to_not be_nil }
       it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
         expect do
-          conn.lease_revoke(lease_id, timeout: 0)
+          conn.lease_revoke(lease_id, timeout: -1)
         end.to raise_exception(GRPC::DeadlineExceeded)
       end
       it "accepts a timeout" do
@@ -152,7 +152,7 @@ describe Etcdv3 do
       it { is_expected.to_not be_nil }
       it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
         expect do
-          conn.lease_ttl(lease_id, timeout: 0)
+          conn.lease_ttl(lease_id, timeout: -1)
         end.to raise_exception(GRPC::DeadlineExceeded)
       end
       it "accepts a timeout" do
@@ -166,7 +166,7 @@ describe Etcdv3 do
       it { is_expected.to_not be_nil }
       it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
         expect do
-          conn.lease_keep_alive_once(lease_id, timeout: 0)
+          conn.lease_keep_alive_once(lease_id, timeout: -1)
         end.to raise_exception(GRPC::DeadlineExceeded)
       end
       it "accepts a timeout" do
@@ -354,7 +354,7 @@ describe Etcdv3 do
           end
           it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
             expect do
-              conn.transaction(timeout: 0) do |txn|
+              conn.transaction(timeout: -1) do |txn|
                 txn.compare = [ txn.value('txn', :equal, 'value') ]
                 txn.success = [ txn.put('txn-test', 'success') ]
                 txn.failure = [ txn.put('txn-test', 'failed') ]

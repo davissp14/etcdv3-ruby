@@ -21,7 +21,7 @@ shared_examples_for "a method with a GRPC timeout" do |stub_class, method_name, 
     end
 
     it 'raises a GRPC:DeadlineExceeded if the request takes too long' do
-      handler = local_stub(stub_class, 0)
+      handler = local_stub(stub_class, -1)
       expect {handler.public_send(method_name, *args)}.to raise_error(GRPC::DeadlineExceeded)
     end
   end
@@ -31,7 +31,7 @@ shared_examples_for "Etcdv3 instance using a timeout" do |command, *args|
   it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
     expect do
       test_args = args.dup
-      test_args.push({timeout: 0})
+      test_args.push({timeout: -1})
       conn.public_send(command, *test_args)
     end.to raise_exception(GRPC::DeadlineExceeded)
   end

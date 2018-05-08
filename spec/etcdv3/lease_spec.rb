@@ -19,7 +19,7 @@ describe Etcdv3::Lease do
     it { is_expected.to be_an_instance_of(Etcdserverpb::LeaseRevokeResponse) }
 
     it 'raises a GRPC:DeadlineExceeded if the request takes too long' do
-      stub = local_stub(Etcdv3::Lease, 0)
+      stub = local_stub(Etcdv3::Lease, -1)
       expect { stub.lease_revoke(id) }.to raise_error(GRPC::DeadlineExceeded)
     end
   end
@@ -29,7 +29,7 @@ describe Etcdv3::Lease do
     subject { stub.lease_keep_alive_once(id) }
     it { is_expected.to be_an_instance_of(Etcdserverpb::LeaseKeepAliveResponse) }
     it 'raises a GRPC:DeadlineExceeded if the request takes too long' do
-      stub = local_stub(Etcdv3::Lease, 0)
+      stub = local_stub(Etcdv3::Lease, -1)
       expect { stub.lease_keep_alive_once(id) }.to raise_error(GRPC::DeadlineExceeded)
     end
   end
@@ -41,7 +41,7 @@ describe Etcdv3::Lease do
     it { is_expected.to be_an_instance_of(Etcdserverpb::LeaseTimeToLiveResponse) }
 
     it 'raises a GRPC:DeadlineExceeded if the request takes too long' do
-      stub = local_stub(Etcdv3::Lease, 0)
+      stub = local_stub(Etcdv3::Lease, -1)
       expect { stub.lease_ttl(lease_id) }.to raise_error(GRPC::DeadlineExceeded)
     end
   end

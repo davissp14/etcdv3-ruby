@@ -9,7 +9,7 @@ describe Etcdv3::KV do
   it_should_behave_like "a method with a GRPC timeout", described_class, :put, :put, "key", "val"
 
   it "should timeout transactions" do
-    stub = local_stub(Etcdv3::KV, 0)
+    stub = local_stub(Etcdv3::KV, -1)
     expect { stub.transaction(Proc.new { nil }) }.to raise_error(GRPC::DeadlineExceeded)
   end
 
