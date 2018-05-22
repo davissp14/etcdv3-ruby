@@ -110,7 +110,7 @@ conn.auth_disable
 conn.lease_grant(100)
 
 # Attach key to lease
-conn.put('foo', 'bar', lease_id: 1234566789)
+conn.put('foo', 'bar', lease: 1234566789)
 
 # Get information about lease and its attached keys
 conn.lease_ttl(1234566789)
