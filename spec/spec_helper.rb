@@ -1,15 +1,15 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift File.expand_path('./helpers', __FILE__)
 
-require 'etcdv3'
 require 'simplecov'
 require 'codecov'
+SimpleCov.start
+SimpleCov.formatter = SimpleCov::Formatter::Codecov
+
+require 'etcdv3'
 require 'helpers/test_instance'
 require 'helpers/connections'
 require 'helpers/shared_examples_for_timeout'
-
-SimpleCov.start
-SimpleCov.formatter = SimpleCov::Formatter::Codecov
 
 RSpec.configure do |config|
   config.include(Helpers::Connections)
