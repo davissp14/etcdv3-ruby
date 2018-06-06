@@ -32,6 +32,11 @@ describe Etcdv3::Lease do
       stub = local_stub(Etcdv3::Lease, 0)
       expect { stub.lease_keep_alive_once(id) }.to raise_error(GRPC::DeadlineExceeded)
     end
+    it "doesn't orphan threads if there is a server error" do
+      expect_any_instance_of(GRPC::BidiCall).to receive(:read_loop).and_raise(GRPC::DeadlineExceeded)
+      stub = local_stub(Etcdv3::Lease, 2)
+      expect { stub.lease_keep_alive_once(314159) rescue nil; sleep 0.5}.to_not change { Thread.list.size }
+    end
   end
 
   describe '#lease_ttl' do
