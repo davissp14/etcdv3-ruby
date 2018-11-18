@@ -43,6 +43,9 @@ In the event of a failure, the client will work to restore connectivity by cycli
  # Get
  conn.get('my')
 
+ # Get actual value
+ value = conn.get('my').kvs.first.value
+
  # Get Key Range
  conn.get('foo', range_end: 'foo80')
 
