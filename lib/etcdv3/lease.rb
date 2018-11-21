@@ -1,5 +1,32 @@
 class Etcdv3
   class Lease
+
+    # this is used for gRPC proxy compatibility so that we do not
+    # mark as finished writing until we've received a response
+    class BlockingRequest
+      def initialize(request_op)
+        @blocked = false
+        @request_op = request_op
+      end
+
+      def read_done!
+        @proceed = true
+      end
+
+      def blocked?
+        @blocked
+      end
+
+      def each
+        @blocked = true
+
+        yield @request_op
+
+        sleep 0.001 until @proceed == true
+        @blocked = false
+      end
+    end
+
     def initialize(hostname, credentials, timeout, metadata={})
       @stub = Etcdserverpb::Lease::Stub.new(hostname, credentials)
       @timeout = timeout
@@ -22,10 +49,20 @@ class Etcdv3
     end
 
     def lease_keep_alive_once(id, timeout: nil)
-      request = Etcdserverpb::LeaseKeepAliveRequest.new(ID: id)
-      @stub.lease_keep_alive([request], metadata: @metadata, deadline: deadline(timeout)).each do |resp|
-        return resp
+      request = BlockingRequest.new Etcdserverpb::LeaseKeepAliveRequest.new(ID: id)
+      response = nil
+      begin
+        @stub.lease_keep_alive(request, metadata: @metadata, deadline: deadline(timeout)).each do |resp|
+          response = resp
+          break;
+        end
+      ensure
+        request.read_done!
+        while request.blocked?
+          sleep 0.001
+        end
       end
+      return response
     end
 
     private
