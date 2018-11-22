@@ -86,14 +86,32 @@ class Etcdv3
     @conn.handle(:kv, 'get', [key, opts])
   end
 
+  # Locks distributed lock with the given name.
+  # name                          - string
+  # optional :timeout             - integer
   def lock(name, opts={})
     @conn.handle(:lock, 'lock', [name, opts])
   end
 
+  # Unlock distributed lock using the key previously obtained from lock.
+  # key                           - string
+  # optional :timeout             - integer
   def unlock(key, opts={})
     @conn.handle(:lock, 'unlock', [key, opts])
   end
 
+  # Yield into the critical section while holding lock with the given
+  # name. The lock will be unlocked even if the block throws.
+  # name                          - string
+  # optional :timeout             - integer
+  def with_lock(name, opts={})
+    key = lock(name, opts).key
+    begin
+      yield
+    ensure
+      unlock(key, opts)
+    end
+  end
 
   # Inserts a new key.
   # key                           - string

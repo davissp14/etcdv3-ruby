@@ -171,6 +171,11 @@ lock_key = conn.lock('foo', timeout: 10).key
 
 # Unlock the 'foo' lock using the key returned from `lock`
 conn.unlock(key)
+
+# Perform a critical section while holding the lock 'hello'
+conn.with_lock('hello') do
+  puts "kitty!"
+end
 ```
 
 ## Alarms
