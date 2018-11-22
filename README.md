@@ -166,10 +166,10 @@ end
 
 ## Locks
 ```ruby
-# attempt to lock distibuted lock 'foo', wait at most 10 seconds
+# Attempt to lock distibuted lock 'foo', wait at most 10 seconds
 lock_key = conn.lock('foo', timeout: 10).key
 
-# unlock the 'foo' lock using the key returned from `lock`
+# Unlock the 'foo' lock using the key returned from `lock`
 conn.unlock(key)
 ```
 
