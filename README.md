@@ -164,6 +164,15 @@ conn.watch('boom') do |events|
 end
 ```
 
+## Locks
+```ruby
+# attempt to lock distibuted lock 'foo', wait at most 10 seconds
+lock_key = conn.lock('foo', timeout: 10).key
+
+# unlock the 'foo' lock using the key returned from `lock`
+conn.unlock(key)
+```
+
 ## Alarms
 ```ruby
 # List all active Alarms
