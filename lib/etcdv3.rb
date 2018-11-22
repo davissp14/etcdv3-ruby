@@ -2,6 +2,7 @@ require 'grpc'
 require 'uri'
 
 require 'etcdv3/etcdrpc/rpc_services_pb'
+require 'etcdv3/etcdrpc/v3lock_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv/requests'
 require 'etcdv3/kv/transaction'
@@ -9,6 +10,7 @@ require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/watch'
+require 'etcdv3/lock'
 require 'etcdv3/connection'
 require 'etcdv3/connection_wrapper'
 
@@ -83,6 +85,15 @@ class Etcdv3
   def get(key, opts={})
     @conn.handle(:kv, 'get', [key, opts])
   end
+
+  def lock(name, opts={})
+    @conn.handle(:lock, 'lock', [name, opts])
+  end
+
+  def unlock(key, opts={})
+    @conn.handle(:lock, 'unlock', [key, opts])
+  end
+
 
   # Inserts a new key.
   # key                           - string
