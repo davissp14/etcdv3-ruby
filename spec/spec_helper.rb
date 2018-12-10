@@ -11,6 +11,9 @@ require 'helpers/test_instance'
 require 'helpers/connections'
 require 'helpers/shared_examples_for_timeout'
 
+instance = Helpers::TestInstance.new
+instance.start
+
 RSpec.configure do |config|
   config.include(Helpers::Connections)
 
@@ -22,10 +25,8 @@ RSpec.configure do |config|
   end
   config.shared_context_metadata_behavior = :apply_to_host_groups
 
-  instance = Helpers::TestInstance.new
   config.before(:suite) do
     $stderr = File.open(File::NULL, "w")
-    instance.start
   end
   config.after(:suite) do
     instance.stop
