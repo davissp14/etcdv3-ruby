@@ -24,7 +24,7 @@ RSpec.configure do |config|
 
   instance = Helpers::TestInstance.new
   config.before(:suite) do
-    # $stderr = File.open(File::NULL, "w")
+    $stderr = File.open(File::NULL, "w")
     instance.start
   end
   config.after(:suite) do

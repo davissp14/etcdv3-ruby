@@ -1,6 +1,7 @@
 
 class Etcdv3
   class Auth
+    include GRPC::Core::TimeConsts
 
     PERMISSIONS = {
       :read => Authpb::Permission::Type::READ,
@@ -122,7 +123,7 @@ class Etcdv3
     private
 
     def deadline(timeout)
-      Time.now.to_f + (timeout || @timeout)
+      from_relative_time(timeout || @timeout)
     end
   end
 end

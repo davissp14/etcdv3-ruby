@@ -1,16 +1,17 @@
 language: ruby
 rvm:
-  - 2.4.1
-  - 2.2
+  - 2.5.3
+  - 2.4.5
+  - 2.3.8
 
 env:
-  global:
-    - ETCD_VERSION=v3.2.0
+  - ETCD_VERSION=v3.1.20
+  - ETCD_VERSION=v3.2.25
+  - ETCD_VERSION=v3.3.10
 
 install:
     - bundle install
-    - wget https://github.com/coreos/etcd/releases/download/$ETCD_VERSION/etcd-$ETCD_VERSION-linux-amd64.tar.gz -O etcd.tar.gz --no-check-certificate
-    - tar zxvf etcd.tar.gz
-    - export PATH=$PATH:etcd-$ETCD_VERSION-linux-amd64
+    - bundle exec rake download-etcd
+    - export PATH="$(dirname $(find /tmp -name 'etcd')):$PATH"
 
 script: bundle exec rspec
