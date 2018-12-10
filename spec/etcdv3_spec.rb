@@ -103,6 +103,20 @@ describe Etcdv3 do
       it_should_behave_like "Etcdv3 instance using a timeout", :get, 'apple'
     end
 
+    describe '#lock' do
+      subject { conn.lock('bar') }
+      it { is_expected.to be_an_instance_of(V3lockpb::LockResponse) }
+    end
+
+    describe '#with_lock' do
+      it 'locks' do
+        conn.with_lock('foobar') do
+          expect { conn.lock('foobar', timeout: 0.1) }
+            .to raise_error(GRPC::DeadlineExceeded)
+        end
+      end
+    end
+
     describe '#put' do
       subject { conn.put('test', 'value') }
       it { is_expected.to_not be_nil }
