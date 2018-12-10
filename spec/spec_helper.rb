@@ -11,8 +11,7 @@ require 'helpers/test_instance'
 require 'helpers/connections'
 require 'helpers/shared_examples_for_timeout'
 
-instance = Helpers::TestInstance.new
-instance.start
+$instance = Helpers::TestInstance.new
 
 RSpec.configure do |config|
   config.include(Helpers::Connections)
@@ -27,8 +26,9 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     $stderr = File.open(File::NULL, "w")
+    $instance.start
   end
   config.after(:suite) do
-    instance.stop
+    $instance.stop
   end
 end

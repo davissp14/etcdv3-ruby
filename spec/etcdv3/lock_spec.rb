@@ -1,13 +1,7 @@
 require 'spec_helper'
 
-def etcd3_version
-  Etcdv3::Maintenance
-    .new("localhost:2379", :this_channel_is_insecure, -1)
-    .member_status
-    .version
-end
 # Locking is not implemented in etcd v3.1.X
-unless Gem::Version.new(etcd3_version) < Gem::Version.new("3.2.0")
+unless $instance.version < Gem::Version.new("3.2.0")
   describe Etcdv3::Lock do
     let(:stub) { local_stub(Etcdv3::Lock, 1) }
 
