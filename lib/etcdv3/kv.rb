@@ -2,6 +2,7 @@
 class Etcdv3
   class KV
     include Etcdv3::KV::Requests
+    include GRPC::Core::TimeConsts
 
     def initialize(hostname, credentials, timeout, metadata={})
       @stub = Etcdserverpb::KV::Stub.new(hostname, credentials)
@@ -36,7 +37,7 @@ class Etcdv3
     private
 
     def deadline(timeout)
-      Time.now.to_f + (timeout || @timeout)
+      from_relative_time(timeout || @timeout)
     end
 
     def generate_request_ops(requests)
