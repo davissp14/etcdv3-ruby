@@ -86,18 +86,21 @@ class Etcdv3
     @conn.handle(:kv, 'get', [key, opts])
   end
 
-  # Locks distributed lock with the given name.
+  # Locks distributed lock with the given name. The lock will unlock automatically
+  # when lease with the given ID expires. If this is not desirable, provide a non-expiring
+  # lease ID as an argument.
   # name                          - string
+  # lease                         - integer
   # optional :timeout             - integer
-  def lock(name, opts={})
-    @conn.handle(:lock, 'lock', [name, opts])
+  def lock(name, lease_id, timeout: nil)
+    @conn.handle(:lock, 'lock', [name, lease_id, timeout])
   end
 
   # Unlock distributed lock using the key previously obtained from lock.
   # key                           - string
   # optional :timeout             - integer
-  def unlock(key, opts={})
-    @conn.handle(:lock, 'unlock', [key, opts])
+  def unlock(key, timeout: nil)
+    @conn.handle(:lock, 'unlock', [key, timeout])
   end
 
   # Yield into the critical section while holding lock with the given

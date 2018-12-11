@@ -8,8 +8,8 @@ class Etcdv3
       @metadata = metadata
     end
 
-    def lock(name, timeout: nil)
-      request = V3lockpb::LockRequest.new(name: name)
+    def lock(name, lease_id, timeout: nil)
+      request = V3lockpb::LockRequest.new(name: name, lease: lease_id)
       @stub.lock(request, deadline: deadline(timeout))
     end
 
