@@ -90,7 +90,7 @@ class Etcdv3
   # when lease with the given ID expires. If this is not desirable, provide a non-expiring
   # lease ID as an argument.
   # name                          - string
-  # lease                         - integer
+  # lease_id                      - integer
   # optional :timeout             - integer
   def lock(name, lease_id, timeout: nil)
     @conn.handle(:lock, 'lock', [name, lease_id, {timeout: timeout}])
@@ -106,6 +106,7 @@ class Etcdv3
   # Yield into the critical section while holding lock with the given
   # name. The lock will be unlocked even if the block throws.
   # name                          - string
+  # lease_id                      - integer
   # optional :timeout             - integer
   def with_lock(name, lease_id, timeout: nil)
     key = lock(name, lease_id, timeout: timeout).key
