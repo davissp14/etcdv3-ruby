@@ -93,26 +93,26 @@ class Etcdv3
   # lease                         - integer
   # optional :timeout             - integer
   def lock(name, lease_id, timeout: nil)
-    @conn.handle(:lock, 'lock', [name, lease_id, timeout])
+    @conn.handle(:lock, 'lock', [name, lease_id, {timeout: timeout}])
   end
 
   # Unlock distributed lock using the key previously obtained from lock.
   # key                           - string
   # optional :timeout             - integer
   def unlock(key, timeout: nil)
-    @conn.handle(:lock, 'unlock', [key, timeout])
+    @conn.handle(:lock, 'unlock', [key, {timeout: timeout}])
   end
 
   # Yield into the critical section while holding lock with the given
   # name. The lock will be unlocked even if the block throws.
   # name                          - string
   # optional :timeout             - integer
-  def with_lock(name, opts={})
-    key = lock(name, opts).key
+  def with_lock(name, lease_id, timeout: nil)
+    key = lock(name, lease_id, timeout: timeout).key
     begin
       yield
     ensure
-      unlock(key, opts)
+      unlock(key, timeout: timeout)
     end
   end
 
