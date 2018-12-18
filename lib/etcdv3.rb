@@ -2,6 +2,7 @@ require 'grpc'
 require 'uri'
 
 require 'etcdv3/etcdrpc/rpc_services_pb'
+require 'etcdv3/etcdrpc/v3lock_services_pb'
 require 'etcdv3/auth'
 require 'etcdv3/kv/requests'
 require 'etcdv3/kv/transaction'
@@ -9,6 +10,7 @@ require 'etcdv3/kv'
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/watch'
+require 'etcdv3/lock'
 require 'etcdv3/connection'
 require 'etcdv3/connection_wrapper'
 
@@ -82,6 +84,37 @@ class Etcdv3
   # optional :timeout             - integer
   def get(key, opts={})
     @conn.handle(:kv, 'get', [key, opts])
+  end
+
+  # Locks distributed lock with the given name. The lock will unlock automatically
+  # when lease with the given ID expires. If this is not desirable, provide a non-expiring
+  # lease ID as an argument.
+  # name                          - string
+  # lease_id                      - integer
+  # optional :timeout             - integer
+  def lock(name, lease_id, timeout: nil)
+    @conn.handle(:lock, 'lock', [name, lease_id, {timeout: timeout}])
+  end
+
+  # Unlock distributed lock using the key previously obtained from lock.
+  # key                           - string
+  # optional :timeout             - integer
+  def unlock(key, timeout: nil)
+    @conn.handle(:lock, 'unlock', [key, {timeout: timeout}])
+  end
+
+  # Yield into the critical section while holding lock with the given
+  # name. The lock will be unlocked even if the block throws.
+  # name                          - string
+  # lease_id                      - integer
+  # optional :timeout             - integer
+  def with_lock(name, lease_id, timeout: nil)
+    key = lock(name, lease_id, timeout: timeout).key
+    begin
+      yield
+    ensure
+      unlock(key, timeout: timeout)
+    end
   end
 
   # Inserts a new key.

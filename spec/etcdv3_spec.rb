@@ -1,8 +1,9 @@
 require 'spec_helper'
 
 describe Etcdv3 do
-  context 'Insecure connection without Auth' do
+  let(:lease_stub) { local_stub(Etcdv3::Lease, 1) }
 
+  context 'Insecure connection without Auth' do
     let(:conn) { local_connection }
 
     describe '#initialize' do
@@ -101,6 +102,26 @@ describe Etcdv3 do
         it { is_expected.to be_empty }
       end
       it_should_behave_like "Etcdv3 instance using a timeout", :get, 'apple'
+    end
+
+    # Locking is not implemented in etcd v3.1.X
+    unless $instance.version < Gem::Version.new("3.2.0")
+      describe '#lock' do
+        let(:lease_id) { lease_stub.lease_grant(10)['ID'] }
+        subject { conn.lock('bar', lease_id) }
+        it { is_expected.to be_an_instance_of(V3lockpb::LockResponse) }
+      end
+
+      describe '#with_lock' do
+        let(:lease_id) { lease_stub.lease_grant(10)['ID'] }
+        let(:lease_id_2) { lease_stub.lease_grant(15)['ID'] }
+        it 'locks' do
+          conn.with_lock('foobar', lease_id) do
+            expect { conn.lock('foobar', lease_id_2, timeout: 0.1) }
+              .to raise_error(GRPC::DeadlineExceeded)
+          end
+        end
+      end
     end
 
     describe '#put' do

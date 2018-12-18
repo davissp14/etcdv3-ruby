@@ -6,7 +6,8 @@ class Etcdv3
       kv: Etcdv3::KV,
       maintenance: Etcdv3::Maintenance,
       lease: Etcdv3::Lease,
-      watch: Etcdv3::Watch
+      watch: Etcdv3::Watch,
+      lock: Etcdv3::Lock,
     }
 
     attr_reader :endpoint, :hostname, :handlers, :credentials

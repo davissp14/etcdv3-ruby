@@ -1,5 +1,7 @@
 class Etcdv3
   class Lease
+    include GRPC::Core::TimeConsts
+
     def initialize(hostname, credentials, timeout, metadata={})
       @stub = Etcdserverpb::Lease::Stub.new(hostname, credentials)
       @timeout = timeout
@@ -31,7 +33,7 @@ class Etcdv3
     private
 
     def deadline(timeout)
-      Time.now.to_f + (timeout || @timeout)
+      from_relative_time(timeout || @timeout)
     end
   end
 end

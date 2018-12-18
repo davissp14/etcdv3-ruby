@@ -164,6 +164,23 @@ conn.watch('boom') do |events|
 end
 ```
 
+## Locks
+```ruby
+# First, get yourself a lease
+lease_id = conn.lease_grant(100)['ID']
+
+# Attempt to lock distibuted lock 'foo', wait at most 10 seconds
+lock_key = conn.lock('foo', lease_id, timeout: 10).key
+
+# Unlock the 'foo' lock using the key returned from `lock`
+conn.unlock(key)
+
+# Perform a critical section while holding the lock 'hello'
+conn.with_lock('hello', lease_id) do
+  puts "kitty!"
+end
+```
+
 ## Alarms
 ```ruby
 # List all active Alarms

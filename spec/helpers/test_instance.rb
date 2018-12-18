@@ -13,6 +13,8 @@ module Helpers
 
     MINIMUM_VERSION = Gem::Version.new('3.0.0')
 
+    attr_accessor :version
+
     def initialize
       @pids = []
       @tmpdir = Dir.mktmpdir
