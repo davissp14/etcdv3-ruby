@@ -5,11 +5,9 @@ rvm:
   - 2.3.8
 
 env:
-  - ETCD_VERSION=v3.1.20
-  - ETCD_VERSION=v3.2.25
-# v3.3.10 is not working for whatever reason (at least in travis, spec passes
-# locally for me)
-#  - ETCD_VERSION=v3.3.10
+  - ETCD_VERSION_TO_TEST=v3.1.20
+  - ETCD_VERSION_TO_TEST=v3.2.25
+  - ETCD_VERSION_TO_TEST=v3.3.10
 
 install:
     - bundle install
