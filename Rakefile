@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-ETCD_VERSION = ENV["ETCD_VERSION"] || "v3.2.0"
-ETCD_URL = "https://github.com/coreos/etcd/releases/download/#{ETCD_VERSION}/etcd-#{ETCD_VERSION}-linux-amd64.tar.gz"
+ETCD_VERSION = ENV["ETCD_VERSION_TO_TEST"] || "v3.2.0"
+ETCD_URL = "https://github.com/coreos/etcd/releases/download/" \
+           "#{ETCD_VERSION}/etcd-#{ETCD_VERSION}-linux-amd64.tar.gz"
 
 require "tmpdir"
 
