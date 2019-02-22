@@ -12,10 +12,10 @@ class Etcdv3
 
     attr_reader :endpoint, :hostname, :handlers, :credentials
 
-    def initialize(url, timeout, metadata={})
+    def initialize(url, timeout, metadata={}, custom_certificates=nil)
       @endpoint = URI(url)
       @hostname = "#{@endpoint.hostname}:#{@endpoint.port}"
-      @credentials = resolve_credentials
+      @credentials = resolve_credentials(custom_certificates)
       @timeout = timeout
       @handlers = handler_map(metadata)
     end
@@ -38,13 +38,19 @@ class Etcdv3
       ]
     end
 
-    def resolve_credentials
+    def resolve_credentials(custom_certificates)
       case @endpoint.scheme
       when 'http'
         :this_channel_is_insecure
       when 'https'
         # Use default certs for now.
-        GRPC::Core::ChannelCredentials.new
+        return GRPC::Core::ChannelCredentials.new if custom_certificates.nil?
+
+        GRPC::Core::ChannelCredentials.new(
+          File.read(custom_certificates[:root_ca]),
+          File.read(custom_certificates[:key]),
+          File.read(custom_certificates[:cert])
+        )
       else
         raise "Unknown scheme: #{@endpoint.scheme}"
       end

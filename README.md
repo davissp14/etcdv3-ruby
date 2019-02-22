@@ -27,8 +27,11 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port')
 conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
 # Secure connection specifying custom certificates
-# Coming soon...
-
+conn = Etcdv3.new(endpoints: 'https://hostname:port', custom_certificates: {
+  root_ca: 'path-to-root-ca.pem',
+  key: 'path-to-private-key.pem',
+  cert: 'path-to-cert.pem'
+})
 ```
 **High Availability**
 
