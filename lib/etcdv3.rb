@@ -220,8 +220,8 @@ class Etcdv3
   end
 
   # Watches for changes on a specified key range.
-  def watch(key, range_end: '', &block)
-    @conn.handle(:watch, 'watch', [key, range_end, block])
+  def watch(key, range_end: nil, start_revision: nil, timeout: nil, &block)
+    @conn.handle(:watch, 'watch', [key, range_end, start_revision, block, timeout: timeout])
   end
 
   def transaction(timeout: nil, &block)

@@ -152,11 +152,14 @@ end
 
 ## Watch
 ```ruby
-# Watch for changes on a specified key and return
-events = conn.watch('foo')
+# Watch for changes on a specified key for at most 10 seconds and return
+events = conn.watch('foo', timeout: 10)
 
 # Watch for changes on a specified key range and return
 events = conn.watch('foo', range_end: 'fop')
+
+# Watch for changes since a given revision
+events = conn.watch('foo', start_revision: 42)
 
 # Watches for changes continuously until killed.
 event_count = 0

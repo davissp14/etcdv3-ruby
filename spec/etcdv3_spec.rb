@@ -181,6 +181,20 @@ describe Etcdv3 do
       end
     end
 
+    describe '#watch' do
+      let!(:foo) { conn.put('foo', 'bar') }
+      subject { conn.watch('foo', start_revision: 1) }
+      it { is_expected.to_not be_nil }
+      it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
+        expect do
+          conn.watch('foo', timeout: 0)
+        end.to raise_exception(GRPC::DeadlineExceeded)
+      end
+      it "accepts a timeout" do
+        expect{ conn.watch('foo', start_revision: 1, timeout: 10) }.to_not raise_exception
+      end
+    end
+
     describe '#lease_keep_alive_once' do
       let!(:lease_id) { conn.lease_grant(2)['ID'] }
       subject { conn.lease_keep_alive_once(lease_id) }
