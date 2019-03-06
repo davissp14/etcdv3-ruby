@@ -21,8 +21,9 @@ class Etcdv3
   attr_reader :conn, :credentials, :options
   DEFAULT_TIMEOUT = 120
 
-  def initialize(options = {})
+  def initialize(allow_reconnect: true, **options)
     @options = options
+    @options[:allow_reconnect] = allow_reconnect
     @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
     @conn = ConnectionWrapper.new(
       @timeout,

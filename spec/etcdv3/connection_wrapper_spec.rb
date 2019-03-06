@@ -3,9 +3,9 @@ require 'spec_helper'
 describe Etcdv3::ConnectionWrapper do
   let(:conn) { local_connection }
   let(:endpoints) { ['http://localhost:2379', 'http://localhost:2389'] }
+  subject { Etcdv3::ConnectionWrapper.new(10, *endpoints, allow_reconnect: true) }
 
   describe '#initialize' do
-    subject { Etcdv3::ConnectionWrapper.new(10, *endpoints) }
     it { is_expected.to have_attributes(user: nil, password: nil, token: nil) }
     it 'sets hostnames in correct order' do
       expect(subject.endpoints.map(&:hostname)).to eq(['localhost:2379', 'localhost:2389'])
@@ -16,7 +16,6 @@ describe Etcdv3::ConnectionWrapper do
   end
 
   describe "#rotate_connection_endpoint" do
-    subject { Etcdv3::ConnectionWrapper.new(10, *endpoints) }
     before do
       subject.rotate_connection_endpoint
     end
