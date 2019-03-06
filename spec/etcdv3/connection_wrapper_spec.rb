@@ -33,10 +33,7 @@ describe Etcdv3::ConnectionWrapper do
     context 'without auth' do
       # Set primary endpoint to a non-existing etcd endpoint
       subject { modified_conn.get('boom') }
-      it do
-        expect { subject }.to raise_error(GRPC::Unavailable)
-        is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse)
-      end
+      it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
     end
     context 'with auth' do
       before do
@@ -54,14 +51,11 @@ describe Etcdv3::ConnectionWrapper do
         modified_conn.user_delete('root')
       end
       subject { modified_conn.get('boom') }
-      it do
-        expect { subject }.to raise_error(GRPC::Unavailable)
-        is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse)
-      end
+      it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
     end
   end
 
-  describe "GRPC::Unauthenticated" do
+  describe "GRPC::Unauthenticated recovery" do
     let(:wrapper) { conn.send(:conn) }
     let(:connection) { wrapper.connection }
     before do
@@ -77,10 +71,6 @@ describe Etcdv3::ConnectionWrapper do
       conn.user_delete('root')
     end
     subject { conn.user_get('root') }
-    it do
-      expect { subject }.to raise_error(GRPC::Unauthenticated)
-      conn.authenticate('root', 'pass')
-      is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGetResponse)
-    end
+    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGetResponse) }
   end
 end

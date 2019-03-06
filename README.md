@@ -32,10 +32,8 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'm
 ```
 **High Availability**
 
-In the event of a failure, the gem will rotate through the specified
-endpoints so next one is tried on the next network call. The method call that
-trigger the error is not auto-retried, this responsibility lies with the calling
-application.
+In the event of a failure, the client will work to restore connectivity by cycling through the specified endpoints until a connection can be established.  With that being said, it is encouraged to specify multiple endpoints when available.
+
 
 ## Adding, Fetching and Deleting Keys
 ```ruby
@@ -108,9 +106,6 @@ Disabling auth will clear the auth token and all previously attached user inform
 ```
 conn.auth_disable
 ```
-
-When/if credentials expires, etcd3 call will raise `GRPC::Unauthenticated` and
-you will need to authenticate again.
 
 ## Leases
 ```ruby
@@ -215,9 +210,8 @@ Timeouts apply to and can be set when:
  - User, Role, and Authentication Management
  - Leases
  - Transactions
- - Watch
 
-_Note: Timeouts currently do not affect Maintenance related commands._
+_Note: Timeouts currently do not affect Watch or Maintenance related commands._
 
 ## Contributing
 

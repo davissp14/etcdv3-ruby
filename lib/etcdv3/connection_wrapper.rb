@@ -10,16 +10,27 @@ class Etcdv3
       @connection = @endpoints.first
     end
 
-    def handle(stub, method, method_args=[])
+    def handle(stub, method, method_args=[], retries: 1)
       @connection.call(stub, method, method_args)
 
-    rescue GRPC::Unavailable, GRPC::Core::CallError
+    rescue GRPC::Unavailable, GRPC::Core::CallError => exception
       $stderr.puts("Failed to connect to endpoint '#{@connection.hostname}'")
       if @endpoints.size > 1
         rotate_connection_endpoint
         $stderr.puts("Failover event triggered. Failing over to '#{@connection.hostname}'")
+        return handle(stub, method, method_args)
+      else
+        return handle(stub, method, method_args)
       end
-      raise
+    rescue GRPC::Unauthenticated => exception
+      # Regenerate token in the event it expires.
+      if exception.details == 'etcdserver: invalid auth token'
+        if retries > 0
+          authenticate(@user, @password)
+          return handle(stub, method, method_args, retries: retries - 1)
+        end
+      end
+      raise exception
     end
 
     def clear_authentication
