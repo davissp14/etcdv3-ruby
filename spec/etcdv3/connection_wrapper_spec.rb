@@ -47,6 +47,12 @@ describe Etcdv3::ConnectionWrapper do
         let(:allow_reconnect) { false }
         it { expect { subject }.to raise_error(GRPC::Unavailable) }
       end
+      context 'without reconnect with single endpoint' do
+        let(:modified_conn) {
+          local_connection("http://localhost:2369",allow_reconnect: false)
+        }
+        it { expect { subject }.to raise_error(GRPC::Unavailable) }
+      end
     end
     context 'with auth' do
       before do
