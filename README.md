@@ -36,8 +36,7 @@ In the event of a failure, the client will work to restore connectivity by cycli
 behaviour.
 
 However, sometimes this is not what you want. If you need more control over
-failures (and therefore having `timeout:` provide at least some guarantees),
-you can suppress this mechanism by using
+failures, you can suppress this mechanism by using
 
 ```ruby
 conn = Etcdv3.new(endpoints: 'https://hostname:port', allow_reconnect: false)
@@ -45,7 +44,11 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port', allow_reconnect: false)
 
 This will still rotate the endpoints, but it will raise an exception so you can
 handle the failure yourself. On next call new endpoint (since they were
-rotated) is tried.
+rotated) is tried. One thing you need to keep in mind if you are using etcd with
+authorization is that you need to take care of `GRPC::Unauthenticated` exceptions
+and manually re-authenticate when token expires. To reiterate, you are
+responsible for handling the errors, so some understanding of how this gem and
+etcd works is recommended.
 
 ## Adding, Fetching and Deleting Keys
 ```ruby
