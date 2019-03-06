@@ -29,11 +29,24 @@ describe Etcdv3::ConnectionWrapper do
   end
 
   describe "Failover Simulation" do
-    let(:modified_conn) { local_connection("http://localhost:2369, http://localhost:2379") }
+    let(:allow_reconnect) { true }
+    let(:modified_conn) {
+      local_connection(
+        "http://localhost:2369, http://localhost:2379",
+        allow_reconnect: allow_reconnect
+      )
+    }
+    subject { modified_conn.get('boom') }
+
     context 'without auth' do
       # Set primary endpoint to a non-existing etcd endpoint
-      subject { modified_conn.get('boom') }
-      it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
+      context 'with reconnect' do
+        it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
+      end
+      context 'without reconnect' do
+        let(:allow_reconnect) { false }
+        it { expect { subject }.to raise_error(GRPC::Unavailable) }
+      end
     end
     context 'with auth' do
       before do
@@ -50,12 +63,19 @@ describe Etcdv3::ConnectionWrapper do
         modified_conn.auth_disable
         modified_conn.user_delete('root')
       end
-      subject { modified_conn.get('boom') }
-      it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
+      context 'with reconnect' do
+        it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
+      end
+      context 'without reconnect' do
+        let(:allow_reconnect) { false }
+        it { expect { subject }.to raise_error(GRPC::Unavailable) }
+      end
     end
   end
 
   describe "GRPC::Unauthenticated recovery" do
+    let(:allow_reconnect) { true }
+    let(:conn) { local_connection(allow_reconnect: allow_reconnect) }
     let(:wrapper) { conn.send(:conn) }
     let(:connection) { wrapper.connection }
     before do
@@ -71,6 +91,12 @@ describe Etcdv3::ConnectionWrapper do
       conn.user_delete('root')
     end
     subject { conn.user_get('root') }
-    it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGetResponse) }
+    context 'with reconnect' do
+      it { is_expected.to be_an_instance_of(Etcdserverpb::AuthUserGetResponse) }
+    end
+    context 'without reconnect' do
+      let(:allow_reconnect) { false }
+      it { expect { subject }.to raise_error(GRPC::Unauthenticated) }
+    end
   end
 end

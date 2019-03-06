@@ -32,8 +32,20 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'm
 ```
 **High Availability**
 
-In the event of a failure, the client will work to restore connectivity by cycling through the specified endpoints until a connection can be established.  With that being said, it is encouraged to specify multiple endpoints when available.
+In the event of a failure, the client will work to restore connectivity by cycling through the specified endpoints until a connection can be established.  With that being said, it is encouraged to specify multiple endpoints when available. That's the default
+behaviour.
 
+However, sometimes this is not what you want. If you need more control over
+failures (and therefore having `timeout:` provide at least some guarantees),
+you can suppress this mechanism by using
+
+```ruby
+conn = Etcdv3.new(endpoints: 'https://hostname:port', allow_reconnect: false)
+```
+
+This will still rotate the endpoints, but it will raise an exception so you can
+handle the failure yourself. On next call new endpoint (since they were
+rotated) is tried.
 
 ## Adding, Fetching and Deleting Keys
 ```ruby

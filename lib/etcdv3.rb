@@ -24,7 +24,11 @@ class Etcdv3
   def initialize(options = {})
     @options = options
     @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
-    @conn = ConnectionWrapper.new(@timeout, *sanitized_endpoints)
+    @conn = ConnectionWrapper.new(
+      @timeout,
+      *sanitized_endpoints,
+      allow_reconnect: @options[:allow_reconnect],
+    )
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)
   end
