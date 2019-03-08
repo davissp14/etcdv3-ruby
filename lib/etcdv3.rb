@@ -28,7 +28,7 @@ class Etcdv3
     @conn = ConnectionWrapper.new(
       @timeout,
       *sanitized_endpoints,
-      allow_reconnect: @options[:allow_reconnect],
+      @options[:allow_reconnect],
     )
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)

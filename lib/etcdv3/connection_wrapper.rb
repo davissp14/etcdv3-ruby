@@ -3,7 +3,7 @@ class Etcdv3
 
     attr_accessor :connection, :endpoints, :user, :password, :token, :timeout
 
-    def initialize(timeout, *endpoints, allow_reconnect:)
+    def initialize(timeout, *endpoints, allow_reconnect)
       @user, @password, @token = nil, nil, nil
       @timeout = timeout
       @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint, @timeout) }
