@@ -1,9 +1,10 @@
-Gemfile.lock
-Guardfile
-*.sh
 *.gem
-/tmp/
+*.sh
+*.swp
+/.bundle
 /.idea
 /coverage/*
 /doc/
-*.swp
+/tmp/
+Gemfile.lock
+Guardfile

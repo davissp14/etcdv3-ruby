@@ -5,8 +5,8 @@ module Helpers
       Etcdv3.new(endpoints: "http://#{local_url}", user: user, password: password)
     end
 
-    def local_connection(endpoints="http://#{local_url}")
-      Etcdv3.new(endpoints: endpoints)
+    def local_connection(endpoints="http://#{local_url}", allow_reconnect: true)
+      Etcdv3.new(endpoints: endpoints, allow_reconnect: allow_reconnect)
     end
 
     def local_connection_with_timeout(timeout)

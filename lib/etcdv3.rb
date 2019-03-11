@@ -21,10 +21,14 @@ class Etcdv3
   attr_reader :conn, :credentials, :options
   DEFAULT_TIMEOUT = 120
 
-  def initialize(options = {})
+  def initialize(**options)
     @options = options
     @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
-    @conn = ConnectionWrapper.new(@timeout, *sanitized_endpoints)
+    @conn = ConnectionWrapper.new(
+      @timeout,
+      *sanitized_endpoints,
+      @options.fetch(:allow_reconnect, true),
+    )
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)
   end
