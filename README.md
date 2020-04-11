@@ -32,8 +32,7 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'm
 ```
 **High Availability**
 
-In the event of a failure, the client will work to restore connectivity by cycling through the specified endpoints until a connection can be established.  With that being said, it is encouraged to specify multiple endpoints when available. That's the default
-behaviour.
+In the event of a failure, the client will work to restore connectivity by cycling through the specified endpoints until a connection can be established.  With that being said, it is encouraged to specify multiple endpoints when available.
 
 However, sometimes this is not what you want. If you need more control over
 failures, you can suppress this mechanism by using
@@ -43,12 +42,11 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port', allow_reconnect: false)
 ```
 
 This will still rotate the endpoints, but it will raise an exception so you can
-handle the failure yourself. On next call new endpoint (since they were
-rotated) is tried. One thing you need to keep in mind if you are using etcd with
-authorization is that you need to take care of `GRPC::Unauthenticated` exceptions
-and manually re-authenticate when token expires. To reiterate, you are
-responsible for handling the errors, so some understanding of how this gem and
-etcd works is recommended.
+handle the failure yourself. On next call to the new endpoint (since they were
+rotated) is tried. One thing you need to keep in mind if auth is enabled, you 
+need to take care of `GRPC::Unauthenticated` exception and manually re-authenticate 
+when token expires. To reiterate, you are responsible for handling the errors, so 
+some understanding of how this gem and etcd works is recommended.
 
 ## Adding, Fetching and Deleting Keys
 ```ruby
