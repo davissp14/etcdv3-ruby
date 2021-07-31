@@ -3,12 +3,13 @@ class Etcdv3
 
     attr_accessor :connection, :endpoints, :user, :password, :token, :timeout
 
-    def initialize(timeout, *endpoints, allow_reconnect)
+    def initialize(timeout, *endpoints, namespace, allow_reconnect)
       @user, @password, @token = nil, nil, nil
       @timeout = timeout
-      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint, @timeout) }
-      @connection = @endpoints.first
+      @namespace = namespace
+      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint, @timeout, @namespace) }
       @allow_reconnect = allow_reconnect
+      @connection = @endpoints.first
     end
 
     private def retry_or_raise(*args)
@@ -26,7 +27,6 @@ class Etcdv3
       $stderr.puts("Failed to connect to endpoint '#{@connection.hostname}'")
       if @endpoints.size > 1
         rotate_connection_endpoint
-        $stderr.puts("Failover event triggered. Failing over to '#{@connection.hostname}'")
         return retry_or_raise(stub, method, method_args)
       else
         return retry_or_raise(stub, method, method_args)

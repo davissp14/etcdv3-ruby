@@ -1,6 +1,7 @@
-class Etcdv3::KV
+class Etcdv3::Namespace::KV
   class Transaction
-    include Etcdv3::KV::Requests
+    include Etcdv3::Namespace::Util
+    include Etcdv3::Namespace::KV::Requests
 
     # Available comparison identifiers.
     COMPARISON_IDENTIFIERS = {
@@ -78,6 +79,7 @@ class Etcdv3::KV
     private
 
     def generate_compare(target_union, key, compare_type, value)
+      key = prepend_prefix(@namespace, key)
       Etcdserverpb::Compare.new(
         key: key,
         result: COMPARISON_IDENTIFIERS[compare_type],

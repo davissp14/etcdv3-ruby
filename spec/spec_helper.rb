@@ -1,10 +1,10 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift File.expand_path('./helpers', __FILE__)
 
-require 'simplecov'
-require 'codecov'
-SimpleCov.start
-SimpleCov.formatter = SimpleCov::Formatter::Codecov
+# require 'simplecov'
+# require 'codecov'
+# SimpleCov.start
+# SimpleCov.formatter = SimpleCov::Formatter::Codecov
 
 require 'etcdv3'
 require 'helpers/test_instance'
