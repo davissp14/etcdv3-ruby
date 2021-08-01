@@ -17,11 +17,8 @@ class Etcdv3::Namespace::KV
 
     def get_request(key, opts)
       key = prepend_prefix(@namespace, key)
-      
-      if opts[:range_end]
-        opts[:range_end] = prepend_prefix(@namespace, opts[:range_end])
-      end
-
+      opts[:range_end] = prepend_prefix(@namespace, opts[:range_end]) \
+        if opts[:range_end]
       opts[:sort_order] = SORT_ORDER[opts[:sort_order]] \
         if opts[:sort_order]
       opts[:sort_target] = SORT_TARGET[opts[:sort_target]] \

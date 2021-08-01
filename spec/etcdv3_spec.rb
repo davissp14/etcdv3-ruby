@@ -538,7 +538,6 @@ describe Etcdv3 do
         end
 
         it 'returns keys w/o namespace' do 
-          puts ns_conn.get("apple", range_end: 'applf').kvs
           expect(ns_conn.get("apple", range_end: 'applf').kvs.size).to eq(3)
         end
       end
@@ -592,7 +591,7 @@ describe Etcdv3 do
       unless $instance.version < Gem::Version.new("3.2.0")
         describe '#lock' do
           let(:lease_id) { lease_stub.lease_grant(10)['ID'] }
-          subject { ns_conn.lock('mylock', lease_id) }
+          subject { ns_conn.lock('mylocklock', lease_id) }
           it 'should lock key under specified namespace' do 
             expect(conn.get("/namespace/#{subject.key}").kvs).to_not be_empty
           end

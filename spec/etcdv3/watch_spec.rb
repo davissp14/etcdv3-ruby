@@ -16,7 +16,6 @@ unless $instance.version < Gem::Version.new("3.2.0")
         sleep 2
         kv_stub.put("foo", "works")
         thr.join
-        puts resp.class
         expect(resp).to be_an_instance_of(Google::Protobuf::RepeatedField)
         expect(resp.last.kv.key).to eq('foo')  
       end
