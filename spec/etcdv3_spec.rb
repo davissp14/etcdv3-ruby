@@ -551,38 +551,159 @@ describe Etcdv3 do
         end
       end
 
-      describe '#transaction' do 
-        before { ns_conn.put('txn', 'value') }
-        after { ns_conn.del('txn') }
-        context 'success' do
-          subject! do
-            ns_conn.transaction do |txn|
-              txn.compare = [ txn.value('txn', :equal, 'value') ]
-              txn.success = [ txn.put('txn-test', 'success') ]
-              txn.failure = [ txn.put('txn-test', 'failed') ]
+      describe '#transaction' do
+        describe 'txn.value' do
+          before { ns_conn.put('txn', 'value') }
+          after { ns_conn.del('txn') }
+          context 'success' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.value('txn', :equal, 'value') ]
+                txn.success = [ txn.put('txn-test', 'success') ]
+                txn.failure = [ txn.put('txn-test', 'failed') ]
+              end
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('success')
+              expect(conn.get("/namespace/txn-test").kvs.first.value).to eq('success')
+            end
+            it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
+              expect do
+                ns_conn.transaction(timeout: 0) do |txn|
+                  txn.compare = [ txn.value('txn', :equal, 'value') ]
+                  txn.success = [ txn.put('txn-test', 'success') ]
+                  txn.failure = [ txn.put('txn-test', 'failed') ]
+                end
+              end.to raise_exception(GRPC::DeadlineExceeded)
+            end
+            it "accepts a timeout" do
+              expect do
+                ns_conn.transaction(timeout: 1) do |txn|
+                  txn.compare = [ txn.value('txn', :equal, 'value') ]
+                  txn.success = [ txn.put('txn-test', 'success') ]
+                  txn.failure = [ txn.put('txn-test', 'failed') ]
+                end
+              end.to_not raise_exception
             end
           end
-          it 'returns correct key based on namespace provided' do 
-            expect(ns_conn.get('txn-test').kvs.first.value).to eq('success')
-            expect(conn.get('/namespace/txn-test').kvs.first.value).to eq('success')
-          end
-          it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
-            expect do
-              ns_conn.transaction(timeout: 0) do |txn|
+          context "success, value with lease" do
+            let!(:lease_id) { ns_conn.lease_grant(2)['ID'] }
+            subject! do
+              ns_conn.transaction do |txn|
                 txn.compare = [ txn.value('txn', :equal, 'value') ]
+                txn.success = [ txn.put('txn-test', 'success', lease_id) ]
+                txn.failure = [ txn.put('txn-test', 'failed', lease_id) ]
+              end
+            end
+            it 'sets correct key, with a lease' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('success')
+              expect(ns_conn.get('txn-test').kvs.first.lease).to eq(lease_id)
+            end
+          end
+          context 'failure' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.value('txn', :equal, 'notright') ]
                 txn.success = [ txn.put('txn-test', 'success') ]
                 txn.failure = [ txn.put('txn-test', 'failed') ]
               end
-            end.to raise_exception(GRPC::DeadlineExceeded)
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('failed')
+            end
           end
-          it "accepts a timeout" do
-            expect do
-              ns_conn.transaction(timeout: 1) do |txn|
-                txn.compare = [ txn.value('txn', :equal, 'value') ]
+        end
+  
+        describe 'txn.create_revision' do
+          before { ns_conn.put('txn', 'value') }
+          after { ns_conn.del('txn') }
+          context 'success' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.create_revision('txn', :greater, 1) ]
                 txn.success = [ txn.put('txn-test', 'success') ]
                 txn.failure = [ txn.put('txn-test', 'failed') ]
               end
-            end.to_not raise_exception
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('success')
+            end
+          end
+          context 'failure' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.create_revision('txn', :equal, 1) ]
+                txn.success = [ txn.put('txn-test', 'success') ]
+                txn.failure = [ txn.put('txn-test', 'failed') ]
+              end
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('failed')
+              expect(conn.get('/namespace/txn-test').kvs.first.value).to eq('failed')
+            end
+          end
+        end
+  
+        describe 'txn.mod_revision' do
+          before { ns_conn.put('txn', 'value') }
+          after { ns_conn.del('txn') }
+          context 'success' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.mod_revision('txn', :less, 1000) ]
+                txn.success = [ txn.put('txn-test', 'success') ]
+                txn.failure = [ txn.put('txn-test', 'failed') ]
+              end
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('success')
+              expect(conn.get('/namespace/txn-test').kvs.first.value).to eq('success')
+            end
+          end
+          context 'failure' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.mod_revision('txn', :greater, 1000) ]
+                txn.success = [ txn.put('txn-test', 'success') ]
+                txn.failure = [ txn.put('txn-test', 'failed') ]
+              end
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('failed')
+              expect(conn.get('/namespace/txn-test').kvs.first.value).to eq('failed')
+
+            end
+          end
+        end
+  
+        describe 'txn.version' do
+          before { ns_conn.put('txn', 'value') }
+          after { ns_conn.del('txn') }
+          context 'success' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.version('txn', :equal, 1) ]
+                txn.success = [ txn.put('txn-test', 'success') ]
+                txn.failure = [ txn.put('txn-test', 'failed') ]
+              end
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('success')
+              expect(conn.get('/namespace/txn-test').kvs.first.value).to eq('success')
+            end
+          end
+          context 'failure' do
+            subject! do
+              ns_conn.transaction do |txn|
+                txn.compare = [ txn.version('txn', :equal, 100)]
+                txn.success = [ txn.put('txn-test', 'success') ]
+                txn.failure = [ txn.put('txn-test', 'failed') ]
+              end
+            end
+            it 'sets correct key' do
+              expect(ns_conn.get('txn-test').kvs.first.value).to eq('failed')
+              expect(conn.get('/namespace/txn-test').kvs.first.value).to eq('failed')
+            end
           end
         end
       end
