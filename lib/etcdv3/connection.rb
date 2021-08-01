@@ -1,6 +1,12 @@
 class Etcdv3
   class Connection
 
+    NAMESPACE_HANDLERS = {
+      kv: Etcdv3::Namespace::KV,
+      watch: Etcdv3::Namespace::Watch,
+      lock: Etcdv3::Namespace::Lock,
+    }
+
     HANDLERS = {
       auth: Etcdv3::Auth,
       kv: Etcdv3::KV,
@@ -10,11 +16,12 @@ class Etcdv3
       lock: Etcdv3::Lock,
     }
 
-    attr_reader :endpoint, :hostname, :handlers, :credentials
+    attr_reader :endpoint, :hostname, :handlers, :credentials, :namespace
 
-    def initialize(url, timeout, metadata={})
+    def initialize(url, timeout, namespace, metadata={})
       @endpoint = URI(url)
       @hostname = "#{@endpoint.hostname}:#{@endpoint.port}"
+      @namespace = namespace
       @credentials = resolve_credentials
       @timeout = timeout
       @handlers = handler_map(metadata)
@@ -31,11 +38,19 @@ class Etcdv3
     private
 
     def handler_map(metadata={})
-      Hash[
+      handlers = Hash[
         HANDLERS.map do |key, klass|
-          [key, klass.new("#{@hostname}", @credentials, @timeout, metadata)]
+          [key, klass.new(@hostname, @credentials, @timeout, metadata)]
         end
       ]
+      # Override any handlers that are namespace compatable.
+      if @namespace
+        NAMESPACE_HANDLERS.each do |key, klass|
+          handlers[key] = klass.new(@hostname, @credentials, @timeout, @namespace, metadata)
+        end
+      end
+      
+      handlers
     end
 
     def resolve_credentials

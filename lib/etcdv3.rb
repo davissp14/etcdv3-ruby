@@ -7,6 +7,14 @@ require 'etcdv3/auth'
 require 'etcdv3/kv/requests'
 require 'etcdv3/kv/transaction'
 require 'etcdv3/kv'
+
+require 'etcdv3/namespace/utilities'
+require 'etcdv3/namespace/kv/requests'
+require 'etcdv3/namespace/kv/transaction'
+require 'etcdv3/namespace/lock'
+require 'etcdv3/namespace/kv'
+require 'etcdv3/namespace/watch'
+
 require 'etcdv3/maintenance'
 require 'etcdv3/lease'
 require 'etcdv3/watch'
@@ -24,9 +32,11 @@ class Etcdv3
   def initialize(**options)
     @options = options
     @timeout = options[:command_timeout] || DEFAULT_TIMEOUT
+    @namespace = options[:namespace]
     @conn = ConnectionWrapper.new(
       @timeout,
       *sanitized_endpoints,
+      @namespace,
       @options.fetch(:allow_reconnect, true),
     )
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)

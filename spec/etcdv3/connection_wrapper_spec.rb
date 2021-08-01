@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Etcdv3::ConnectionWrapper do
   let(:conn) { local_connection }
   let(:endpoints) { ['http://localhost:2379', 'http://localhost:2389'] }
-  subject { Etcdv3::ConnectionWrapper.new(10, *endpoints, true) }
+  subject { Etcdv3::ConnectionWrapper.new(10, *endpoints, nil, true) }
 
   describe '#initialize' do
     it { is_expected.to have_attributes(user: nil, password: nil, token: nil) }
