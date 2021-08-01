@@ -20,9 +20,7 @@ class Etcdv3::KV
 
     attr_writer :compare, :success, :failure
 
-    def initialize(namespace=nil)
-      @namespace = namespace
-    end
+    def initialize; end
 
     def compare
       @compare ||= []
