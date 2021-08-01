@@ -37,20 +37,19 @@ class Etcdv3
     private
 
     def handler_map(metadata={})
-      h = Hash[
+      handlers = Hash[
         HANDLERS.map do |key, klass|
           [key, klass.new(@hostname, @credentials, @timeout, metadata)]
         end
       ]
-
+      # Override any handlers that are namespace compatable.
       if @namespace
         NAMESPACE_HANDLERS.each do |key, klass|
-          h[key] = klass.new(@hostname, @credentials, @timeout, @namespace, metadata)
+          handlers[key] = klass.new(@hostname, @credentials, @timeout, @namespace, metadata)
         end
       end
-
-      # Need to override certain handlers if namespace is present. 
-      h
+      
+      handlers
     end
 
     def resolve_credentials

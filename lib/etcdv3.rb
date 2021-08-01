@@ -8,7 +8,7 @@ require 'etcdv3/kv/requests'
 require 'etcdv3/kv/transaction'
 require 'etcdv3/kv'
 
-require 'etcdv3/namespace/util'
+require 'etcdv3/namespace/utilities'
 require 'etcdv3/namespace/kv/requests'
 require 'etcdv3/namespace/kv/transaction'
 require 'etcdv3/namespace/kv'

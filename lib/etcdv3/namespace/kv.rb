@@ -1,10 +1,9 @@
 class Etcdv3::Namespace
   class KV
-    include Etcdv3::Namespace::Util
     include Etcdv3::Namespace::KV::Requests
+    include Etcdv3::Namespace::Utilities
     include GRPC::Core::TimeConsts
   
-
     def initialize(hostname, credentials, timeout, namespace, metadata={})
       @stub = Etcdserverpb::KV::Stub.new(hostname, credentials)
       @timeout = timeout

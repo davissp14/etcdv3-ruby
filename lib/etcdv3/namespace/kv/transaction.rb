@@ -1,6 +1,6 @@
 class Etcdv3::Namespace::KV
   class Transaction
-    include Etcdv3::Namespace::Util
+    include Etcdv3::Namespace::Utilities
     include Etcdv3::Namespace::KV::Requests
 
     # Available comparison identifiers.

@@ -1,7 +1,7 @@
 class Etcdv3::Namespace
   class Watch
     include GRPC::Core::TimeConsts
-    include Etcdv3::Namespace::Util
+    include Etcdv3::Namespace::Utilities
 
     def initialize(hostname, credentials, timeout, namespace, metadata = {})
       @stub = Etcdserverpb::Watch::Stub.new(hostname, credentials)
@@ -13,6 +13,7 @@ class Etcdv3::Namespace
     def watch(key, range_end, start_revision, block, timeout: nil)
       key = prepend_prefix(@namespace, key)
       range_end = prepend_prefix(@namespace, range_end) if range_end
+
       create_req = Etcdserverpb::WatchCreateRequest.new(key: key)
       create_req.range_end = range_end if range_end
       create_req.start_revision = start_revision if start_revision
