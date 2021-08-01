@@ -2,6 +2,7 @@ class Etcdv3::Namespace
   module Utilities
     
     def prepend_prefix(prefix, key)
+      key = key.dup if key.frozen?
       key.prepend(prefix)
     end
 
@@ -16,6 +17,13 @@ class Etcdv3::Namespace
       resp
     end
 
+    def strip_prefix_from_lock(prefix, resp)
+      if resp.key
+        resp.key = resp.key.delete_prefix(prefix)
+      end
+      resp 
+    end
+
     def strip_prefix_from_events(prefix, events)
       events.each do |event|
         if event.kv
@@ -24,6 +32,7 @@ class Etcdv3::Namespace
         if event.prev_kv
           event.prev_kv.key = event.prev_kv.key.delete_prefix(prefix) 
         end
+        event 
       end
     end
 

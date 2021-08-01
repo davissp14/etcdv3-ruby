@@ -1,10 +1,12 @@
 require 'spec_helper'
 
-describe Etcdv3::Namespace::KV do
-  let(:stub) { local_namespace_stub(Etcdv3::Namespace::KV, 1, "/namespace/") }
-  let(:stub_no_namespace) { local_stub(Etcdv3::KV, 1) }
-
+describe Etcdv3::KV do
+  let(:stub) { local_namespace_stub(Etcdv3::Namespace::KV, 1, '/namespace/') }
   let(:lease_stub) { local_stub(Etcdv3::Lease, 1) }
+
+  it_should_behave_like "a method with a GRPC timeout", described_class, :get, :range, "key"
+  it_should_behave_like "a method with a GRPC timeout", described_class, :del, :delete_range, "key"
+  it_should_behave_like "a method with a GRPC timeout", described_class, :put, :put, "key", "val"
 
   it "should timeout transactions" do
     stub = local_namespace_stub(Etcdv3::Namespace::KV, 0, '/namespace/')
@@ -25,23 +27,8 @@ describe Etcdv3::Namespace::KV do
   end
 
   describe '#get' do
-    before do 
-      stub.put("test", "myvalue")
-    end
-
-    context 'namespaced' do 
-      subject { stub.get('test') }
-      it 'returns the correct value' do 
-        subject.kvs.last.key.should eq('test')
-      end
-    end
-
-    context 'w/o namespace' do 
-      subject { stub_no_namespace.get('/namespace/test') }
-      it 'returns the correct kv' do 
-        subject.kvs.last.key.should eq('/namespace/test')
-      end
-    end
+    subject { stub.get('test') }
+    it { is_expected.to be_an_instance_of(Etcdserverpb::RangeResponse) }
   end
 
   describe '#del' do

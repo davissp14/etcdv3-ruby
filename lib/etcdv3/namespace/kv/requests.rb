@@ -17,6 +17,11 @@ class Etcdv3::Namespace::KV
 
     def get_request(key, opts)
       key = prepend_prefix(@namespace, key)
+      
+      if opts[:range_end]
+        opts[:range_end] = prepend_prefix(@namespace, opts[:range_end])
+      end
+
       opts[:sort_order] = SORT_ORDER[opts[:sort_order]] \
         if opts[:sort_order]
       opts[:sort_target] = SORT_TARGET[opts[:sort_target]] \
@@ -25,9 +30,9 @@ class Etcdv3::Namespace::KV
       Etcdserverpb::RangeRequest.new(opts)
     end
 
-    def del_request(key, range_end="")
+    def del_request(key, range_end=nil)
       key = prepend_prefix(@namespace, key)
-      range_end = prepend_prefix(@namespace, range_end) unless range_end.empty?
+      range_end = prepend_prefix(@namespace, range_end) unless range_end
       Etcdserverpb::DeleteRangeRequest.new(key: key, range_end: range_end)
     end
 

@@ -10,10 +10,9 @@ class Etcdv3::Namespace
       @metadata = metadata
     end
 
-    def watch(key, range_end, start_revision, block, timeout: nil)
+    def watch(key, range_end, start_revision, block, timeout: nil)      
       key = prepend_prefix(@namespace, key)
       range_end = prepend_prefix(@namespace, range_end) if range_end
-
       create_req = Etcdserverpb::WatchCreateRequest.new(key: key)
       create_req.range_end = range_end if range_end
       create_req.start_revision = start_revision if start_revision

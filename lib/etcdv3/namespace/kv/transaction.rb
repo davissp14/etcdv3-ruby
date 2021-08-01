@@ -21,7 +21,7 @@ class Etcdv3::Namespace::KV
 
     attr_writer :compare, :success, :failure
 
-    def initialize(namespace=nil)
+    def initialize(namespace)
       @namespace = namespace
     end
 
@@ -79,7 +79,7 @@ class Etcdv3::Namespace::KV
     private
 
     def generate_compare(target_union, key, compare_type, value)
-      key = prepend_prefix(@namespace, key)
+      key = prepend_prefix(@namespace, key)    
       Etcdserverpb::Compare.new(
         key: key,
         result: COMPARISON_IDENTIFIERS[compare_type],

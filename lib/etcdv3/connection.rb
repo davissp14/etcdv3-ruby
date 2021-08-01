@@ -4,6 +4,7 @@ class Etcdv3
     NAMESPACE_HANDLERS = {
       kv: Etcdv3::Namespace::KV,
       watch: Etcdv3::Namespace::Watch,
+      lock: Etcdv3::Namespace::Lock,
     }
 
     HANDLERS = {

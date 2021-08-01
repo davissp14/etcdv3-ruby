@@ -28,12 +28,12 @@ class Etcdv3::Namespace
     end
 
     def transaction(block, timeout: nil)
-      txn = Etcdv3::KV::Transaction.new()
+      txn = Etcdv3::Namespace::KV::Transaction.new(@namespace)
       block.call(txn)
       request = Etcdserverpb::TxnRequest.new(
         compare: txn.compare,
         success: generate_request_ops(txn.success),
-        failure: generate_request_ops(txn.failure)
+        failure: generate_request_ops(txn.failure),
       )
       resp = @stub.txn(request, metadata: @metadata, deadline: deadline(timeout))
       strip_prefix(@namespace, resp)

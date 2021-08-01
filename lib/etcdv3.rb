@@ -11,6 +11,7 @@ require 'etcdv3/kv'
 require 'etcdv3/namespace/utilities'
 require 'etcdv3/namespace/kv/requests'
 require 'etcdv3/namespace/kv/transaction'
+require 'etcdv3/namespace/lock'
 require 'etcdv3/namespace/kv'
 require 'etcdv3/namespace/watch'
 
