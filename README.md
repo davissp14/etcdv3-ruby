@@ -26,6 +26,9 @@ conn = Etcdv3.new(endpoints: 'https://hostname:port')
 # Secure connection with Auth
 conn = Etcdv3.new(endpoints: 'https://hostname:port', user: 'root', password: 'mysecretpassword')
 
+# Scope CRUD operations to a specific keyspace. 
+conn = Etcdv3.new(endpoints: 'https://hostname:port', namespace: "/target_keyspace/")
+
 # Secure connection specifying custom certificates
 # Coming soon...
 
@@ -47,6 +50,24 @@ rotated) is tried. One thing you need to keep in mind if auth is enabled, you
 need to take care of `GRPC::Unauthenticated` exception and manually re-authenticate 
 when token expires. To reiterate, you are responsible for handling the errors, so 
 some understanding of how this gem and etcd works is recommended.
+
+## Namespace support
+
+Namespacing is a convenience feature used to scope CRUD based operations to a specific keyspace.
+
+```ruby
+# Establish connection
+conn = Etcdv3.new(endpoints: 'https://hostname:port', namespace: '/service-a/')
+
+# Write key to /service-a/test_key
+conn.put("test_key", "value"). 
+
+# Get the key we just wrote.
+conn.get("test_key")
+```
+
+_Note: Namespaces are stripped from responses._
+
 
 ## Adding, Fetching and Deleting Keys
 ```ruby
