@@ -3,8 +3,6 @@ class Etcdv3::Namespace
     
     def prepend_prefix(prefix, key)
       key.prepend(prefix)
-    rescue 
-      puts "Prefix: #{prefix}, Key: #{key}"
     end
 
     def strip_prefix(prefix, resp)
