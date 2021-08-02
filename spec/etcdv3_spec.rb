@@ -544,7 +544,6 @@ describe Etcdv3 do
 
       describe '#put' do
         before do
-
           ns_conn.put('apple_put', 'test')
         end
         it 'returns key with namespace' do 
@@ -554,15 +553,32 @@ describe Etcdv3 do
 
       describe '#del' do 
         let(:del_conn) { local_connection_with_namespace("/del-test/") }
-        before do 
-          del_conn.put('test', "key")
-          del_conn.put('test2', "key2")
-          conn.put('wall', 'zzzz')
+        
+        context 'zero-byte' do 
+          before do 
+            del_conn.put('test', "key")
+            del_conn.put('test2', "key2")
+            conn.put('wall', 'zzzz')
+          end
+          it 'deleting all keys should be scoped to namespace' do 
+            resp = del_conn.del('', range_end: "\0")
+            expect(resp.deleted).to eq(2)
+          end
         end
 
-        it 'deleting all keys should be scoped to namespace' do 
-          resp = del_conn.del('', range_end: "\0")
-          expect(resp.deleted).to eq(2)
+        context 'no range' do
+          before { del_conn.put('test', 'value') }
+          subject { del_conn.del('test') }
+          it { is_expected.to_not be_nil }
+        end
+
+        context 'ranged del' do
+          before do
+            del_conn.put('test', 'value')
+            del_conn.put('testt', 'value')
+          end
+          subject { del_conn.del('test', range_end: 'testtt') }
+          it { is_expected.to_not be_nil }
         end
       end
 
@@ -692,12 +708,12 @@ describe Etcdv3 do
         end
   
         describe 'txn.version' do
-          before { ns_conn.put('txn', 'value') }
-          after { ns_conn.del('txn') }
+          before { ns_conn.put('txn-version', 'value') }
+          after { ns_conn.del('txn-version') }
           context 'success' do
             subject! do
               ns_conn.transaction do |txn|
-                txn.compare = [ txn.version('txn', :equal, 1) ]
+                txn.compare = [ txn.version('txn-version', :equal, 1) ]
                 txn.success = [ txn.put('txn-test', 'success') ]
                 txn.failure = [ txn.put('txn-test', 'failed') ]
               end
