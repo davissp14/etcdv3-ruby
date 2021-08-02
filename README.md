@@ -64,6 +64,12 @@ conn.put("test_key", "value").
 
 # Get the key we just wrote.
 conn.get("test_key")
+
+# Retrieve everything under the namespace.
+conn.get("", "\0") 
+
+# Delete everything under the namespace.
+conn.del("", "\0")
 ```
 
 _Note: Namespaces are stripped from responses._
