@@ -17,6 +17,14 @@ class Etcdv3::Namespace::KV
 
     def get_request(key, opts)
       key = prepend_prefix(@namespace, key)
+     
+      # In order to enforce the scope of the specified namespace, we are going to
+      # intercept the zero-byte reference and re-target everything under the given namespace.
+      if opts[:range_end] =~ /\x00/
+        opts[:range_end] = (@namespace[0..-2] + (@namespace[-1].ord + 1).chr)
+      else 
+        opts[:range_end] = prepend_prefix(@namespace, range_end) if range_end
+      end
       opts[:range_end] = prepend_prefix(@namespace, opts[:range_end]) \
         if opts[:range_end]
       opts[:sort_order] = SORT_ORDER[opts[:sort_order]] \
@@ -29,7 +37,13 @@ class Etcdv3::Namespace::KV
 
     def del_request(key, range_end=nil)
       key = prepend_prefix(@namespace, key)
-      range_end = prepend_prefix(@namespace, range_end) unless range_end
+      # In order to enforce the scope of the specified namespace, we are going to
+      # intercept the zero-byte reference and re-target everything under the given namespace.
+      if range_end =~ /\x00/
+        range_end = (@namespace[0..-2] + (@namespace[-1].ord + 1).chr)
+      else 
+        range_end = prepend_prefix(@namespace, range_end) if range_end
+      end
       Etcdserverpb::DeleteRangeRequest.new(key: key, range_end: range_end)
     end
 

@@ -544,10 +544,25 @@ describe Etcdv3 do
 
       describe '#put' do
         before do
+
           ns_conn.put('apple_put', 'test')
         end
         it 'returns key with namespace' do 
           expect(conn.get("/namespace/apple_put").kvs.last.value).to eq('test')
+        end
+      end
+
+      describe '#del' do 
+        let(:del_conn) { local_connection_with_namespace("/del-test/") }
+        before do 
+          del_conn.put('test', "key")
+          del_conn.put('test2', "key2")
+          conn.put('wall', 'zzzz')
+        end
+
+        it 'deleting all keys should be scoped to namespace' do 
+          resp = del_conn.del('', range_end: "\0")
+          expect(resp.deleted).to eq(2)
         end
       end
 
