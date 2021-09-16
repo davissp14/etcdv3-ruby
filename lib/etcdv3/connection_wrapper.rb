@@ -14,7 +14,13 @@ class Etcdv3
 
     private def retry_or_raise(*args)
       if @allow_reconnect
-        handle(*args)
+        *args, kwargs = args if args.last.class == Hash
+
+        if kwargs.nil?
+          handle(*args)
+        else
+          handle(*args, **kwargs)
+        end
       else
         raise
       end

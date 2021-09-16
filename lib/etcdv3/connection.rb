@@ -28,7 +28,13 @@ class Etcdv3
     end
 
     def call(stub, method, method_args=[])
-      @handlers.fetch(stub).send(method, *method_args)
+      *method_args, method_kwargs = method_args if method_args.last.class == Hash
+
+      if method_kwargs.nil?
+        @handlers.fetch(stub).send(method, *method_args)
+      else
+        @handlers.fetch(stub).send(method, *method_args, **method_kwargs)
+      end
     end
 
     def refresh_metadata(metadata)

@@ -32,13 +32,13 @@ shared_examples_for "Etcdv3 instance using a timeout" do |command, *args|
   it "raises a GRPC::DeadlineExceeded exception when it takes too long"  do
     expect do
       test_args = args.dup
-      test_args.push({timeout: 0})
-      conn.public_send(command, *test_args)
+      test_kwargs = {timeout: 0}
+      conn.public_send(command, *test_args, **test_kwargs)
     end.to raise_exception(GRPC::DeadlineExceeded)
   end
   it "accepts a timeout" do
     test_args = args.dup
-    test_args.push({timeout: 10})
-    expect{ conn.public_send(command, *test_args) }.to_not raise_exception
+    test_kwargs = {timeout: 10}
+    expect{ conn.public_send(command, *test_args, **test_kwargs) }.to_not raise_exception
   end
 end
