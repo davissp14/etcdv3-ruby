@@ -293,7 +293,7 @@ describe Etcdv3 do
     describe '#role_grant_permission' do
       before { conn.role_add('grant') }
       after { conn.role_delete('grant') }
-      subject { conn.role_grant_permission('grant', :readwrite, 'a', {range_end: 'Z'}) }
+      subject { conn.role_grant_permission('grant', :readwrite, 'a', **{range_end: 'Z'}) }
       it { is_expected.to_not be_nil }
       it_should_behave_like "Etcdv3 instance using a timeout", :role_grant_permission, 'grant', :readwrite, 'a'
     end
