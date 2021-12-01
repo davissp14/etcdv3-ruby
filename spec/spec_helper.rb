@@ -11,12 +11,14 @@ SimpleCov.formatter = SimpleCov::Formatter::Codecov
 require 'etcdv3'
 require 'helpers/test_instance'
 require 'helpers/connections'
+require 'helpers/metadata_passthrough'
 require 'helpers/shared_examples_for_timeout'
 
 $instance = Helpers::TestInstance.new
 
 RSpec.configure do |config|
   config.include(Helpers::Connections)
+  config.include(Helpers::MetadataPassthrough)
 
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true

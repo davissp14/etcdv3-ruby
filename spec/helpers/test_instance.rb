@@ -3,10 +3,12 @@ require 'tmpdir'
 require 'socket'
 require 'timeout'
 require 'helpers/connections'
+require 'helpers/metadata_passthrough'
 
 module Helpers
   class TestInstance
     include Helpers::Connections
+    include Helpers::MetadataPassthrough
 
     class InvalidVersionException < StandardError; end
     class PortInUseException < StandardError; end

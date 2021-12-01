@@ -13,14 +13,14 @@ class Etcdv3::Namespace
     def lock(name, lease_id, timeout: nil)
       name = prepend_prefix(@namespace, name)
       request = V3lockpb::LockRequest.new(name: name, lease: lease_id)
-      resp = @stub.lock(request, deadline: deadline(timeout))
+      resp = @stub.lock(request, metadata: @metadata, deadline: deadline(timeout))
       strip_prefix_from_lock(@namespace, resp)
     end
 
     def unlock(key, timeout: nil)
       key = prepend_prefix(@namespace, key)
       request = V3lockpb::UnlockRequest.new(key: key)
-      @stub.unlock(request, deadline: deadline(timeout))
+      @stub.unlock(request, metadata: @metadata, deadline: deadline(timeout))
     end
 
     private

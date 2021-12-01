@@ -10,12 +10,12 @@ class Etcdv3
 
     def lock(name, lease_id, timeout: nil)
       request = V3lockpb::LockRequest.new(name: name, lease: lease_id)
-      @stub.lock(request, deadline: deadline(timeout))
+      @stub.lock(request, metadata: @metadata, deadline: deadline(timeout))
     end
 
     def unlock(key, timeout: nil)
       request = V3lockpb::UnlockRequest.new(key: key)
-      @stub.unlock(request, deadline: deadline(timeout))
+      @stub.unlock(request, metadata: @metadata, deadline: deadline(timeout))
     end
 
     private

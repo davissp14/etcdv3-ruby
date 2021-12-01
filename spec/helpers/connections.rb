@@ -21,8 +21,16 @@ module Helpers
       interface.new(local_url, :this_channel_is_insecure, timeout, {})
     end
 
+    def local_stub_with_metadata(interface, timeout: nil, metadata: {})
+      interface.new(local_url, :this_channel_is_insecure, timeout, metadata)
+    end
+
     def local_namespace_stub(interface, timeout=nil, namespace)
       interface.new(local_url, :this_channel_is_insecure, timeout, namespace, {})
+    end
+
+    def local_namespace_stub_with_metadata(interface, timeout: nil, namespace:, metadata: {})
+      interface.new(local_url, :this_channel_is_insecure, timeout, namespace, metadata)
     end
 
     def local_url
