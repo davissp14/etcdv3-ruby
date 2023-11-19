@@ -3,11 +3,11 @@ class Etcdv3
 
     attr_accessor :connection, :endpoints, :user, :password, :token, :timeout
 
-    def initialize(timeout, *endpoints, namespace, allow_reconnect)
+    def initialize(timeout, *endpoints, namespace, allow_reconnect, **kwargs)
       @user, @password, @token = nil, nil, nil
       @timeout = timeout
       @namespace = namespace
-      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint, @timeout, @namespace) }
+      @endpoints = endpoints.map{|endpoint| Etcdv3::Connection.new(endpoint, @timeout, @namespace, {}, kwargs.fetch(:grpc_options, {})) }
       @allow_reconnect = allow_reconnect
       @connection = @endpoints.first
     end
