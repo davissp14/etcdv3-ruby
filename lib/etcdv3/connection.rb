@@ -18,12 +18,13 @@ class Etcdv3
 
     attr_reader :endpoint, :hostname, :handlers, :credentials, :namespace
 
-    def initialize(url, timeout, namespace, metadata={})
+    def initialize(url, timeout, namespace, metadata={}, grpc_options={})
       @endpoint = URI(url)
       @hostname = "#{@endpoint.hostname}:#{@endpoint.port}"
       @namespace = namespace
       @credentials = resolve_credentials
       @timeout = timeout
+      @grpc_options = grpc_options
       @handlers = handler_map(metadata)
     end
 
@@ -46,13 +47,13 @@ class Etcdv3
     def handler_map(metadata={})
       handlers = Hash[
         HANDLERS.map do |key, klass|
-          [key, klass.new(@hostname, @credentials, @timeout, metadata)]
+          [key, klass.new(@hostname, @credentials, @timeout, metadata, @grpc_options)]
         end
       ]
       # Override any handlers that are namespace compatable.
       if @namespace
         NAMESPACE_HANDLERS.each do |key, klass|
-          handlers[key] = klass.new(@hostname, @credentials, @timeout, @namespace, metadata)
+          handlers[key] = klass.new(@hostname, @credentials, @timeout, @namespace, metadata, @grpc_options)
         end
       end
       

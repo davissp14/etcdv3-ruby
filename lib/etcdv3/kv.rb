@@ -4,8 +4,8 @@ class Etcdv3
     include Etcdv3::KV::Requests
     include GRPC::Core::TimeConsts
 
-    def initialize(hostname, credentials, timeout, metadata={})
-      @stub = Etcdserverpb::KV::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+    def initialize(hostname, credentials, timeout, metadata={}, grpc_options={})
+      @stub = Etcdserverpb::KV::Stub.new(hostname, credentials, **grpc_options)
       @timeout = timeout
       @metadata = metadata
     end

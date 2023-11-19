@@ -12,8 +12,8 @@ class Etcdv3
       deactivate: 2
     }
 
-    def initialize(hostname, credentials, _timeout, metadata = {})
-      @stub = Etcdserverpb::Maintenance::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+    def initialize(hostname, credentials, _timeout, metadata = {}, grpc_options = {})
+      @stub = Etcdserverpb::Maintenance::Stub.new(hostname, credentials, **grpc_options)
       @metadata = metadata
     end
 

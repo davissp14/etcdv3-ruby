@@ -38,6 +38,7 @@ class Etcdv3
       *sanitized_endpoints,
       @namespace,
       @options.fetch(:allow_reconnect, true),
+      grpc_options: @options.fetch(:grpc_options, {}),
     )
     warn "WARNING: `url` is deprecated. Please use `endpoints` instead." if @options.key?(:url)
     authenticate(@options[:user], @options[:password]) if @options.key?(:user)

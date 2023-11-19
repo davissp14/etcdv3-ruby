@@ -9,8 +9,8 @@ class Etcdv3
       :readwrite => Authpb::Permission::Type::READWRITE
     }
 
-    def initialize(hostname, credentials, timeout, metadata = {})
-      @stub = Etcdserverpb::Auth::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+    def initialize(hostname, credentials, timeout, metadata = {}, grpc_options = {})
+      @stub = Etcdserverpb::Auth::Stub.new(hostname, credentials, **grpc_options)
       @timeout = timeout
       @metadata = metadata
     end

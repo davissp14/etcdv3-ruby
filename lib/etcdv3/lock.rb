@@ -2,8 +2,8 @@ class Etcdv3
   class Lock
     include GRPC::Core::TimeConsts
 
-    def initialize(hostname, credentials, timeout, metadata = {})
-      @stub = V3lockpb::Lock::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+    def initialize(hostname, credentials, timeout, metadata = {}, grpc_options = {})
+      @stub = V3lockpb::Lock::Stub.new(hostname, credentials, **grpc_options)
       @timeout = timeout
       @metadata = metadata
     end
