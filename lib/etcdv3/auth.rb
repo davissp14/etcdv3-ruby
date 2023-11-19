@@ -10,7 +10,7 @@ class Etcdv3
     }
 
     def initialize(hostname, credentials, timeout, metadata = {})
-      @stub = Etcdserverpb::Auth::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+      @stub = Etcdserverpb::Auth::Stub.new(hostname, credentials)
       @timeout = timeout
       @metadata = metadata
     end

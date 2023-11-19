@@ -4,7 +4,7 @@ class Etcdv3::Namespace
     include Etcdv3::Namespace::Utilities
 
     def initialize(hostname, credentials, timeout, namespace, metadata = {})
-      @stub = V3lockpb::Lock::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+      @stub = V3lockpb::Lock::Stub.new(hostname, credentials)
       @timeout = timeout
       @namespace = namespace
       @metadata = metadata

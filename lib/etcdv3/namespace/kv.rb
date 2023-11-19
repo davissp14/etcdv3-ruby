@@ -5,7 +5,7 @@ class Etcdv3::Namespace
     include GRPC::Core::TimeConsts
   
     def initialize(hostname, credentials, timeout, namespace, metadata={})
-      @stub = Etcdserverpb::KV::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+      @stub = Etcdserverpb::KV::Stub.new(hostname, credentials)
       @timeout = timeout
       @namespace = namespace
       @metadata = metadata

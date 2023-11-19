@@ -13,7 +13,7 @@ class Etcdv3
     }
 
     def initialize(hostname, credentials, _timeout, metadata = {})
-      @stub = Etcdserverpb::Maintenance::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+      @stub = Etcdserverpb::Maintenance::Stub.new(hostname, credentials)
       @metadata = metadata
     end
 

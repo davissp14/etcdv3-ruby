@@ -3,7 +3,7 @@ class Etcdv3
     include GRPC::Core::TimeConsts
 
     def initialize(hostname, credentials, timeout, metadata={})
-      @stub = Etcdserverpb::Lease::Stub.new(hostname, credentials, **metadata.delete(:client_options) || {})
+      @stub = Etcdserverpb::Lease::Stub.new(hostname, credentials)
       @timeout = timeout
       @metadata = metadata
     end
