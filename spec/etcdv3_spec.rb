@@ -578,8 +578,11 @@ describe Etcdv3 do
 
         context 'no range' do
           before { del_conn.put('test', 'value') }
-          subject { del_conn.del('test') }
-          it { is_expected.to_not be_nil }
+          it 'deleting key should be scoped to namespace' do
+            resp = del_conn.del('test')
+            expect(resp.deleted).to eq(1)
+            expect(del_conn.get('test').kvs).to be_empty
+          end
         end
 
         context 'ranged del' do
@@ -587,8 +590,11 @@ describe Etcdv3 do
             del_conn.put('test', 'value')
             del_conn.put('testt', 'value')
           end
-          subject { del_conn.del('test', range_end: 'testtt') }
-          it { is_expected.to_not be_nil }
+          it 'deleting keys should be scoped to namespace' do
+            resp = del_conn.del('test', range_end: 'testtt')
+            expect(resp.deleted).to eq(2)
+            expect(del_conn.get('test', range_end: 'testtt').kvs).to be_empty
+          end
         end
       end
 
